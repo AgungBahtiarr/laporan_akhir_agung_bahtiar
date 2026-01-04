@@ -1,0 +1,181 @@
+% ============================================
+% TEMPLATE TUGAS AKHIR POLIWANGI 2023
+% Sesuai Pedoman Mutu TA Poliwangi
+% ============================================
+
+\documentclass[12pt,a4paper,oneside]{report}
+
+% ============================================
+% 1. PACKAGE WAJIB
+% ============================================
+\usepackage[bahasa]{babel}      % Bahasa Indonesia
+\usepackage[utf8]{inputenc}
+\usepackage{mathptmx}           % Font Times New Roman (Teks & Math)
+\usepackage{geometry}           % Pengaturan Margin
+\usepackage{setspace}           % Pengaturan Spasi
+\usepackage{graphicx}           % Untuk Gambar
+\usepackage[hidelinks]{hyperref}
+\usepackage{caption}            % Custom Caption
+\usepackage{subcaption}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{longtable}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{titlesec}           % Custom Judul Bab
+\usepackage{microtype}
+
+% [PENTING] Opsi 'titles' agar judul TOC ikut gaya titlesec (Center)
+\usepackage[titles]{tocloft}
+
+\usepackage{apacite}            % Wajib APA Style
+\usepackage{indentfirst}        % Indentasi pada paragraf pertama
+
+% ============================================
+% 2. PENGATURAN MARGIN (Sesuai Lampiran 1)
+% ============================================
+\geometry{
+    top=2cm,       % ATAS 2 CM
+    left=3cm,      % KIRI 3 CM
+    right=2cm,     % KANAN 2 CM
+    bottom=2cm,    % BAWAH 2 CM
+    headheight=15pt
+}
+
+% ============================================
+% 3. PENGATURAN SPASI & PARAGRAF
+% ============================================
+\setstretch{1.5}                % Spasi 1.5
+\setlength{\parindent}{1.25cm}  % Indentasi baris pertama 1.25 cm
+\setlength{\parskip}{0pt}       % Tidak ada spasi tambahan antar paragraf
+
+% ============================================
+% 4. PENGATURAN JUDUL BAB (CHAPTER) & SUB-BAB
+% ============================================
+% Format Judul Bab: 14pt, Bold, Center, Uppercase
+\titleformat{\chapter}[display]
+    {\normalfont\fontsize{14}{16}\bfseries\centering}
+    {\chaptertitlename\ \thechapter}{0pt}{\fontsize{14}{16}\bfseries\uppercase}
+
+% Format Sub-Bab: 12pt, Bold
+\titleformat{\section}
+    {\normalfont\fontsize{12}{14}\bfseries}
+    {\thesection}{1em}{}
+
+\titleformat{\subsection}
+    {\normalfont\fontsize{12}{14}\bfseries}
+    {\thesubsection}{1em}{}
+
+% Jarak Spasi Judul Bab
+\titlespacing*{\chapter}{0pt}{-20pt}{20pt}
+\titlespacing*{\section}{0pt}{12pt}{6pt}
+\titlespacing*{\subsection}{0pt}{12pt}{6pt}
+
+% ============================================
+% 5. PENGATURAN DAFTAR ISI/TABEL/GAMBAR
+% ============================================
+\renewcommand{\contentsname}{DAFTAR ISI}
+\renewcommand{\listfigurename}{DAFTAR GAMBAR}
+\renewcommand{\listtablename}{DAFTAR TABEL}
+\renewcommand{\bibname}{DAFTAR PUSTAKA}
+
+% Menambahkan titik-titik (leaders) pada Bab di Daftar Isi
+\renewcommand{\cftchapleader}{\cftdotfill{\cftdotsep}}
+
+% ============================================
+% 6. PENGATURAN CAPTION (TABEL & GAMBAR)
+% ============================================
+% Tabel: Judul di atas, rata kiri
+\captionsetup[table]{
+    labelsep=space,
+    justification=raggedright,
+    singlelinecheck=false,
+    position=top,
+    font=normalsize
+}
+
+% Gambar: Judul di bawah, Center
+\captionsetup[figure]{
+    labelsep=space,
+    justification=centering,
+    position=bottom,
+    font=normalsize
+}
+
+% ============================================
+% 7. PENGATURAN NOMOR HALAMAN
+% ============================================
+\pagestyle{plain} % Bawah Tengah
+
+\newcommand{\frontmatter}{
+    \pagenumbering{roman}   % Romawi (i, ii)
+    \setcounter{page}{1}
+}
+
+\newcommand{\mainmatter}{
+    \clearpage
+    \pagenumbering{arabic}  % Arab (1, 2)
+    \setcounter{page}{1}
+}
+
+% ============================================
+% 8. IDENTITAS DOKUMEN & VARIABEL
+% ============================================
+\newcommand{\judulTA}{SISTEM REKOMENDASI JALUR OPTIMAL UNTUK TRAFFIC ENGINEERING JARINGAN LAYER 2 BERBASIS GRAPH ATTENTION NETWORK}
+\newcommand{\namaMahasiswa}{AGUNG BAHTIAR}
+\newcommand{\nimMahasiswa}{362258302093}
+\newcommand{\prodiMahasiswa}{TEKNIK INFORMATIKA}
+\newcommand{\tahunPengajuan}{2026}
+\newcommand{\pembimbingSatu}{Nama Pembimbing 1, M.T.}
+\newcommand{\pembimbingDua}{Nama Pembimbing 2, M.Kom.}
+
+% ============================================
+% START DOCUMENT
+% ============================================
+\begin{document}
+
+% BAGIAN AWAL
+\frontmatter
+\input{chapters/00-cover}
+\setcounter{page}{2}            % Mulai halaman ii
+\input{chapters/04-pengesahan}
+\input{chapters/03-pernyataan}
+\input{chapters/05-abstrak-id}
+\input{chapters/06-abstrak-en}
+\input{chapters/07-kata-pengantar}
+
+% DAFTAR ISI dkk
+\clearpage
+\addcontentsline{toc}{chapter}{DAFTAR ISI}
+\tableofcontents
+
+\clearpage
+\addcontentsline{toc}{chapter}{DAFTAR TABEL}
+\listoftables
+
+\clearpage
+\addcontentsline{toc}{chapter}{DAFTAR GAMBAR}
+\listoffigures
+
+% BAGIAN UTAMA
+\mainmatter
+\input{chapters/01-bab1}
+\input{chapters/02-bab2}
+\input{chapters/03-bab3}
+\input{chapters/04-bab4}
+\input{chapters/05-bab5}
+
+% BAGIAN AKHIR
+\clearpage
+\bibliographystyle{apacite}
+\addcontentsline{toc}{chapter}{DAFTAR PUSTAKA}
+\bibliography{references}
+
+\appendix
+\titleformat{\chapter}[display]
+    {\normalfont\fontsize{14}{16}\bfseries\centering}
+    {\chaptertitlename\ \thechapter}{0pt}{\fontsize{14}{16}\bfseries\uppercase}
+\input{chapters/lampiran}
+
+\end{document}

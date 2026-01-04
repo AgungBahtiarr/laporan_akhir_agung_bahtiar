@@ -1,0 +1,77 @@
+% ============================================
+% LAMPIRAN
+% ============================================
+
+\chapter*{LAMPIRAN}
+\addcontentsline{toc}{chapter}{LAMPIRAN}
+
+\section*{Lampiran 1: Kode Program}
+
+\begin{verbatim}
+// Contoh kode program
+function calculateAccuracy(predicted, actual) {
+    let correct = 0;
+    for (let i = 0; i < predicted.length; i++) {
+        if (predicted[i] === actual[i]) {
+            correct++;
+        }
+    }
+    return (correct / predicted.length) * 100;
+}
+\end{verbatim}
+
+\section*{Lampiran 2: Hasil Pengujian Detail}
+
+\begin{table}[htbp]
+    \centering
+    \caption{Detail Hasil Pengujian}
+    \begin{tabular}{|c|c|c|c|c|}
+        \hline
+        \textbf{Test} & \textbf{Input} & \textbf{Expected} & \textbf{Actual} & \textbf{Status} \\
+        \hline
+        1 & Data A & Result A & Result A & Pass \\
+        \hline
+        2 & Data B & Result B & Result B & Pass \\
+        \hline
+        3 & Data C & Result C & Result C & Pass \\
+        \hline
+    \end{tabular}
+\end{table}
+
+\section*{Lampiran 3: Dokumentasi Sistem}
+
+\begin{figure}[htbp]
+    \centering
+    % \includegraphics[width=0.8\textwidth]{images/screenshot-sistem.png}
+    \caption{Screenshot Tampilan Sistem}
+\end{figure}
+
+\section*{Lampiran 4: Surat Keterangan/Izin Penelitian}
+
+% Scan surat izin penelitian di sini
+
+\section*{Lampiran 5: Kuesioner (Jika Ada)}
+
+\textbf{Kuesioner Kepuasan Pengguna}
+
+\begin{enumerate}
+    \item Bagaimana penilaian Anda terhadap kemudahan penggunaan sistem?
+    \begin{itemize}
+        \item[$\square$] Sangat Mudah
+        \item[$\square$] Mudah
+        \item[$\square$] Cukup
+        \item[$\square$] Sulit
+        \item[$\square$] Sangat Sulit
+    \end{itemize}
+
+    \item Bagaimana penilaian Anda terhadap kecepatan sistem?
+    \begin{itemize}
+        \item[$\square$] Sangat Cepat
+        \item[$\square$] Cepat
+        \item[$\square$] Cukup
+        \item[$\square$] Lambat
+        \item[$\square$] Sangat Lambat
+    \end{itemize}
+\end{enumerate}
+
+\textit{Catatan: Tambahkan lampiran lain sesuai kebutuhan penelitian Anda}

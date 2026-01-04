@@ -1,0 +1,113 @@
+# ============================================
+# .gitignore untuk LaTeX Project
+# Tugas Akhir Poliwangi
+# ============================================
+
+# ============================================
+# LaTeX Temporary Files
+# ============================================
+*.aux
+*.lof
+*.log
+*.lot
+*.fls
+*.out
+*.toc
+*.fmt
+*.fot
+*.cb
+*.cb2
+.*.lb
+
+# ============================================
+# BibTeX Files
+# ============================================
+*.bbl
+*.bcf
+*.blg
+*-blx.aux
+*-blx.bib
+*.run.xml
+
+# ============================================
+# Build Files
+# ============================================
+*.dvi
+*.ps
+*.pdf
+# Uncomment jika ingin track PDF:
+# !main.pdf
+
+# ============================================
+# Backup Files
+# ============================================
+*~
+*.backup
+*.bak
+*.sav
+
+# ============================================
+# OS Generated Files
+# ============================================
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Linux
+*~
+.directory
+.Trash-*
+
+# ============================================
+# Editor Files
+# ============================================
+
+# TeXstudio
+*.tps
+*.tcp
+*.txss
+
+# Texmaker
+*.user
+
+# VS Code
+.vscode/
+*.code-workspace
+
+# Overleaf
+.texpadtmp
+
+# ============================================
+# Build Directories
+# ============================================
+build/
+output/
+dist/
+
+# ============================================
+# Other
+# ============================================
+*.synctex.gz
+*.synctex.gz(busy)
+*.pdfsync
+*.alg
+*.loa
+*.nav
+*.snm
+*.vrb
+
+# ============================================
+# Keep These
+# ============================================
+!.gitignore
+!README.md
+!Makefile
