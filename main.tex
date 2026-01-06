@@ -25,7 +25,74 @@
 \usepackage{multirow}
 \usepackage{titlesec}           % Custom Judul Bab
 \usepackage{microtype}
+\usepackage{tikz}
+\usepackage{float}   
+\usepackage{graphicx} 
+% Baris di bawah ini SANGAT PENTING, jangan sampai ada yang kurang:
+\usetikzlibrary{shapes, arrows, positioning, fit, calc, backgrounds}
 
+% Definisi style (Pastikan ini juga ada)
+\tikzset{
+    % Style Kotak Biasa
+    box/.style={
+        rectangle,
+        draw=black,
+        rounded corners,
+        align=center,      % <-- PENTING: Agar bisa pakai enter (\\)
+        minimum height=1cm,
+        minimum width=2.5cm,
+        font=\small
+    },
+    % Style Input/Output (Jajargenjang/Trapesium)
+    io/.style={
+        trapezium,
+        trapezium left angle=70,
+        trapezium right angle=110,
+        draw=black,
+        fill=white,
+        align=center,      % <-- PENTING
+        minimum height=1cm,
+        minimum width=2.5cm,
+        font=\small
+    },
+    % Style Proses (Persegi Panjang)
+    process/.style={
+        rectangle,
+        draw=black,
+        fill=white,
+        align=center,      % <-- PENTING
+        minimum height=1cm,
+        minimum width=2.5cm,
+        font=\small
+    },
+    % Style Decision (Belah Ketupat)
+    decision/.style={
+        diamond,
+        draw=black,
+        fill=white,
+        align=center,      % <-- PENTING
+        aspect=2,
+        font=\small
+    },
+    % Style Group Box (Garis Putus-putus)
+    groupbox/.style={
+        rectangle,
+        draw=black,
+        dashed,
+        inner sep=0.5cm,
+        rounded corners
+    },
+    % Style Panah
+    arrow/.style={
+        ->,
+        thick,
+        >=stealth
+    },
+    line/.style={
+        draw,
+        thick
+    }
+}
 % [PENTING] Opsi 'titles' agar judul TOC ikut gaya titlesec (Center)
 \usepackage[titles]{tocloft}
 

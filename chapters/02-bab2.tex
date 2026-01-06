@@ -1,250 +1,156 @@
+
+
 \chapter{TINJAUAN PUSTAKA}
 
 \section{Tinjauan Studi}
-Tinjauan studi dilakukan untuk memetakan posisi penelitian ini terhadap penelitian-penelitian sebelumnya yang relevan (*State of the Art*). Beberapa penelitian telah menerapkan metode kecerdasan buatan untuk optimasi jaringan, khususnya menggunakan \textit{Graph Neural Networks} (GNN).
+Tinjauan studi dilakukan untuk memetakan posisi penelitian ini terhadap penelitian-penelitian sebelumnya yang relevan (\textit{State of the Art}). Pemetaan ini bertujuan untuk mengidentifikasi kesenjangan penelitian (\textit{research gap}) dan memastikan kebaruan kontribusi yang ditawarkan.
 
-Penelitian yang dilakukan oleh Marouani dkk. (2024) membahas penerapan \textit{Graph Attention Networks} (GAT) untuk \textit{Traffic Engineering} pada jaringan WAN. Penelitian ini membuktikan bahwa GAT mampu menangani kompleksitas topologi jaringan yang dinamis dengan lebih baik dibandingkan metode heuristik tradisional \cite{marouani2024}. Namun, penelitian tersebut berfokus pada jaringan skala luas (WAN) dan belum menyentuh aspek preferensi subjektif administrator jaringan lokal.
+Penelitian pertama oleh Marouani dkk. (2024) menerapkan \textit{Graph Attention Networks} (GAT) untuk \textit{Traffic Engineering} pada jaringan WAN. Penelitian tersebut membuktikan bahwa mekanisme \textit{attention} pada GAT mampu menangani topologi dinamis lebih baik daripada metode heuristik konvensional \cite{marouani2024}. Namun, penelitian ini hanya berfokus pada metrik performa teknis murni tanpa mempertimbangkan preferensi kebijakan manajemen jaringan yang seringkali bersifat subjektif pada ISP lokal.
 
-Selanjutnya, Almasan dkk. (2022) menggabungkan \textit{Deep Reinforcement Learning} (DRL) dengan GNN untuk kasus optimasi \textit{routing}. Hasilnya menunjukkan bahwa GNN memiliki kemampuan generalisasi yang kuat terhadap topologi yang belum pernah dilihat sebelumnya \cite{almasan2022}. Meskipun metode ini efektif, pendekatan \textit{Reinforcement Learning} membutuhkan waktu pelatihan yang lama dan lingkungan simulasi yang kompleks, yang mungkin sulit diterapkan pada ISP skala menengah.
+Penelitian kedua oleh Almasan dkk. (2022) mengusulkan pendekatan \textit{Deep Reinforcement Learning} (DRL) yang digabungkan dengan GNN untuk optimasi \textit{routing}. Hasilnya menunjukkan kemampuan generalisasi yang kuat terhadap topologi baru \cite{almasan2022}. Meskipun efektif, pendekatan DRL memerlukan lingkungan simulasi yang sangat kompleks dan waktu pelatihan yang lama, yang menjadi kendala jika diterapkan pada infrastruktur ISP skala menengah dengan sumber daya terbatas.
 
-Di sisi lain, Rahman dan Hasan (2023) menggunakan \textit{Graph Convolutional Network} (GCN) untuk mempelajari pola aliran trafik data \cite{rahman2023}. GCN terbukti efektif dalam memodelkan hubungan spasial antar \textit{node}. Akan tetapi, GCN memiliki keterbatasan dalam memberikan bobot yang berbeda pada tetangga yang berbeda, yang mana hal ini dapat diatasi oleh mekanisme \textit{attention} pada GAT \cite{velickovic2017}.
+Penelitian ketiga oleh Rahman dan Hasan (2023) menggunakan \textit{Graph Convolutional Network} (GCN) untuk memprediksi aliran trafik \cite{rahman2023}. GCN efektif dalam menangkap fitur spasial, namun memiliki keterbatasan karena memberikan bobot yang seragam pada tetangga \textit{node} (isotropik), sehingga kurang sensitif terhadap variasi kualitas \textit{link} yang signifikan pada jaringan nirkabel atau campuran.
 
-Berdasarkan tinjauan tersebut, terdapat celah penelitian (\textit{gap}) di mana belum adanya integrasi antara kemampuan adaptif GAT dengan metode pembobotan multikriteria seperti \textit{Analytic Hierarchy Process} (AHP) untuk menangani parameter jaringan yang bersifat kualitatif dan prioritas kebijakan ISP lokal. Rangkuman perbandingan penelitian terdahulu dapat dilihat pada Tabel \ref{tab:state_of_the_art}.
+\textbf{Posisi Penelitian:}
+Berdasarkan tinjauan di atas, ditemukan celah permasalahan di mana belum ada penelitian yang menggabungkan kemampuan adaptif GAT dalam mempelajari topologi graf dengan metode pembobotan multikriteria (\textit{Analytic Hierarchy Process} - AHP). Integrasi ini penting untuk memastikan bahwa rekomendasi AI tidak hanya optimal secara matematis, tetapi juga valid menurut standar operasional dan intuisi pakar jaringan (\textit{Network Engineer}). Rangkuman perbandingan penelitian ditunjukkan pada Tabel \ref{tab:state_of_the_art}.
 
 \begin{table}[ht]
     \centering
     \caption{State of the Art Penelitian}
     \label{tab:state_of_the_art}
-    \begin{tabular}{|p{3cm}|p{3.5cm}|p{3cm}|p{4cm}|}
-        \hline
+    \small
+    \begin{tabular}{p{3cm} p{3cm} p{2.5cm} p{4.5cm}}
+        \toprule
         \textbf{Peneliti (Tahun)} & \textbf{Masalah} & \textbf{Metode} & \textbf{Hasil \& Perbedaan} \\
-        \hline
-        Marouani dkk. (2024) \cite{marouani2024} & Optimasi trafik pada WAN & GAT & GAT unggul pada topologi dinamis. Bedanya: Penelitian ini mengintegrasikan AHP. \\
-        \hline
-        Almasan dkk. (2022) \cite{almasan2022} & Optimasi \textit{Routing} & DRL + GNN & Generalisasi topologi baik. Bedanya: Penelitian ini menggunakan \textit{Supervised Learning} dengan label AHP. \\
-        \hline
-        Rahman \& Hasan (2023) \cite{rahman2023} & Prediksi Aliran Trafik & GCN & Efektif untuk pola spasial. Bedanya: GAT lebih fleksibel dibanding GCN statis. \\
-        \hline
-        \textbf{Penelitian Ini} & \textbf{Rekomendasi Jalur ISP Lokal} & \textbf{GAT + AHP} & \textbf{Menggabungkan adaptabilitas GAT dengan validasi pakar via AHP.} \\
-        \hline
+        \midrule
+        Marouani dkk. (2024) \cite{marouani2024} & Optimasi trafik pada WAN & GAT & Unggul di topologi dinamis. \textbf{Bedanya:} Penelitian ini menambahkan validasi pakar via AHP. \\
+        \midrule
+        Almasan dkk. (2022) \cite{almasan2022} & Optimasi \textit{Routing} & DRL + GNN & Generalisasi baik tapi training berat. \textbf{Bedanya:} Penelitian ini menggunakan \textit{Supervised Learning} yang lebih efisien. \\
+        \midrule
+        Rahman \& Hasan (2023) \cite{rahman2023} & Prediksi Trafik & GCN & Efektif spasial. \textbf{Bedanya:} GAT memiliki mekanisme \textit{attention} yang lebih presisi dibanding GCN. \\
+        \midrule
+        \textbf{Penelitian Ini} & \textbf{Rekomendasi Jalur ISP} & \textbf{GAT + AHP} & \textbf{Integrasi \textit{expert judgment} (AHP) ke dalam arsitektur \textit{Deep Learning} (GAT).} \\
+        \bottomrule
     \end{tabular}
 \end{table}
 
 \section{Landasan Teori}
 
-\subsection{Manajemen Trafik Jaringan}
-Manajemen jaringan modern menuntut kemampuan untuk menangani tantangan yang kompleks dan terdistribusi \cite{alhachem2025}. \textit{Traffic Engineering} (TE) bertujuan untuk mengoptimalkan kinerja jaringan operasional dengan memindahkan trafik ke jalur yang kurang padat. Pada jaringan Layer 2 yang menggunakan VLAN, manajemen jalur menjadi krusial untuk mencegah \textit{looping} dan memastikan penggunaan \textit{link} yang seimbang. Kegagalan dalam manajemen ini dapat menyebabkan \textit{downtime} yang merugikan, sehingga prediksi kegagalan jaringan menggunakan \textit{machine learning} menjadi sangat penting \cite{basikolo2023}.
+\subsection{Manajemen Jaringan ISP}
+Manajemen jaringan pada \textit{Internet Service Provider} (ISP) melibatkan pemantauan dan pengendalian sumber daya jaringan untuk menjamin ketersediaan layanan. Tantangan utama pada infrastruktur Layer 2 dan VLAN adalah mencegah \textit{looping} dan menyeimbangkan beban trafik \cite{alhachem2025}. Kegagalan dalam manajemen ini dapat berdampak fatal pada SLA (\textit{Service Level Agreement}), sehingga diperlukan metode prediksi kegagalan berbasis \textit{machine learning} untuk menuju era \textit{zero downtime} \cite{basikolo2023}.
 
 \subsection{Graph Neural Networks (GNN)}
-\textit{Graph Neural Network} (GNN) adalah kerangka kerja \textit{deep learning} yang dirancang khusus untuk data yang direpresentasikan dalam bentuk graf. GNN memperbarui representasi fitur dari sebuah \textit{node} dengan mengagregasi informasi dari tetangga-tetangganya \cite{wu2021}. Dalam konteks jaringan komputer, \textit{router} atau \textit{switch} direpresentasikan sebagai \textit{node}, sedangkan kabel fisik direpresentasikan sebagai \textit{edge} \cite{zhou2020}.
+\textit{Graph Neural Network} (GNN) adalah kerangka kerja \textit{deep learning} yang dirancang untuk data berbentuk graf. Berbeda dengan CNN yang bekerja pada data grid (gambar), GNN bekerja pada struktur data non-Euclidean. GNN memperbarui representasi fitur sebuah \textit{node} dengan mengagregasi informasi dari tetangganya \cite{wu2021}. Dalam jaringan komputer, perangkat direpresentasikan sebagai \textit{node} dan kabel fisik sebagai \textit{edge} \cite{zhou2020}.
 
 \subsection{Graph Attention Network (GAT)}
-\textit{Graph Attention Network} (GAT) diperkenalkan oleh Veličković dkk. (2017) sebagai pengembangan dari GNN yang memanfaatkan mekanisme \textit{masked self-attention}. Keunggulan utama GAT adalah kemampuannya untuk memberikan bobot kepentingan (\textit{attention score}) yang berbeda-beda untuk setiap tetangga \textit{node}, tanpa bergantung pada struktur graf yang statis seperti pada GCN \cite{velickovic2017, kato2024}.
+\textit{Graph Attention Network} (GAT) adalah pengembangan GNN yang memperkenalkan mekanisme \textit{masked self-attention}. Keunggulan utamanya adalah kemampuan memberikan bobot kepentingan (\textit{attention coefficients}) yang berbeda pada setiap tetangga, tanpa bergantung pada struktur graf statis \cite{velickovic2017}.
 
-Secara matematis, koefisien atensi $\alpha_{ij}$ antara node $i$ dan node $j$ dihitung menggunakan persamaan:
-\begin{equation}
-    \alpha_{ij} = \frac{\exp(\text{LeakyReLU}(\vec{a}^T [W\vec{h}_i || W\vec{h}_j]))}{\sum_{k \in \mathcal{N}_i} \exp(\text{LeakyReLU}(\vec{a}^T [W\vec{h}_i || W\vec{h}_k]))}
-\end{equation}
-Dimana $\vec{h}$ adalah fitur node, $W$ adalah matriks bobot, dan $\vec{a}$ adalah vektor bobot atensi. Mekanisme ini memungkinkan model untuk fokus pada \textit{link} yang memiliki kualitas lebih baik (misalnya latensi rendah) saat melakukan agregasi informasi \cite{su2024}.
+Untuk memudahkan pemahaman komputasi, proses perhitungan koefisien atensi $\alpha_{ij}$ dipecah menjadi tiga tahapan sebagai berikut:
 
-**Arsitektur GAT dalam Penelitian:**
-
-Model GAT yang diimplementasikan dalam penelitian ini memiliki arsitektur sebagai berikut:
 \begin{enumerate}
-    \item \textbf{Layer 1 (GAT Conv):}
-    \begin{itemize}
-        \item Input: Node features (5 dimensi) dan Edge features (7 dimensi)
-        \item Output: Hidden dimension 64 dengan 4 attention heads
-        \item Total output: 256 dimensi (64 × 4)
-        \item Activation: ELU (Exponential Linear Unit)
-        \item Dropout: 0.3
-    \end{itemize}
-
-    \item \textbf{Layer 2 (GAT Conv):}
-    \begin{itemize}
-        \item Input: 256 dimensi dari layer sebelumnya
-        \item Output: Hidden dimension 64 dengan 4 attention heads
-        \item Total output: 256 dimensi
-        \item Activation: ELU
-        \item Dropout: 0.3
-    \end{itemize}
-
-    \item \textbf{Layer 3 (GAT Conv):}
-    \begin{itemize}
-        \item Input: 256 dimensi
-        \item Output: Hidden dimension 64 dengan 1 attention head
-        \item Total output: 64 dimensi (node embeddings)
-        \item Dropout: 0.3
-    \end{itemize}
-
-    \item \textbf{Path Quality Predictor:}
-    \begin{itemize}
-        \item Fully Connected Network dengan 3 layer
-        \item Layer 1: 128 $\rightarrow$ 128 (ReLU, Dropout 0.3)
-        \item Layer 2: 128 $\rightarrow$ 64 (ReLU, Dropout 0.3)
-        \item Layer 3: 64 $\rightarrow$ 1 (Sigmoid)
-        \item Output: Quality score [0, 1]
-    \end{itemize}
-\end{enumerate}
-
-**Mekanisme Prediksi Kualitas Jalur:**
-
-Untuk memprediksi kualitas sebuah jalur, model melakukan langkah-langkah berikut:
-\begin{enumerate}
-    \item Generate node embeddings untuk seluruh node dalam graf menggunakan 3 layer GAT
-    \item Untuk setiap hop dalam jalur, concatenate embedding node source dan target: $h_{hop} = [h_i || h_j]$
-    \item Hitung skor kualitas setiap hop menggunakan Path Quality Predictor
-    \item Aggregate skor semua hop dengan rata-rata dan apply hop penalty:
+    \item \textbf{Transformasi Linear:} Fitur input node ($\vec{h}$) dikalikan dengan matriks bobot ($W$) yang dipelajari.
     \begin{equation}
-        Q_{predicted} = \text{mean}(Q_{hop_1}, ..., Q_{hop_n}) \times (1 - 0.03 \times n)
+        z_i = W \cdot \vec{h}_i
+    \end{equation}
+
+    \item \textbf{Mekanisme Atensi:} Menghitung skor kedekatan mentah ($e_{ij}$) antara node sumber dan tetangga menggunakan fungsi aktivasi \textit{LeakyReLU}.
+    \begin{equation}
+        e_{ij} = \text{LeakyReLU}\left(\vec{a}^T [W\vec{h}_i \, \| \, W\vec{h}_j]\right)
+    \end{equation}
+
+    \item \textbf{Normalisasi Softmax:} Mengubah skor mentah menjadi probabilitas atensi (total bernilai 1).
+    \begin{equation}
+        \alpha_{ij} = \frac{\exp(e_{ij})}{\sum_{k \in \mathcal{N}_i} \exp(e_{ik})}
     \end{equation}
 \end{enumerate}
 
-Penggunaan multi-head attention (4 heads pada layer 1 dan 2) memungkinkan model untuk mempelajari berbagai aspek penting dari koneksi jaringan secara paralel \cite{velickovic2017}. Total parameter model adalah sekitar 100.000-150.000 parameter, yang cukup ekspresif untuk menangkap kompleksitas topologi jaringan tanpa risiko overfitting yang signifikan.
-
+Dimana $\|$ adalah operasi penggabungan (\textit{concatenation}) dan $\vec{a}$ adalah vektor bobot atensi. Mekanisme ini memungkinkan model untuk "memperhatikan" jalur dengan kualitas sinyal lebih baik dan mengabaikan jalur yang buruk \cite{kato2024}.
 
 \subsection{Analytic Hierarchy Process (AHP)}
-\textit{Analytic Hierarchy Process} (AHP) adalah metode pengambilan keputusan multikriteria yang dikembangkan oleh Thomas L. Saaty pada tahun 1970-an. AHP dirancang untuk memecahkan masalah keputusan yang kompleks dengan menyusunnya ke dalam hierarki tujuan, kriteria, dan alternatif \cite{saaty2008}. Metode ini telah diterapkan secara luas di berbagai bidang termasuk manajemen jaringan dan teknik transportasi \cite{khan2020, giouroukelis2026}.
+AHP adalah metode pengambilan keputusan multikriteria yang dikembangkan oleh Thomas L. Saaty. AHP memecah masalah kompleks menjadi hierarki kriteria dan alternatif. Bobot prioritas ditentukan melalui perbandingan berpasangan (\textit{pairwise comparison}) yang divalidasi dengan rasio konsistensi ($CR \le 0.1$) \cite{saaty2008}.
 
-Prinsip dasar AHP adalah melakukan perbandingan berpasangan (\textit{pairwise comparison}) antar kriteria menggunakan skala fundamental Saaty 1-9, dimana nilai 1 menunjukkan kedua kriteria memiliki kepentingan yang sama, sedangkan nilai 9 menunjukkan satu kriteria sangat lebih penting dibanding yang lain \cite{saaty2003}. Hasil dari perbandingan berpasangan ini kemudian diolah menggunakan metode \textit{eigenvalue} untuk menghasilkan bobot prioritas setiap kriteria.
-
-**Tahapan AHP dalam penelitian ini:**
-\begin{enumerate}
-    \item \textbf{Identifikasi Kriteria:} Parameter jaringan yang dibobotkan terdiri dari dua kategori:
-    \begin{itemize}
-        \item \textit{Node criteria}: CPU usage, RAM usage, traffic score, interface utilization, dan status
-        \item \textit{Edge criteria}: Link quality, bandwidth utilization A/B, interface speed A/B, distance, dan status
-    \end{itemize}
-
-    \item \textbf{Pairwise Comparison Matrix:} Pakar membuat matriks perbandingan berpasangan $A = [a_{ij}]$ dimana $a_{ij}$ merepresentasikan tingkat kepentingan kriteria $i$ terhadap kriteria $j$.
-
-    \item \textbf{Perhitungan Bobot:} Vektor bobot prioritas $w$ dihitung dari eigenvector principal dari matriks $A$ yang memenuhi:
-    \begin{equation}
-        A \cdot w = \lambda_{max} \cdot w
-    \end{equation}
-    dimana $\lambda_{max}$ adalah eigenvalue maksimum.
-
-    \item \textbf{Uji Konsistensi:} Konsistensi penilaian dievaluasi menggunakan \textit{Consistency Index} (CI) dan \textit{Consistency Ratio} (CR):
-    \begin{equation}
-        CI = \frac{\lambda_{max} - n}{n - 1}
-    \end{equation}
-    \begin{equation}
-        CR = \frac{CI}{RI}
-    \end{equation}
-    dimana $n$ adalah jumlah kriteria dan $RI$ adalah \textit{Random Index}. Nilai CR $\leq$ 0.10 dianggap konsisten \cite{bose2024}.
-\end{enumerate}
-
-**Penerapan AHP dalam Penelitian:**
-
-Dalam konteks penelitian ini, AHP digunakan untuk menghitung skor kualitas jalur yang menjadi label target dalam pelatihan model GAT. Skor kualitas node dihitung sebagai:
+Dalam penelitian ini, AHP digunakan untuk menghitung skor kualitas ($Q$) yang menjadi label target pelatihan:
 \begin{equation}
-    Q_{node} = \sum_{i=1}^{5} w_i \cdot f_i
+    Q_{path} = \sum w_i \cdot f_i \text{ (node)} + \sum w_j \cdot g_j \text{ (edge)}
 \end{equation}
-dimana $w_i$ adalah bobot AHP untuk fitur ke-$i$ dan $f_i$ adalah nilai fitur yang dinormalisasi.
-
-Skor kualitas edge dihitung sebagai:
-\begin{equation}
-    Q_{edge} = \sum_{j=1}^{7} w_j \cdot g_j
-\end{equation}
-dimana $w_j$ adalah bobot AHP untuk fitur edge ke-$j$ dan $g_j$ adalah nilai fitur edge yang dinormalisasi.
-
-Skor kualitas jalur total dihitung sebagai rata-rata skor node dan edge dalam jalur, dengan penalti untuk panjang jalur:
-\begin{equation}
-    Q_{path} = \frac{\sum Q_{node} + \sum Q_{edge}}{N_{components}} \times (1 - 0.05 \times N_{hops})
-\end{equation}
-dimana $N_{components}$ adalah jumlah node dan edge dalam jalur, dan $N_{hops}$ adalah panjang jalur.
-
-Keunggulan AHP dalam penelitian ini adalah kemampuannya untuk mengintegrasikan penilaian subjektif pakar dengan data objektif, serta menghasilkan bobot yang konsisten melalui perhitungan \textit{Consistency Ratio} (CR) \cite{bose2024}. Bobot AHP yang dihasilkan kemudian disimpan dalam file konfigurasi JSON dan digunakan secara konsisten dalam pembentukan label training dan evaluasi model.
-
-
-\subsection{PyTorch Geometric}
-PyTorch Geometric (PyG) adalah pustaka ekstensi untuk PyTorch yang menyediakan implementasi efisien dari berbagai metode pembelajaran mendalam pada graf, termasuk GAT \cite{fey2019}. PyG memfasilitasi penanganan data graf yang tidak teratur dan mempercepat proses pelatihan model melalui pemrosesan GPU yang teroptimasi.
+Penggunaan AHP menjamin bahwa model AI belajar dari preferensi pakar yang terukur dan konsisten \cite{khan2020}.
 
 \section{Kerangka Pemikiran}
-Kerangka pemikiran menggambarkan alur logika penelitian dari identifikasi masalah hingga solusi yang dihasilkan. Pada penelitian ini, permasalahan utama adalah ketidakefisienan penentuan jalur pada jaringan yang kompleks dengan banyak parameter kualitas yang harus dipertimbangkan. Solusi yang ditawarkan adalah sistem rekomendasi berbasis GAT yang diperkuat dengan pembobotan AHP.
+Kerangka pemikiran menggambarkan alur logika penelitian dari variabel yang diobservasi hingga pengukuran keberhasilan. Sesuai dengan pendekatan sistem cerdas, kerangka ini disusun dalam empat komponen utama: \textit{Indicators}, \textit{Proposed Method}, \textit{Objectives}, dan \textit{Measurement}.
 
-Alur kerangka pemikiran penelitian ini dijelaskan sebagai berikut:
 \begin{enumerate}
-    \item \textbf{Input Data Jaringan:}
-    \begin{itemize}
-        \item Data topologi jaringan (nodes dan edges)
-        \item Metrik kinerja node: CPU usage, RAM usage, traffic in/out, interface utilization, status
-        \item Metrik kinerja edge: Link quality, bandwidth utilization A/B, interface speed A/B, distance, status
-    \end{itemize}
-
-    \item \textbf{Proses Pembobotan (AHP):}
-    \begin{itemize}
-        \item Pakar jaringan memberikan penilaian perbandingan berpasangan terhadap parameter kualitas jaringan
-        \item Hitung bobot prioritas menggunakan metode eigenvalue
-        \item Validasi konsistensi menggunakan Consistency Ratio (CR $\leq$ 0.10)
-        \item Simpan bobot dalam konfigurasi (ahp\_weights\_config.json)
-    \end{itemize}
-
-    \item \textbf{Pembentukan Dataset Training:}
-    \begin{itemize}
-        \item Generate 10.000 sample jalur (60\% optimal, 40\% alternatif)
-        \item Hitung skor kualitas setiap jalur menggunakan bobot AHP sebagai label target
-        \item Buat 30 skenario kegagalan link (10-30\% edge disabled) untuk robustness training
-    \end{itemize}
-
-    \item \textbf{Proses Learning (GAT):}
-    \begin{itemize}
-        \item Konstruksi graf PyTorch Geometric dari data topologi
-        \item Training model GAT (3 layers, 4 heads, hidden dim 64) menggunakan supervised learning
-        \item Optimasi dengan Adam optimizer, learning rate 0.001, Cosine Annealing scheduler
-        \item Loss function: Mean Squared Error (MSE)
-        \item Early stopping dengan patience 25 epoch
-        \item Alternate training antara normal graph dan failure scenarios
-    \end{itemize}
-
-    \item \textbf{Output - Rekomendasi Jalur:}
-    \begin{itemize}
-        \item Model menghasilkan node embeddings untuk seluruh graf
-        \item Untuk query source-target tertentu, temukan semua simple paths
-        \item Prediksi skor kualitas setiap path menggunakan Path Quality Predictor
-        \item Ranking dan return top-k paths (k=3) dengan skor tertinggi
-    \end{itemize}
-
-    \item \textbf{Evaluasi:}
-    \begin{itemize}
-        \item Metrik: Training/Validation Loss dan Accuracy (toleransi ±0.05, ±0.08, ±0.10)
-        \item Perbandingan dengan shortest path algorithm (Dijkstra) berbasis weight konvensional
-        \item Testing dengan failure scenarios untuk validasi ketahanan model
-    \end{itemize}
-
-    \item \textbf{Tujuan Akhir:}
-    \begin{itemize}
-        \item Meningkatkan efisiensi trafik jaringan PT Lare Osing Ndo
-        \item Meminimalkan latensi dan kongesti
-        \item Memberikan rekomendasi jalur yang adaptif terhadap kondisi jaringan real-time
-    \end{itemize}
+    \item \textbf{Indicators (Observed Variables):} Merupakan parameter input yang diambil dari perangkat jaringan, terdiri dari parameter Node (CPU, RAM, Trafik, Utilisasi) dan parameter Edge (Kualitas Link, Bandwidth, Kecepatan, Jarak, Status).
+    \item \textbf{Proposed Method:} Solusi yang diusulkan menggabungkan dua metode utama. Pertama, \textit{Analytic Hierarchy Process} (AHP) digunakan pada tahap pra-pemrosesan untuk memberikan bobot prioritas valid berdasarkan penilaian pakar. Kedua, \textit{Graph Attention Network} (GAT) digunakan sebagai algoritma pembelajaran utama untuk mengenali pola topologi dan memprediksi kualitas jalur.
+    \item \textbf{Objectives:} Tujuan akhir dari sistem adalah menghasilkan model rekomendasi jalur yang memiliki akurasi tinggi dan mampu mengoptimalkan distribusi trafik jaringan.
+    \item \textbf{Measurement:} Keberhasilan metode diukur menggunakan metrik statistik \textit{Root Mean Square Error} (RMSE) untuk performa regresi, dan \textit{Accuracy} dengan toleransi error ($\pm 0.05, \pm 0.08, \pm 0.10$) untuk performa klasifikasi kualitas.
 \end{enumerate}
 
-Gambar \ref{fig:kerangka_pemikiran} berikut memvisualisasikan kerangka pemikiran tersebut dalam bentuk diagram alir.
+% (Kode gambar TikZ Anda yang sebelumnya sudah bagus, tidak perlu diubah kecuali teks di dalam kotak Indicators jika Anda ingin sangat detail, tapi deskripsi teks di atas sudah cukup mewakili).
+
+Visualisasi kerangka pemikiran penelitian ditunjukkan pada Gambar \ref{fig:kerangka_pemikiran}.
 
 \begin{figure}[ht]
     \centering
-    % \includegraphics[width=0.95\textwidth]{images/kerangka_pemikiran.png}
-    \fbox{\begin{minipage}{14cm}
-        \centering
-        \vspace{1cm}
-        \textbf{[DIAGRAM KERANGKA PEMIKIRAN]} \\
-        \vspace{0.5cm}
-        Input: Topologi + Metrik Jaringan \\
-        $\downarrow$ \\
-        Pembobotan AHP (Expert Judgment) \\
-        $\downarrow$ \\
-        Generate Training Samples (10K paths) \\
-        $\downarrow$ \\
-        Training GAT Model (3 layers, 4 heads) \\
-        $\downarrow$ \\
-        Node Embeddings + Path Quality Predictor \\
-        $\downarrow$ \\
-        Top-K Path Recommendation \\
-        $\downarrow$ \\
-        Output: Optimal Routes
-        \vspace{1cm}
-    \end{minipage}}
-    \caption{Kerangka Pemikiran Penelitian}
+    % Resizebox digunakan agar gambar otomatis mengikuti lebar teks (textwidth)
+    \resizebox{\textwidth}{!}{%
+    \begin{tikzpicture}[
+        node distance=0.5cm,
+        box/.style={draw, rounded corners, minimum width=3cm, minimum height=1cm, align=center, font=\small},
+        groupbox/.style={draw, rounded corners, inner sep=0.3cm, align=center},
+        arrow/.style={->, thick, >=stealth}
+    ]
+
+    % --- COLUMN 1: INDICATORS ---
+    \node[font=\bfseries] (ind_title) {INDICATORS};
+    
+    \node[box, below=0.5cm of ind_title, fill=white] (cpu) {CPU \& RAM\\Usage};
+    \node[box, below=0.3cm of cpu, fill=white] (traf) {Interface\\Utilization};
+    \node[box, below=0.3cm of traf, fill=white] (link) {Link Quality\\(Signal/Loss)};
+    \node[box, below=0.3cm of link, fill=white] (bw) {Bandwidth\\Availability};
+    \node[box, below=0.3cm of bw, fill=white] (dist) {Geographical\\Distance};
+    
+    % Frame for Indicators
+    \node[groupbox, fit=(cpu)(dist), label=below:\textit{Observed Variables}] (ind_group) {};
+
+    % --- COLUMN 2: PROPOSED METHOD ---
+    \node[font=\bfseries, right=1.5cm of ind_title] (met_title) {PROPOSED METHOD};
+    
+    \node[box, below=0.5cm of met_title, fill=gray!10, minimum width=4cm] (data) {Dataset Generation\\(Topologi \& Metrik)};
+    \node[box, below=0.8cm of data, fill=gray!10, minimum width=4cm] (ahp) {\textbf{Weighting Strategy}\\Analytic Hierarchy Process\\(AHP)};
+    \node[box, below=0.8cm of ahp, fill=gray!20, minimum width=4cm, minimum height=1.5cm] (gat) {\textbf{Learning Algorithm}\\Graph Attention Network\\(3 Layers, 4 Heads)};
+    \node[box, below=0.8cm of gat, fill=gray!10, minimum width=4cm] (pred) {Path Quality\\Predictor};
+
+    \node[groupbox, fit=(data)(pred)] (met_group) {};
+
+    % --- COLUMN 3: OBJECTIVES ---
+    \node[font=\bfseries, right=1cm of met_title] (obj_title) {OBJECTIVES};
+    
+    \node[circle, draw, align=center, minimum size=2.5cm, below=2cm of obj_title] (obj1) {High Accuracy\\Model};
+    \node[circle, draw, align=center, minimum size=2.5cm, below=0.5cm of obj1] (obj2) {Optimal Path\\Recommendation};
+
+    % --- COLUMN 4: MEASUREMENT ---
+    \node[font=\bfseries, right=1cm of obj_title] (meas_title) {MEASUREMENT};
+    
+    \node[box, below=2cm of meas_title] (rmse) {Root Mean\\Square Error (RMSE)};
+    \node[box, below=0.5cm of rmse] (acc) {Accuracy\\($\pm 0.05, \pm 0.08$)};
+    \node[box, below=0.5cm of acc] (time) {Inference Time};
+
+    \node[groupbox, fit=(rmse)(time), label=below:\textit{Observed Results}] (meas_group) {};
+
+    % --- ARROWS ---
+    \draw[arrow, dashed] (ind_group.east) -- (met_group.west);
+    \draw[arrow] (data) -- (ahp);
+    \draw[arrow] (ahp) -- (gat);
+    \draw[arrow] (gat) -- (pred);
+    \draw[arrow] (met_group.east) -- (obj1.west);
+    \draw[arrow] (met_group.east) -- (obj2.west);
+    \draw[arrow] (obj1.east) -- (rmse.west);
+    \draw[arrow] (obj1.east) -- (acc.west);
+    \draw[arrow] (obj2.east) -- (time.west);
+
+    \end{tikzpicture}%
+    }
+    \caption{Kerangka Pemikiran GAT berbasis AHP}
     \label{fig:kerangka_pemikiran}
 \end{figure}
+
