@@ -1,16 +1,53 @@
 \chapter{PENDAHULUAN}
 
 \section{Latar Belakang}
-Latar belakang menyajikan konteks penelitian dan untuk apa penelitian ini dilakukan[cite: 534]. Penulisan menggunakan huruf Times New Roman ukuran 12 dengan spasi 1,5.
+PT Lare Osing Ndo merupakan \textit{Internet Service Provider} (ISP) lokal yang beroperasi di Banyuwangi dengan infrastruktur berbasis \textit{switch} Layer 2 dan teknologi VLAN. Di era digital saat ini, tantangan pengelolaan jaringan semakin berat. Manajemen jaringan komunikasi yang kompleks kini menghadapi tantangan besar yang memerlukan pendekatan kecerdasan buatan terdistribusi untuk menjaga stabilitas layanan \cite{alhachem2025}. Tren pertumbuhan trafik dan pengguna internet berdampak langsung pada ISP regional yang harus menjaga \textit{Service Level Agreement} (SLA) di tengah infrastruktur yang semakin rumit. Menuju era \textit{zero downtime}, penggunaan \textit{machine learning} menjadi krusial untuk memprediksi kegagalan jaringan sebelum terjadi gangguan fatal \cite{basikolo2023}.
+
+Kompleksitas infrastruktur PT Lare Osing Ndo terlihat dari penambahan \textit{link} redundansi yang masif. Namun, pengelolaan trafik menjadi sulit tanpa sistem optimasi otomatis. Saat ini, penentuan jalur masih bergantung pada protokol konvensional atau keputusan manual administrator. Pendekatan ini dinilai kurang efektif karena metode \textit{Traffic Engineering} (TE) modern menuntut kemampuan untuk menangani pola trafik yang dinamis dan heterogen, yang sulit dicapai oleh algoritma tradisional \cite{marouani2024, jiang2023}. Akibatnya, sering terjadi ketidakseimbangan beban di mana beberapa jalur mengalami kongesti sementara jalur lain \textit{underutilized}.
+
+Dalam menentukan jalur optimal, terdapat banyak parameter yang perlu dipertimbangkan secara bersamaan, seperti kualitas link (\textit{link quality}), utilisasi bandwidth, kecepatan interface, jarak geografis, penggunaan CPU, dan penggunaan memori. Setiap parameter memiliki tingkat kepentingan yang berbeda menurut kebijakan ISP dan pengalaman administrator jaringan. Penentuan bobot prioritas antar parameter ini memerlukan metode pengambilan keputusan multikriteria yang sistematis dan konsisten. \textit{Analytic Hierarchy Process} (AHP) telah terbukti efektif dalam menangani masalah pengambilan keputusan dengan banyak kriteria, terutama dalam konteks manajemen jaringan \cite{saaty2008, giouroukelis2026}.
+
+Untuk mengatasi permasalahan tersebut, penelitian ini mengusulkan penerapan metode \textit{Graph Attention Network} (GAT) yang diperkuat dengan pembobotan AHP. \textit{Graph Neural Networks} (GNN) telah terbukti sebagai metode yang \textit{state-of-the-art} untuk menangani data berbentuk graf seperti topologi jaringan \cite{wu2021, zhou2020}. Secara spesifik, GAT dipilih karena memiliki mekanisme \textit{attention} yang mampu memberikan bobot berbeda pada setiap tetangga \textit{node}, sehingga lebih unggul dibandingkan metode graf konvensional dalam mengenali fitur-fitur penting pada jalur jaringan \cite{kato2024, velickovic2017}. Integrasi AHP dalam penelitian ini berfungsi untuk menghasilkan label kualitas jalur yang valid berdasarkan penilaian pakar, sehingga model GAT dapat dilatih dengan target yang mencerminkan preferensi administrator jaringan secara konsisten \cite{khan2020}.
+
+Penelitian terkait menunjukkan bahwa integrasi GNN dengan optimasi \textit{routing} mampu meningkatkan ketahanan (\textit{robustness}) dan resiliensi jaringan dalam skenario \textit{Distributed Traffic Engineering} \cite{ye2025}. Pendekatan berbasis graf ini diharapkan mampu mempelajari pola aliran trafik secara lebih akurat dibandingkan metode statistik biasa \cite{rahman2023, lassen2025}. Dengan menggabungkan kekuatan GAT dalam pembelajaran representasi graf dan AHP dalam pembobotan multikriteria, sistem rekomendasi jalur yang dihasilkan diharapkan dapat memberikan solusi yang optimal, adaptif, dan sesuai dengan kebutuhan operasional PT Lare Osing Ndo.
+
+
+Untuk mengatasi permasalahan tersebut, penelitian ini mengusulkan penerapan metode \textit{Graph Attention Network} (GAT). \textit{Graph Neural Networks} (GNN) telah terbukti sebagai metode yang \textit{state-of-the-art} untuk menangani data berbentuk graf seperti topologi jaringan \cite{wu2021, zhou2020}. Secara spesifik, GAT dipilih karena memiliki mekanisme \textit{attention} yang mampu memberikan bobot berbeda pada setiap tetangga \textit{node}, sehingga lebih unggul dibandingkan metode graf konvensional dalam mengenali fitur-fitur penting pada jalur jaringan \cite{kato2024, velickovic2017}. Kemampuan ini memungkinkan model untuk memprioritaskan jalur dengan kualitas sinyal lebih baik, meniru intuisi seorang \textit{network engineer} senior.
+
+Penelitian terkait menunjukkan bahwa integrasi GNN dengan optimasi \textit{routing} mampu meningkatkan ketahanan (\textit{robustness}) dan resiliensi jaringan dalam skenario \textit{Distributed Traffic Engineering} \cite{ye2025}. Namun, tantangan utama dalam penerapan AI adalah validitas data latih. Oleh karena itu, penelitian ini akan mengintegrasikan metode \textit{Analytic Hierarchy Process} (AHP) untuk pembobotan fitur (seperti CPU, RAM, \textit{packet loss}), yang kemudian diproses oleh GAT untuk menghasilkan rekomendasi jalur optimal \cite{saaty2008, khan2020}. Pendekatan berbasis graf ini diharapkan mampu mempelajari pola aliran trafik secara lebih akurat dibandingkan metode statistik biasa \cite{rahman2023, lassen2025}.
 
 \section{Perumusan Masalah}
-Berdasarkan latar belakang di atas, maka rumusan masalah adalah...
+Berdasarkan latar belakang yang telah diuraikan, maka rumusan masalah dalam penelitian ini adalah:
+\begin{enumerate}
+    \item Bagaimana menerapkan metode \textit{Analytic Hierarchy Process} (AHP) untuk pembobotan parameter kualitas jaringan (\textit{link quality}, utilisasi bandwidth, kecepatan interface, jarak, CPU, dan memori) sebagai dasar pembentukan label kualitas jalur?
+    \item Bagaimana merancang dan mengimplementasikan arsitektur \textit{Graph Attention Network} (GAT) yang mampu mempelajari representasi graf topologi jaringan dan menghasilkan rekomendasi rute optimal?
+    \item Bagaimana performa model GAT dengan pembobotan AHP dalam merekomendasikan jalur dibandingkan dengan metode \textit{shortest path} konvensional berdasarkan metrik akurasi dan skor kualitas jalur?
+\end{enumerate}
 
-\section{Tujuan}
-Tujuan penelitian ini adalah untuk...
+\section{Tujuan Penelitian}
+Tujuan dari penelitian ini adalah untuk:
+\begin{enumerate}
+    \item Mengimplementasikan metode AHP untuk menghasilkan bobot prioritas parameter jaringan yang valid dan konsisten berdasarkan penilaian pakar, yang kemudian digunakan untuk menghitung skor kualitas jalur sebagai label target dalam pelatihan model.
+    \item Membangun dan melatih model rekomendasi rute menggunakan arsitektur GAT dengan tiga layer dan mekanisme \textit{multi-head attention}, yang mampu mempelajari representasi graf topologi jaringan PT Lare Osing Ndo \cite{velickovic2017}.
+    \item Mengevaluasi performa model GAT dalam memprediksi jalur optimal dengan mengukur akurasi prediksi (toleransi error ±0.05, ±0.08, ±0.10) dan membandingkan skor kualitas jalur yang dihasilkan dengan metode konvensional \cite{almasan2022}.
+\end{enumerate}
 
-\section{Manfaat}
-Manfaat penelitian ini adalah untuk...
+\section{Manfaat Penelitian}
+Manfaat yang diharapkan dari penelitian ini adalah:
+\begin{enumerate}
+    \item \textbf{Bagi Perusahaan:} Memberikan solusi untuk mempercepat penanganan gangguan dan optimasi trafik menggunakan sistem berbasis kecerdasan buatan, sehingga dapat meningkatkan efisiensi operasional.
+    \item \textbf{Bagi Akademisi:} Memberikan kontribusi ilmiah terkait penerapan algoritma GAT pada manajemen jaringan WAN/ISP lokal, serta memperkaya studi sebelumnya yang lebih banyak berfokus pada simulasi atau jaringan skala besar \cite{marouani2024, saha2024}.
+\end{enumerate}
 
 \section{Batasan Masalah}
-Batasan Masalah penelitian ini adalah untuk...
+Agar penelitian lebih terarah, batasan masalah yang ditetapkan adalah:
+\begin{enumerate}
+    \item Data topologi dan parameter jaringan (kualitas link, utilisasi bandwidth, kecepatan interface, jarak, penggunaan CPU, penggunaan memori, dan status link) diambil dari perangkat jaringan aktif milik PT Lare Osing Ndo.
+    \item Pembobotan AHP dilakukan berdasarkan penilaian pakar (expert judgment) dari network engineer senior PT Lare Osing Ndo.
+    \item Model GAT diimplementasikan dengan arsitektur 3 layer, 4 attention heads, hidden dimension 64, dan dropout 0.3 menggunakan framework PyTorch Geometric \cite{fey2019}.
+    \item Pelatihan model menggunakan 10.000 sample jalur yang terdiri dari 60\% jalur optimal dan 40\% jalur alternatif, dengan pembagian 80\% data latih dan 20\% data validasi.
+    \item Model dilatih dengan maksimum 1000 epoch dan menggunakan mekanisme early stopping dengan patience 25 epoch.
+    \item Evaluasi model dilakukan menggunakan metrik Mean Squared Error (MSE) untuk loss dan akurasi dengan toleransi error (±0.05, ±0.08, ±0.10).
+    \item Sistem yang dibangun berfokus pada memberikan rekomendasi top-k jalur terbaik (k=3), dan tidak melakukan konfigurasi otomatis (\textit{auto-configuration}) pada perangkat jaringan.
+    \item Pengujian ketahanan model dilakukan dengan 30 skenario kegagalan link, dimana 10-30\% edge secara acak dinonaktifkan.
+\end{enumerate}

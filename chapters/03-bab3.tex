@@ -1,166 +1,859 @@
-% ============================================
-% BAB 3: METODOLOGI PENELITIAN
-% ============================================
-
 \chapter{METODOLOGI PENELITIAN}
 
-Pada bab ini diuraikan desain, metode atau pendekatan yang digunakan dalam menjawab permasalahan penelitian untuk mencapai tujuan penelitian serta tahapan penelitian secara rinci, singkat dan jelas.
-
-\section{Desain Penelitian}
-
-Jelaskan desain atau rancangan penelitian secara umum. Apakah penelitian ini bersifat deskriptif, eksperimental, komparatif, atau pengembangan sistem/produk.
-
-Penelitian ini menggunakan desain... dengan pendekatan... Alasan pemilihan desain ini adalah...
-
-\section{Lokasi dan Waktu Penelitian}
-
-Penelitian dilaksanakan di... pada periode... Pemilihan lokasi ini didasarkan pada pertimbangan...
-
-\subsection{Lokasi Penelitian}
-Jelaskan lokasi penelitian dengan spesifik. Jika di industri/perusahaan, sebutkan nama dan alamatnya.
-
-\subsection{Waktu Penelitian}
-Penelitian dilaksanakan selama... bulan, mulai dari... hingga...
-
-\section{Objek Penelitian}
-
-Jelaskan objek atau subjek penelitian secara detail. Untuk Diploma III, objek cenderung sederhana (satu komponen). Untuk Sarjana Terapan, objek lebih kompleks (suatu sistem).
-
-\section{Variabel Penelitian}
-
-\subsection{Variabel Independen}
-Variabel bebas yang akan dimanipulasi atau diubah-ubah: ...
-
-\subsection{Variabel Dependen}
-Variabel terikat yang akan diamati atau diukur: ...
-
-\subsection{Variabel Kontrol}
-Variabel yang dijaga tetap: ...
-
-\section{Instrumen Penelitian}
-
-Jelaskan alat, bahan, software, hardware yang digunakan dalam penelitian:
-
-\subsection{Perangkat Keras}
-\begin{itemize}
-    \item Komputer dengan spesifikasi...
-    \item Sensor/alat ukur...
-    \item Perangkat lain...
-\end{itemize}
-
-\subsection{Perangkat Lunak}
-\begin{itemize}
-    \item Software A versi...
-    \item Software B versi...
-    \item Library/framework...
-\end{itemize}
-
-\subsection{Bahan Penelitian}
-Jika penelitian melibatkan bahan tertentu, sebutkan spesifikasinya.
-
-\section{Metode Pengumpulan Data}
-
-\subsection{Data Primer}
-Data primer diperoleh melalui:
-\begin{enumerate}
-    \item Observasi langsung...
-    \item Wawancara dengan...
-    \item Eksperimen/pengujian...
-    \item Kuesioner (jika menggunakan kuesioner, lampirkan di Lampiran)
-\end{enumerate}
-
-\subsection{Data Sekunder}
-Data sekunder diperoleh dari:
-\begin{enumerate}
-    \item Dokumen perusahaan...
-    \item Literatur jurnal...
-    \item Database online...
-\end{enumerate}
-
-\section{Metode Analisis Data}
-
-Jelaskan metode atau teknik analisis yang digunakan untuk mengolah data:
-
-\subsection{Analisis Deskriptif}
-Untuk Diploma III, analisis dapat menggunakan konsep sederhana...
-
-\subsection{Analisis Statistik (Untuk Sarjana Terapan)}
-Untuk Sarjana Terapan, gunakan analisis statistik inferensi atau simulasi. Misalnya:
-\begin{itemize}
-    \item Uji normalitas
-    \item Uji hipotesis
-    \item Analisis regresi
-    \item Analisis varian (ANOVA)
-\end{itemize}
-
-\subsection{Perbandingan Metode (Untuk Sarjana Terapan)}
-Jelaskan cara membandingkan dua metode atau lebih. Parameter perbandingan yang digunakan: ...
-
 \section{Tahapan Penelitian}
+Untuk mencapai tujuan penelitian secara sistematis dan terstruktur, penelitian ini dilaksanakan mengikuti alur tahapan yang digambarkan dalam diagram alir (\textit{flowchart}). Tahapan ini dimulai dari identifikasi masalah hingga penarikan kesimpulan. Secara garis besar, alur penelitian ditunjukkan pada Gambar \ref{fig:alur_penelitian}.
 
-Jelaskan langkah-langkah penelitian secara berurutan dan sistematis.
-
-\subsection{Tahap Persiapan}
-\begin{enumerate}
-    \item Studi literatur
-    \item Identifikasi masalah
-    \item Perumusan masalah
-    \item Pengajuan proposal
-\end{enumerate}
-
-\subsection{Tahap Pelaksanaan}
-\begin{enumerate}
-    \item Perancangan sistem/alat/metode
-    \item Implementasi
-    \item Pengumpulan data
-    \item Pengujian
-    \item Analisis data
-\end{enumerate}
-
-\subsection{Tahap Penyelesaian}
-\begin{enumerate}
-    \item Evaluasi hasil
-    \item Penyusunan kesimpulan
-    \item Dokumentasi laporan
-\end{enumerate}
-
-\section{Diagram Alir Penelitian}
-
-\begin{figure}[htbp]
+\begin{figure}[ht]
     \centering
-    % Uncomment dan ganti dengan diagram alir Anda
-    % \includegraphics[width=0.6\textwidth]{images/flowchart-penelitian.png}
-    \caption{Diagram Alir Penelitian}
-    \label{fig:flowchart}
+    % Ganti dengan file gambar flowchart Anda
+    \fbox{\begin{minipage}{12cm}
+        \centering
+        \vspace{1cm}
+        \textbf{[DIAGRAM FLOWCHART PENELITIAN]} \\
+        \vspace{0.3cm}
+        \small
+        Studi Literatur \\
+        $\downarrow$ \\
+        Pengumpulan Data Jaringan \\
+        $\downarrow$ \\
+        Kuesioner AHP (Expert Judgment) \\
+        $\downarrow$ \\
+        Preprocessing \& Normalisasi Data \\
+        $\downarrow$ \\
+        Perhitungan Bobot AHP \\
+        $\downarrow$ \\
+        Konversi ke Format Graf (PyG) \\
+        $\downarrow$ \\
+        Generate Training Samples (10K paths) \\
+        $\downarrow$ \\
+        Create Failure Scenarios (30 scenarios) \\
+        $\downarrow$ \\
+        Training Model GAT \\
+        $\downarrow$ \\
+        Evaluasi \& Testing \\
+        $\downarrow$ \\
+        Analisis Hasil \\
+        $\downarrow$ \\
+        Kesimpulan
+        \vspace{1cm}
+    \end{minipage}}
+    \caption{Diagram Alur Penelitian}
+    \label{fig:alur_penelitian}
 \end{figure}
 
-Gambar \ref{fig:flowchart} menunjukkan alur penelitian secara keseluruhan dari tahap awal hingga akhir.
+Secara rinci, tahapan penelitian dijelaskan sebagai berikut:
 
-\section{Jadwal Penelitian}
+\subsection{Studi Literatur}
+Tahap pertama adalah mempelajari konsep dasar yang relevan dengan penelitian, meliputi:
+\begin{itemize}
+    \item \textit{Graph Neural Networks} (GNN) dan \textit{Graph Attention Network} (GAT)
+    \item \textit{Analytic Hierarchy Process} (AHP) untuk pengambilan keputusan multikriteria
+    \item Manajemen trafik jaringan dan \textit{Traffic Engineering}
+    \item Teknik optimasi routing dan path recommendation
+    \item State-of-the-art methods dalam network optimization menggunakan AI
+\end{itemize}
 
-\begin{table}[htbp]
-    \caption{Jadwal Kegiatan Penelitian}
-    \label{tab:jadwal}
+Sumber literatur berasal dari jurnal internasional terindeks (IEEE, Springer, Elsevier), konferensi, dan dokumentasi teknis dari framework PyTorch Geometric.
+
+\subsection{Pengumpulan Data}
+Data dikumpulkan dari perangkat jaringan aktif PT Lare Osing Ndo menggunakan protokol SNMP dan observasi langsung. Selain itu, kuesioner AHP diisi oleh network engineer senior untuk mendapatkan bobot prioritas parameter jaringan.
+
+\subsection{Preprocessing dan Perhitungan Bobot AHP}
+Data yang terkumpul dilakukan normalisasi menggunakan Min-Max Scaling. Hasil kuesioner AHP diolah untuk menghasilkan bobot prioritas yang konsisten (CR $\leq$ 0.10). Bobot ini kemudian digunakan untuk menghitung skor kualitas jalur sebagai label target.
+
+\subsection{Pembentukan Dataset Training}
+Dataset training dibentuk dengan menggenerate 10.000 sample jalur menggunakan kombinasi algoritma shortest path dan all simple paths. Dataset ini mencakup jalur optimal dan alternatif dengan distribusi 60:40.
+
+\subsection{Pembuatan Failure Scenarios}
+Untuk meningkatkan ketahanan model, dibuat 30 skenario kegagalan link dimana 10-30\% edge secara acak dinonaktifkan. Skenario ini digunakan dalam training secara bergantian.
+
+\subsection{Training Model GAT}
+Model GAT dengan arsitektur 3 layer dan 4 attention heads dilatih menggunakan supervised learning dengan loss function MSE. Training menggunakan early stopping dan alternate antara graf normal dan failure scenarios.
+
+\subsection{Evaluasi dan Testing}
+Model dievaluasi menggunakan metrik loss dan accuracy pada data validasi. Testing dilakukan dengan memberikan query source-target untuk menghasilkan top-3 rekomendasi jalur terbaik.
+
+\subsection{Analisis Hasil dan Kesimpulan}
+Hasil evaluasi dianalisis untuk menilai performa model dalam merekomendasikan jalur optimal. Kesimpulan ditarik berdasarkan pencapaian tujuan penelitian.
+
+\section{Metode Pengumpulan Data}
+Data yang digunakan dalam penelitian ini terdiri dari data primer dan data sekunder yang diperoleh dari lingkungan operasional PT Lare Osing Ndo.
+
+\subsection{Observasi dan Pengambilan Data Log Jaringan}
+Data primer berupa metrik kinerja jaringan diambil langsung dari perangkat \textit{Switch} dan \textit{Router} menggunakan protokol SNMP (\textit{Simple Network Management Protocol}). Parameter yang diambil meliputi:
+
+\begin{enumerate}
+    \item \textbf{Data Node (Perangkat Jaringan):}
+    \begin{itemize}
+        \item CPU Usage: Persentase penggunaan CPU perangkat
+        \item RAM Usage: Persentase penggunaan memori RAM
+        \item Total Traffic In: Total trafik data masuk (bytes)
+        \item Total Traffic Out: Total trafik data keluar (bytes)
+        \item Average Interface Utilization: Rata-rata utilisasi semua interface
+        \item Status: Status aktif/tidak aktif perangkat
+    \end{itemize}
+    
+    \item \textbf{Data Edge (Link/Koneksi):}
+    \begin{itemize}
+        \item Link Quality: Kualitas link berdasarkan signal strength atau error rate
+        \item Bandwidth Utilization A: Utilisasi bandwidth pada interface A (%)
+        \item Bandwidth Utilization B: Utilisasi bandwidth pada interface B (%)
+        \item Interface Speed A: Kecepatan interface A (Mbps/Gbps)
+        \item Interface Speed B: Kecepatan interface B (Mbps/Gbps)
+        \item Distance: Jarak geografis antar perangkat (meter/kilometer)
+        \item Status: Status link aktif/tidak aktif
+    \end{itemize}
+\end{enumerate}
+
+Data ini diambil dalam rentang waktu tertentu untuk menangkap pola trafik pada jam sibuk (\textit{peak hour}) dan jam normal. Data disimpan dalam format CSV untuk memudahkan preprocessing.
+
+\subsection{Kuesioner Pakar (Expert Judgment) untuk AHP}
+Untuk kebutuhan metode AHP, data kualitatif dikumpulkan melalui kuesioner terstruktur yang diisi oleh \textit{Network Engineer} senior di PT Lare Osing Ndo. Responden memiliki pengalaman minimal 5 tahun dalam manajemen jaringan dan memahami karakteristik operasional ISP lokal.
+
+Responden diminta untuk memberikan penilaian perbandingan berpasangan (\textit{pairwise comparison}) antar kriteria kualitas jaringan menggunakan skala Saaty 1-9 \cite{saaty2008}. Skala penilaian yang digunakan adalah:
+
+\begin{table}[ht]
     \centering
-    \begin{tabular}{|l|c|c|c|c|c|c|}
+    \caption{Skala Perbandingan Berpasangan AHP}
+    \label{tab:skala_ahp}
+    \begin{tabular}{|c|l|}
         \hline
-        \multirow{2}{*}{\textbf{Kegiatan}} & \multicolumn{6}{c|}{\textbf{Bulan Ke-}} \\
-        \cline{2-7}
-        & \textbf{1} & \textbf{2} & \textbf{3} & \textbf{4} & \textbf{5} & \textbf{6} \\
+        \textbf{Nilai} & \textbf{Keterangan} \\
         \hline
-        Studi Literatur & X & X & & & & \\
+        1 & Kedua kriteria sama penting \\
         \hline
-        Perancangan & & X & X & & & \\
+        3 & Kriteria A sedikit lebih penting dari B \\
         \hline
-        Implementasi & & & X & X & & \\
+        5 & Kriteria A lebih penting dari B \\
         \hline
-        Pengujian & & & & X & X & \\
+        7 & Kriteria A sangat lebih penting dari B \\
         \hline
-        Analisis Data & & & & & X & X \\
+        9 & Kriteria A mutlak lebih penting dari B \\
         \hline
-        Penyusunan Laporan & & & & & X & X \\
+        2, 4, 6, 8 & Nilai antara dua penilaian yang berdekatan \\
         \hline
     \end{tabular}
 \end{table}
 
-Tabel \ref{tab:jadwal} menunjukkan jadwal pelaksanaan penelitian selama 6 bulan.
+\textbf{Kriteria yang Dibandingkan:}
+
+\begin{enumerate}
+    \item \textbf{Parameter Kualitas Node (5 kriteria):}
+    \begin{itemize}
+        \item CPU Usage Score: Skor berdasarkan penggunaan CPU (1 - CPU\%)
+        \item RAM Usage Score: Skor berdasarkan penggunaan RAM (1 - RAM\%)
+        \item Traffic Score: Skor berdasarkan beban trafik
+        \item Interface Utilization Score: Skor berdasarkan utilisasi interface
+        \item Node Status Score: Skor status operasional node
+    \end{itemize}
+    
+    \item \textbf{Parameter Kualitas Edge (7 kriteria):}
+    \begin{itemize}
+        \item Link Quality: Kualitas sinyal dan koneksi
+        \item Bandwidth Utilization A: Utilisasi bandwidth sisi A
+        \item Bandwidth Utilization B: Utilisasi bandwidth sisi B
+        \item Interface Speed A: Kecepatan interface sisi A
+        \item Interface Speed B: Kecepatan interface sisi B
+        \item Distance: Jarak geografis link
+        \item Link Status: Status operasional link
+    \end{itemize}
+    
+    \item \textbf{Parameter Routing Weight (3 kriteria):}
+    \begin{itemize}
+        \item Link Quality: Prioritas kualitas link dalam routing
+        \item Bandwidth Utilization: Prioritas utilisasi bandwidth
+        \item Distance: Prioritas jarak geografis
+    \end{itemize}
+\end{enumerate}
+
+Hasil penilaian pakar kemudian diolah menggunakan implementasi Python untuk menghitung eigenvalue dan eigenvector. Konsistensi penilaian divalidasi menggunakan \textit{Consistency Ratio} (CR). Jika CR > 0.10, pakar diminta untuk meninjau kembali penilaiannya. Bobot yang dihasilkan disimpan dalam file JSON (\texttt{ahp\_weights\_config.json}) dengan struktur:
+
+\begin{verbatim}
+{
+  "node_weights": {
+    "cpu_score": 0.25,
+    "ram_score": 0.20,
+    "traffic_score": 0.25,
+    "util_score": 0.20,
+    "status_score": 0.10
+  },
+  "edge_weights": {
+    "link_quality": 0.30,
+    "bw_util_a": 0.15,
+    "bw_util_b": 0.15,
+    "if_speed_a": 0.10,
+    "if_speed_b": 0.10,
+    "distance": 0.10,
+    "status": 0.10
+  },
+  "edge_routing_weights": {
+    "link_quality": 0.50,
+    "bandwidth_util": 0.30,
+    "distance": 0.20
+  }
+}
+\end{verbatim}
+
+\section{Preprocessing dan Normalisasi Data}
+
+\subsection{Pembersihan Data}
+Data yang telah dikumpulkan dilakukan pembersihan untuk menangani:
+\begin{itemize}
+    \item Missing values: Diisi dengan nilai median atau dihapus jika > 30\% data hilang
+    \item Outliers: Deteksi menggunakan metode IQR (Interquartile Range)
+    \item Duplicate entries: Dihapus untuk menghindari bias
+    \item Invalid values: Nilai negatif atau di luar range normal dikoreksi
+\end{itemize}
+
+\subsection{Normalisasi Data}
+Semua fitur numerik dinormalisasi menggunakan Min-Max Scaling untuk menghasilkan nilai dalam rentang [0, 1]. Formula normalisasi:
+\begin{equation}
+    X_{norm} = \frac{X - X_{min}}{X_{max} - X_{min}}
+\end{equation}
+
+Normalisasi dilakukan secara terpisah untuk node features dan edge features. Nilai minimum dan maksimum disimpan dalam metadata untuk digunakan pada inference.
+
+\subsection{Konversi ke Format Graf}
+Data topologi jaringan dikonversi ke dalam format PyTorch Geometric Data object dengan struktur:
+\begin{itemize}
+    \item \texttt{x}: Node feature matrix [num\_nodes, 5]
+    \item \texttt{edge\_index}: Edge connectivity [2, num\_edges]
+    \item \texttt{edge\_attr}: Edge feature matrix [num\_edges, 7]
+\end{itemize}
+
+Karena graf tidak berarah (undirected), setiap edge fisik direpresentasikan sebagai dua directed edges (A→B dan B→A) dalam \texttt{edge\_index}.
+
+\section{Perhitungan Bobot dan Skor Kualitas dengan AHP}
+
+\subsection{Perhitungan Bobot Prioritas}
+Bobot prioritas dihitung dari matriks perbandingan berpasangan menggunakan metode eigenvalue. Untuk matriks $A$ berukuran $n \times n$:
+
+\begin{equation}
+    A \cdot w = \lambda_{max} \cdot w
+\end{equation}
+
+dimana $w$ adalah eigenvector yang merepresentasikan bobot prioritas dan $\lambda_{max}$ adalah eigenvalue maksimum.
+
+Normalisasi dilakukan sehingga $\sum_{i=1}^{n} w_i = 1$.
+
+\subsection{Validasi Konsistensi}
+Konsistensi penilaian pakar dievaluasi menggunakan \textit{Consistency Index} (CI) dan \textit{Consistency Ratio} (CR):
+
+\begin{equation}
+    CI = \frac{\lambda_{max} - n}{n - 1}
+\end{equation}
+
+\begin{equation}
+    CR = \frac{CI}{RI}
+\end{equation}
+
+dimana $n$ adalah jumlah kriteria dan $RI$ adalah \textit{Random Index} yang bergantung pada ukuran matriks. Nilai CR $\leq$ 0.10 dianggap konsisten \cite{bose2024}.
+
+\subsection{Perhitungan Skor Kualitas Node}
+Skor kualitas setiap node dihitung menggunakan weighted sum:
+
+\begin{equation}
+    Q_{node} = \sum_{i=1}^{5} w_i \cdot f_i
+\end{equation}
+
+dimana:
+\begin{itemize}
+    \item $w_i$ = Bobot AHP untuk fitur ke-$i$
+    \item $f_i$ = Nilai fitur yang sudah dinormalisasi
+\end{itemize}
+
+Untuk fitur seperti CPU dan RAM usage, skor dihitung sebagai $f = 1 - X_{norm}$ karena nilai rendah lebih baik.
+
+\subsection{Perhitungan Skor Kualitas Edge}
+Skor kualitas setiap edge dihitung dengan cara serupa:
+
+\begin{equation}
+    Q_{edge} = \sum_{j=1}^{7} w_j \cdot g_j
+\end{equation}
+
+dimana $w_j$ adalah bobot AHP untuk fitur edge ke-$j$ dan $g_j$ adalah nilai fitur edge yang dinormalisasi.
+
+\subsection{Perhitungan Skor Kualitas Jalur}
+Skor kualitas sebuah jalur (path) dihitung sebagai rata-rata skor node dan edge dalam jalur, dengan penalti untuk panjang jalur:
+
+\begin{equation}
+    Q_{path} = \frac{\sum_{i=1}^{N_{nodes}} Q_{node_i} + \sum_{j=1}^{N_{edges}} Q_{edge_j}}{N_{nodes} + N_{edges}} \times (1 - 0.05 \times N_{hops})
+\end{equation}
+
+dimana:
+\begin{itemize}
+    \item $N_{nodes}$ = Jumlah node dalam jalur
+    \item $N_{edges}$ = Jumlah edge dalam jalur
+    \item $N_{hops}$ = Panjang jalur (jumlah hop)
+\end{itemize}
+
+Penalti hop (0.05 per hop) diterapkan karena jalur yang lebih panjang cenderung memiliki latensi lebih tinggi dan risiko kegagalan lebih besar.
+
+\section{Pembentukan Dataset Training}
+
+\subsection{Pembuatan Graf NetworkX dengan AHP Weights}
+Untuk keperluan pencarian jalur, dibuat graf NetworkX dari data yang sudah dinormalisasi. Setiap edge diberi weight untuk routing yang dihitung menggunakan bobot AHP:
+
+\begin{equation}
+    W_{routing} = (1 - Q_{link}) \times w_{link} + U_{bw} \times w_{bw} + D_{norm} \times w_{dist}
+\end{equation}
+
+dimana:
+\begin{itemize}
+    \item $Q_{link}$ = Link quality (normalized)
+    \item $U_{bw}$ = Bandwidth utilization (normalized)
+    \item $D_{norm}$ = Distance (normalized)
+    \item $w_{link}, w_{bw}, w_{dist}$ = Bobot AHP untuk routing
+\end{itemize}
+
+Weight ini digunakan dalam algoritma Dijkstra untuk menemukan jalur dengan cost terendah. Semakin rendah weight, semakin baik kualitas link tersebut.
+
+\subsection{Generasi Sample Training}
+Dataset training dibentuk dengan menggenerate 10.000 sample jalur menggunakan dua strategi:
+
+\begin{enumerate}
+    \item \textbf{Optimal Paths (60\% - 6.000 samples):}
+    \begin{itemize}
+        \item Jalur terpendek antara node source dan target random
+        \item Menggunakan algoritma Dijkstra dengan weight routing AHP
+        \item Merepresentasikan jalur dengan kualitas tertinggi menurut AHP
+    \end{itemize}
+    
+    \item \textbf{Alternative Paths (40\% - 4.000 samples):}
+    \begin{itemize}
+        \item Jalur alternatif yang lebih panjang dari optimal path
+        \item Dipilih secara acak dari all simple paths dengan cutoff maksimum 8 hops
+        \item Merepresentasikan jalur dengan kualitas lebih rendah
+    \end{itemize}
+\end{enumerate}
+
+Strategi ini dirancang agar model dapat mempelajari perbedaan antara jalur berkualitas tinggi dan rendah. Setiap sample memiliki atribut:
+
+\begin{table}[ht]
+    \centering
+    \caption{Atribut Training Sample}
+    \label{tab:atribut_sample}
+    \begin{tabular}{|l|p{8cm}|}
+        \hline
+        \textbf{Atribut} & \textbf{Deskripsi} \\
+        \hline
+        source & Index node sumber \\
+        \hline
+        target & Index node tujuan \\
+        \hline
+        path & List index node yang membentuk jalur [n1, n2, n3, ...] \\
+        \hline
+        path\_length & Jumlah hops (panjang jalur - 1) \\
+        \hline
+        quality\_score & Skor kualitas dihitung dengan AHP (label target) \\
+        \hline
+        path\_type & "optimal" atau "alternative" \\
+        \hline
+    \end{tabular}
+\end{table}
+
+\subsection{Distribusi dan Statistik Dataset}
+Dataset yang dihasilkan memiliki distribusi sebagai berikut:
+\begin{itemize}
+    \item Total samples: 10.000
+    \item Optimal paths: 6.000 (60\%)
+    \item Alternative paths: 4.000 (40\%)
+    \item Rata-rata panjang jalur: 3-5 hops
+    \item Range quality score: 0.2 - 0.9
+    \item Mean quality score optimal: $\sim$0.75
+    \item Mean quality score alternative: $\sim$0.55
+\end{itemize}
+
+\subsection{Pembagian Data Training dan Validasi}
+Dataset dibagi menjadi training set (80\%) dan validation set (20\%) secara random:
+\begin{itemize}
+    \item Training set: 8.000 samples
+    \item Validation set: 2.000 samples
+\end{itemize}
+
+Pembagian dilakukan dengan mempertahankan distribusi path\_type agar kedua set memiliki proporsi optimal dan alternative paths yang seimbang.
+
+\section{Pembuatan Skenario Kegagalan Link}
+
+Untuk meningkatkan ketahanan (robustness) model terhadap perubahan topologi dinamis, dibuat 30 skenario kegagalan link. Setiap skenario mensimulasikan kondisi dimana sebagian link mengalami kegagalan atau dinonaktifkan.
+
+\subsection{Metodologi Pembuatan Failure Scenarios}
+Untuk setiap scenario $i$ (dimana $i = 1, 2, ..., 30$):
+\begin{enumerate}
+    \item Clone graf PyG original
+    \item Tentukan jumlah edge yang akan dinonaktifkan secara random: $N_{disabled} \sim \text{Uniform}(0.1 \times N_{edges}, 0.3 \times N_{edges})$
+    \item Pilih $N_{disabled}$ edge secara acak tanpa replacement
+    \item Hapus edge yang dipilih beserta edge reverse-nya (karena undirected)
+    \item Simpan modified graph sebagai failure scenario
+\end{enumerate}
+
+\subsection{Karakteristik Failure Scenarios}
+\begin{itemize}
+    \item Jumlah scenarios: 30
+    \item Persentase link yang dinonaktifkan: 10-30\% (random per scenario)
+    \item Link yang dinonaktifkan: dipilih secara uniform random
+    \item Setiap scenario memiliki topologi berbeda
+    \item Scenarios dirotasi dalam training untuk variasi maksimal
+\end{itemize}
+
+\subsection{Tujuan Failure Scenarios}
+Penggunaan failure scenarios dalam training bertujuan untuk:
+\begin{itemize}
+    \item Meningkatkan generalisasi model terhadap topologi yang berubah
+    \item Mengajarkan model untuk beradaptasi dengan link failures
+    \item Mencegah overfitting pada topologi spesifik
+    \item Mensimulasikan kondisi jaringan real-world yang dinamis \cite{basikolo2023}
+\end{itemize}
+
+\section{Perancangan Arsitektur Model}
+
+\subsection{Arsitektur Graph Attention Network (GAT)}
+Model GAT dirancang menggunakan pustaka PyTorch Geometric \cite{fey2019} dengan arsitektur 3-layer dan mekanisme multi-head attention. Spesifikasi lengkap ditunjukkan pada Tabel \ref{tab:arsitektur_gat}.
+
+\begin{table}[ht]
+    \centering
+    \caption{Spesifikasi Arsitektur Model GAT}
+    \label{tab:arsitektur_gat}
+    \begin{tabular}{|l|l|l|}
+        \hline
+        \textbf{Layer} & \textbf{Konfigurasi} & \textbf{Output Dim} \\
+        \hline
+        \multicolumn{3}{|c|}{\textbf{Input Features}} \\
+        \hline
+        Node Features & 5 features (normalized) & 5 \\
+        \hline
+        Edge Features & 7 features (normalized) & 7 \\
+        \hline
+        \multicolumn{3}{|c|}{\textbf{GAT Encoder}} \\
+        \hline
+        GAT Layer 1 & Hidden: 64, Heads: 4, Dropout: 0.3 & 256 \\
+        \hline
+        Activation 1 & ELU & 256 \\
+        \hline
+        GAT Layer 2 & Hidden: 64, Heads: 4, Dropout: 0.3 & 256 \\
+        \hline
+        Activation 2 & ELU & 256 \\
+        \hline
+        GAT Layer 3 & Hidden: 64, Heads: 1, Dropout: 0.3 & 64 \\
+        \hline
+        \multicolumn{3}{|c|}{\textbf{Path Quality Predictor}} \\
+        \hline
+        Input & Concatenated embeddings [src || tgt] & 128 \\
+        \hline
+        Linear 1 & 128 → 128, ReLU, Dropout: 0.3 & 128 \\
+        \hline
+        Linear 2 & 128 → 64, ReLU, Dropout: 0.3 & 64 \\
+        \hline
+        Output & 64 → 1, Sigmoid & 1 \\
+        \hline
+    \end{tabular}
+\end{table}
+
+\subsection{Mekanisme Multi-Head Attention}
+Setiap GAT layer menggunakan mekanisme multi-head attention \cite{velickovic2017}. Untuk setiap attention head $k$:
+
+\begin{equation}
+    e_{ij}^k = \text{LeakyReLU}(\vec{a}^{kT} [W^k \vec{h}_i || W^k \vec{h}_j || \vec{e}_{ij}])
+\end{equation}
+
+\begin{equation}
+    \alpha_{ij}^k = \frac{\exp(e_{ij}^k)}{\sum_{l \in \mathcal{N}_i} \exp(e_{il}^k)}
+\end{equation}
+
+\begin{equation}
+    \vec{h}_i'^k = \sigma\left(\sum_{j \in \mathcal{N}_i} \alpha_{ij}^k W^k \vec{h}_j\right)
+\end{equation}
+
+dimana:
+\begin{itemize}
+    \item $\vec{h}_i, \vec{h}_j$ = Node features untuk node $i$ dan $j$
+    \item $\vec{e}_{ij}$ = Edge features antara node $i$ dan $j$
+    \item $W^k$ = Weight matrix untuk head $k$
+    \item $\vec{a}^k$ = Attention vector untuk head $k$
+    \item $\alpha_{ij}^k$ = Attention coefficient (normalized)
+    \item $\mathcal{N}_i$ = Neighbors dari node $i$
+\end{itemize}
+
+Output dari multi-head attention layer adalah concatenation atau average dari semua heads:
+\begin{equation}
+    \vec{h}_i' = \|_{k=1}^{K} \vec{h}_i'^k \quad \text{(Layer 1 \& 2)}
+\end{equation}
+\begin{equation}
+    \vec{h}_i' = \frac{1}{K}\sum_{k=1}^{K} \vec{h}_i'^k \quad \text{(Layer 3)}
+\end{equation}
+
+\subsection{Path Quality Prediction Mechanism}
+Untuk memprediksi kualitas sebuah jalur dengan $n$ hops:
+
+\begin{enumerate}
+    \item \textbf{Generate Node Embeddings:} Forward pass melalui 3 GAT layers menghasilkan embedding untuk semua nodes: $\mathbf{H} = [h_1, h_2, ..., h_N]$
+    
+    \item \textbf{Extract Path Embeddings:} Untuk jalur $P = [v_1, v_2, ..., v_{n+1}]$, extract embeddings: $\{h_{v_1}, h_{v_2}, ..., h_{v_{n+1}}\}$
+    
+    \item \textbf{Compute Hop Scores:} Untuk setiap hop $(v_i, v_{i+1})$:
+    \begin{equation}
+        h_{hop_i} = [h_{v_i} || h_{v_{i+1}}]
+    \end{equation}
+    \begin{equation}
+        s_i = \text{PathPredictor}(h_{hop_i})
+    \end{equation}
+    
+    \item \textbf{Aggregate dengan Hop Penalty:}
+    \begin{equation}
+        Q_{predicted} = \frac{1}{n}\sum_{i=1}^{n}s_i \times (1 - 0.03 \times n)
+    \end{equation}
+\end{enumerate}
+
+Hop penalty factor (0.03) diterapkan untuk memberikan preferensi pada jalur yang lebih pendek, konsisten dengan prinsip routing yang menghindari jalur berliku-liku.
+
+\subsection{Jumlah Parameter Model}
+Total parameter model dapat dihitung sebagai:
+\begin{itemize}
+    \item GAT Layer 1: $(5 + 7) \times 64 \times 4 = 3.072$ param (approx)
+    \item GAT Layer 2: $256 \times 64 \times 4 = 65.536$ param (approx)
+    \item GAT Layer 3: $256 \times 64 \times 1 = 16.384$ param (approx)
+    \item Path Predictor: $128 \times 128 + 128 \times 64 + 64 \times 1 = 24.640$ param
+    \item \textbf{Total: $\sim$120.000 parameters}
+\end{itemize}
+
+Jumlah parameter ini cukup ekspresif untuk menangkap kompleksitas topologi jaringan tanpa risiko overfitting yang signifikan, mengingat dataset training memiliki 8.000 samples.
+
+\section{Konfigurasi Training Model}
+
+\subsection{Training Configuration}
+Model dilatih menggunakan konfigurasi yang ditunjukkan pada Tabel \ref{tab:config_training}.
+
+\begin{table}[ht]
+    \centering
+    \caption{Konfigurasi Training Model}
+    \label{tab:config_training}
+    \begin{tabular}{|l|l|}
+        \hline
+        \textbf{Parameter} & \textbf{Nilai} \\
+        \hline
+        Optimizer & Adam \\
+        \hline
+        Learning Rate & 0.001 \\
+        \hline
+        Weight Decay & 5e-4 (L2 regularization) \\
+        \hline
+        Loss Function & Mean Squared Error (MSE) \\
+        \hline
+        Scheduler & Cosine Annealing Warm Restarts \\
+        \hline
+        Scheduler T\_0 & 20 epochs \\
+        \hline
+        Scheduler T\_mult & 2 \\
+        \hline
+        Scheduler eta\_min & 1e-6 \\
+        \hline
+        Batch Size & 128 samples (adaptive per scenario) \\
+        \hline
+        Maximum Epochs & 1000 \\
+        \hline
+        Early Stopping Patience & 25 epochs \\
+        \hline
+        Gradient Clipping & Max norm 1.0 \\
+        \hline
+        Device & CPU atau CUDA (if available) \\
+        \hline
+        Training Strategy & Alternate normal + failure scenarios \\
+        \hline
+        Number of Failure Scenarios & 30 scenarios \\
+        \hline
+    \end{tabular}
+\end{table}
+
+\subsection{Loss Function}
+Loss function yang digunakan adalah Mean Squared Error (MSE) antara predicted quality score dan true quality score (dari AHP):
+
+\begin{equation}
+    \mathcal{L} = \frac{1}{B}\sum_{i=1}^{B}(Q_{predicted_i} - Q_{true_i})^2
+\end{equation}
+
+dimana $B$ adalah batch size. MSE dipilih karena:
+\begin{itemize}
+    \item Cocok untuk regression task (memprediksi continuous value 0-1)
+    \item Memberikan penalti lebih besar untuk error yang besar
+    \item Mudah dioptimasi dengan gradient descent
+\end{itemize}
+
+\subsection{Learning Rate Scheduler}
+Digunakan Cosine Annealing Warm Restarts untuk learning rate scheduling:
+
+\begin{equation}
+    \eta_t = \eta_{min} + \frac{1}{2}(\eta_{max} - \eta_{min})(1 + \cos(\frac{T_{cur}}{T_i}\pi))
+\end{equation}
+
+dimana:
+\begin{itemize}
+    \item $\eta_t$ = Learning rate pada epoch $t$
+    \item $\eta_{max}$ = Initial learning rate (0.001)
+    \item $\eta_{min}$ = Minimum learning rate (1e-6)
+    \item $T_{cur}$ = Epoch sejak restart terakhir
+    \item $T_i$ = Periode restart (dimulai dari $T_0 = 20$, lalu $T_0 \times T_{mult}^n$)
+\end{itemize}
+
+Scheduler ini memungkinkan model untuk keluar dari local minima melalui periodic restarts.
+
+\subsection{Early Stopping}
+Early stopping diterapkan untuk mencegah overfitting:
+\begin{itemize}
+    \item Patience: 25 epochs
+    \item Metric: Validation loss dan validation accuracy
+    \item Condition: Jika val\_loss tidak turun setidaknya 0.5\% atau val\_acc tidak naik setidaknya 1\% selama 25 epoch berturut-turut, training dihentikan
+    \item Best model state disimpan dan di-restore saat stopping
+\end{itemize}
+
+\subsection{Alternate Training Strategy}
+Training dilakukan secara alternate antara graf normal dan failure scenarios:
+
+\begin{enumerate}
+    \item Epoch 0: Normal graph
+    \item Epoch 1: Failure scenario 1
+    \item Epoch 2: Failure scenario 2
+    \item ...
+    \item Epoch 30: Failure scenario 30
+    \item Epoch 31: Normal graph (cycle repeats)
+\end{enumerate}
+
+Untuk setiap epoch dan scenario:
+\begin{enumerate}
+    \item Load graf untuk epoch tersebut (normal atau failure)
+    \item Generate node embeddings
+    \item Filter training samples yang valid (semua edge dalam path tersedia)
+    \item Sample random batch (128 samples)
+    \item Forward pass dan compute loss
+    \item Backward pass dan update parameters
+    \item Evaluate pada validation set (menggunakan normal graph)
+\end{enumerate}
+
+Strategi ini memaksa model untuk belajar representasi yang robust terhadap perubahan topologi.
+
+\section{Evaluasi dan Pengujian Model}
+
+\subsection{Metrik Evaluasi}
+Kinerja model dievaluasi menggunakan metrik-metrik berikut:
+
+\subsubsection{Loss Metrics}
+\begin{enumerate}
+    \item \textbf{Training Loss:}
+    \begin{equation}
+        \mathcal{L}_{train} = \frac{1}{N_{train}}\sum_{i=1}^{N_{train}}(Q_{pred_i} - Q_{true_i})^2
+    \end{equation}
+    
+    \item \textbf{Validation Loss:}
+    \begin{equation}
+        \mathcal{L}_{val} = \frac{1}{N_{val}}\sum_{i=1}^{N_{val}}(Q_{pred_i} - Q_{true_i})^2
+    \end{equation}
+\end{enumerate}
+
+\subsubsection{Accuracy Metrics}
+Accuracy dihitung dengan tolerance threshold untuk mengakomodasi error kecil yang masih acceptable:
+
+\begin{equation}
+    Acc_{\tau} = \frac{\sum_{i=1}^{N} \mathbb{1}(|Q_{pred_i} - Q_{true_i}| < \tau)}{N} \times 100\%
+\end{equation}
+
+dimana $\mathbb{1}$ adalah indicator function dan $\tau$ adalah tolerance threshold.
+
+Tiga level tolerance digunakan:
+\begin{itemize}
+    \item \textbf{Accuracy ±0.05:} Error < 5\% (strict)
+    \item \textbf{Accuracy ±0.08:} Error < 8\% (primary metric)
+    \item \textbf{Accuracy ±0.10:} Error < 10\% (relaxed)
+\end{itemize}
+
+\subsection{Skenario Pengujian}
+
+\subsubsection{Pengujian Path Recommendation}
+Model diuji dengan memberikan query source-target dan menghasilkan top-k rekomendasi jalur:
+
+\begin{enumerate}
+    \item Input: Source node index, Target node index
+    \item Temukan semua simple paths dengan cutoff (shortest\_path\_length + 3)
+    \item Prediksi quality score untuk setiap path
+    \item Sort paths berdasarkan predicted score (descending)
+    \item Return top-k paths (default k=3)
+\end{enumerate}
+
+\subsubsection{Pengujian dengan Failure Scenarios}
+Model juga diuji pada failure scenarios untuk mengukur robustness:
+\begin{itemize}
+    \item Load failure scenario (dengan 10-30\% edges disabled)
+    \item Generate node embeddings pada modified graph
+    \item Lakukan path recommendation
+    \item Bandingkan dengan hasil pada normal graph
+\end{itemize}
+
+\subsection{Baseline Comparison}
+Rekomendasi model GAT dibandingkan dengan metode baseline:
+
+\begin{enumerate}
+    \item \textbf{Shortest Path (Hop Count):} Jalur dengan jumlah hop terkecil
+    \item \textbf{Shortest Path (AHP Weight):} Jalur dengan total weight AHP terendah menggunakan Dijkstra
+    \item \textbf{Random Alternative Paths:} Jalur alternatif dipilih secara random
+\end{enumerate}
+
+Perbandingan dilakukan berdasarkan:
+\begin{itemize}
+    \item Average quality score (menggunakan AHP calculation)
+    \item Distribution of path lengths
+    \item Diversity of recommendations
+\end{itemize}
+
+\subsection{Kriteria Keberhasilan}
+Model dianggap berhasil jika memenuhi kriteria berikut:
+
+\begin{table}[ht]
+    \centering
+    \caption{Kriteria Keberhasilan Model}
+    \label{tab:kriteria_sukses}
+    \begin{tabular}{|l|l|}
+        \hline
+        \textbf{Metrik} & \textbf{Target} \\
+        \hline
+        Validation Loss & < 0.01 \\
+        \hline
+        Validation Accuracy (±0.05) & > 50\% \\
+        \hline
+        Validation Accuracy (±0.08) & > 70\% \\
+        \hline
+        Validation Accuracy (±0.10) & > 85\% \\
+        \hline
+        Training Time & < 3 hours (pada hardware yang tersedia) \\
+        \hline
+        Average Quality Score & > Baseline shortest path \\
+        \hline
+        Recommendation Success Rate & > 95\% (dapat menemukan jalur valid) \\
+        \hline
+        Robustness on Failure & Dapat memberikan rekomendasi pada 90\% failure scenarios \\
+        \hline
+    \end{tabular}
+\end{table}
+
+\section{Lingkungan Implementasi}
+
+Spesifikasi perangkat keras dan perangkat lunak yang digunakan untuk implementasi dan pengujian sistem ditunjukkan pada Tabel \ref{tab:lingkungan_implementasi}.
+
+\begin{table}[ht]
+    \centering
+    \caption{Lingkungan Implementasi}
+    \label{tab:lingkungan_implementasi}
+    \begin{tabular}{|l|l|}
+        \hline
+        \textbf{Komponen} & \textbf{Spesifikasi} \\
+        \hline
+        \multicolumn{2}{|c|}{\textbf{Hardware}} \\
+        \hline
+        Processor & Intel Core i5 / AMD Ryzen 5 (atau setara) \\
+        \hline
+        RAM & 16 GB DDR4 \\
+        \hline
+        Storage & 256 GB SSD \\
+        \hline
+        GPU (Optional) & NVIDIA GeForce GTX 1650 / RTX 3050 \\
+        \hline
+        \multicolumn{2}{|c|}{\textbf{Software}} \\
+        \hline
+        Sistem Operasi & Linux Fedora Workstation / Ubuntu 22.04 \\
+        \hline
+        Bahasa Pemrograman & Python 3.9+ \\
+        \hline
+        Framework AI & PyTorch 2.0+, PyTorch Geometric 2.3+ \\
+        \hline
+        Libraries & NumPy, Pandas, NetworkX, Matplotlib \\
+        \hline
+        Development Tools & Jupyter Notebook, VS Code \\
+        \hline
+        Version Control & Git \\
+        \hline
+    \end{tabular}
+\end{table}
+
+\subsection{Struktur Direktori Proyek}
+\begin{verbatim}
+project/
+|-- dataset/
+|   |-- raw/                  # Data mentah dari SNMP
+|   |-- processed/            # Data yang sudah dinormalisasi
+|   |   |-- nodes_normalized.csv
+|   |   |-- edges_normalized.csv
+|   |   |-- pyg_data.pt
+|   |   |-- ahp_weights_config.json
+|   |   |-- node_mapping.json
+|   |   `-- metadata.json
+|-- models/
+|   `-- path_recommendation_model.pth  # Model terlatih
+|-- notebooks/
+|   |-- 01_data_preprocessing.ipynb
+|   |-- 02_ahp_calculation.ipynb
+|   `-- 03_model_training.ipynb
+|-- src/
+|   |-- preprocessing.py      # Data preprocessing functions
+|   |-- ahp_calculator.py     # AHP weight calculation
+|   |-- model.py              # GAT model definition
+|   |-- train.py              # Training script
+|   `-- inference.py          # Path recommendation inference
+`-- results/
+    |-- training_history.json
+    |-- evaluation_metrics.csv
+    `-- plots/
+\end{verbatim}
+
+\section{Alur Eksekusi Penelitian}
+
+Alur eksekusi lengkap penelitian dari preprocessing hingga deployment dijelaskan sebagai berikut:
+
+\begin{enumerate}
+    \item \textbf{Data Collection \& Preprocessing}
+    \begin{itemize}
+        \item Collect data dari SNMP
+        \item Clean dan normalize data
+        \item Save ke \texttt{dataset/processed/}
+    \end{itemize}
+    
+    \item \textbf{AHP Weight Calculation}
+    \begin{itemize}
+        \item Kuesioner expert judgment
+        \item Hitung bobot dengan eigenvalue method
+        \item Validasi consistency ratio
+        \item Save ke \texttt{ahp\_weights\_config.json}
+    \end{itemize}
+    
+    \item \textbf{Dataset Generation}
+    \begin{itemize}
+        \item Load normalized data dan AHP weights
+        \item Create NetworkX graph
+        \item Generate 10K training samples (60\% optimal, 40\% alternative)
+        \item Create 30 failure scenarios
+        \item Split 80/20 train/val
+    \end{itemize}
+    
+    \item \textbf{Model Training}
+    \begin{itemize}
+        \item Initialize GAT model
+        \item Pre-compute tensors untuk efficiency
+        \item Training loop dengan alternate strategy
+        \item Early stopping monitoring
+        \item Save best model checkpoint
+    \end{itemize}
+    
+    \item \textbf{Evaluation}
+    \begin{itemize}
+        \item Evaluate pada validation set
+        \item Hitung loss dan accuracy metrics
+        \item Plot training history
+        \item Compare dengan baseline methods
+    \end{itemize}
+    
+    \item \textbf{Testing \& Inference}
+    \begin{itemize}
+        \item Load trained model
+        \item Test path recommendation dengan berbagai query
+        \item Test dengan failure scenarios
+        \item Analyze hasil dan quality scores
+    \end{itemize}
+\end{enumerate}
+
+Setiap tahap menghasilkan output yang menjadi input untuk tahap berikutnya, memastikan reproducibility dan traceability dari hasil penelitian

@@ -29,7 +29,7 @@
 % [PENTING] Opsi 'titles' agar judul TOC ikut gaya titlesec (Center)
 \usepackage[titles]{tocloft}
 
-\usepackage{apacite}            % Wajib APA Style
+\usepackage{cite}            % Wajib APA Style
 \usepackage{indentfirst}        % Indentasi pada paragraf pertama
 
 % ============================================
@@ -139,11 +139,11 @@
 \frontmatter
 \input{chapters/00-cover}
 \setcounter{page}{2}            % Mulai halaman ii
-\input{chapters/04-pengesahan}
-\input{chapters/03-pernyataan}
-\input{chapters/05-abstrak-id}
-\input{chapters/06-abstrak-en}
-\input{chapters/07-kata-pengantar}
+% \input{chapters/04-pengesahan}
+% \input{chapters/03-pernyataan}
+% \input{chapters/05-abstrak-id}
+% \input{chapters/06-abstrak-en}
+% \input{chapters/07-kata-pengantar}
 
 % DAFTAR ISI dkk
 \clearpage
@@ -163,12 +163,12 @@
 \input{chapters/01-bab1}
 \input{chapters/02-bab2}
 \input{chapters/03-bab3}
-\input{chapters/04-bab4}
-\input{chapters/05-bab5}
+% \input{chapters/04-bab4}
+% \input{chapters/05-bab5}
 
 % BAGIAN AKHIR
 \clearpage
-\bibliographystyle{apacite}
+\bibliographystyle{IEEEtran}
 \addcontentsline{toc}{chapter}{DAFTAR PUSTAKA}
 \bibliography{references}
 
@@ -176,6 +176,6 @@
 \titleformat{\chapter}[display]
     {\normalfont\fontsize{14}{16}\bfseries\centering}
     {\chaptertitlename\ \thechapter}{0pt}{\fontsize{14}{16}\bfseries\uppercase}
-\input{chapters/lampiran}
+% \input{chapters/lampiran}
 
 \end{document}

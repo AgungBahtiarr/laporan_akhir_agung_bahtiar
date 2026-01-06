@@ -1,74 +1,250 @@
-% ============================================
-% BAB 2: TINJAUAN PUSTAKA
-% ============================================
-
 \chapter{TINJAUAN PUSTAKA}
 
-Pada bab ini diuraikan teori, temuan dan bahan penelitian sebelumnya yang diperoleh dari berbagai referensi yang dijadikan dasar melakukan penelitian. Kajian pustaka merupakan rangkuman singkat yang komprehensif tentang semua materi terkait. Untuk jenjang Sarjana Terapan, minimal 10 artikel dari 10 tahun terakhir.
+\section{Tinjauan Studi}
+Tinjauan studi dilakukan untuk memetakan posisi penelitian ini terhadap penelitian-penelitian sebelumnya yang relevan (*State of the Art*). Beberapa penelitian telah menerapkan metode kecerdasan buatan untuk optimasi jaringan, khususnya menggunakan \textit{Graph Neural Networks} (GNN).
 
-\section{Landasan Teori Utama}
+Penelitian yang dilakukan oleh Marouani dkk. (2024) membahas penerapan \textit{Graph Attention Networks} (GAT) untuk \textit{Traffic Engineering} pada jaringan WAN. Penelitian ini membuktikan bahwa GAT mampu menangani kompleksitas topologi jaringan yang dinamis dengan lebih baik dibandingkan metode heuristik tradisional \cite{marouani2024}. Namun, penelitian tersebut berfokus pada jaringan skala luas (WAN) dan belum menyentuh aspek preferensi subjektif administrator jaringan lokal.
 
-Bagian ini menjelaskan teori-teori dasar yang menjadi landasan penelitian. Setiap konsep atau teori harus didukung oleh referensi yang jelas.
+Selanjutnya, Almasan dkk. (2022) menggabungkan \textit{Deep Reinforcement Learning} (DRL) dengan GNN untuk kasus optimasi \textit{routing}. Hasilnya menunjukkan bahwa GNN memiliki kemampuan generalisasi yang kuat terhadap topologi yang belum pernah dilihat sebelumnya \cite{almasan2022}. Meskipun metode ini efektif, pendekatan \textit{Reinforcement Learning} membutuhkan waktu pelatihan yang lama dan lingkungan simulasi yang kompleks, yang mungkin sulit diterapkan pada ISP skala menengah.
 
-\subsection{Konsep Dasar}
+Di sisi lain, Rahman dan Hasan (2023) menggunakan \textit{Graph Convolutional Network} (GCN) untuk mempelajari pola aliran trafik data \cite{rahman2023}. GCN terbukti efektif dalam memodelkan hubungan spasial antar \textit{node}. Akan tetapi, GCN memiliki keterbatasan dalam memberikan bobot yang berbeda pada tetangga yang berbeda, yang mana hal ini dapat diatasi oleh mekanisme \textit{attention} pada GAT \cite{velickovic2017}.
 
-Jelaskan konsep dasar pertama yang relevan dengan penelitian Anda. Misalnya, jika penelitian tentang jaringan komputer, jelaskan definisi dan konsep dasar jaringan komputer menurut berbagai ahli \cite{estiasih2015}.
+Berdasarkan tinjauan tersebut, terdapat celah penelitian (\textit{gap}) di mana belum adanya integrasi antara kemampuan adaptif GAT dengan metode pembobotan multikriteria seperti \textit{Analytic Hierarchy Process} (AHP) untuk menangani parameter jaringan yang bersifat kualitatif dan prioritas kebijakan ISP lokal. Rangkuman perbandingan penelitian terdahulu dapat dilihat pada Tabel \ref{tab:state_of_the_art}.
 
-Konsep ini menjadi pondasi untuk memahami pembahasan selanjutnya. Pastikan definisi yang digunakan jelas dan berasal dari sumber yang terpercaya.
+\begin{table}[ht]
+    \centering
+    \caption{State of the Art Penelitian}
+    \label{tab:state_of_the_art}
+    \begin{tabular}{|p{3cm}|p{3.5cm}|p{3cm}|p{4cm}|}
+        \hline
+        \textbf{Peneliti (Tahun)} & \textbf{Masalah} & \textbf{Metode} & \textbf{Hasil \& Perbedaan} \\
+        \hline
+        Marouani dkk. (2024) \cite{marouani2024} & Optimasi trafik pada WAN & GAT & GAT unggul pada topologi dinamis. Bedanya: Penelitian ini mengintegrasikan AHP. \\
+        \hline
+        Almasan dkk. (2022) \cite{almasan2022} & Optimasi \textit{Routing} & DRL + GNN & Generalisasi topologi baik. Bedanya: Penelitian ini menggunakan \textit{Supervised Learning} dengan label AHP. \\
+        \hline
+        Rahman \& Hasan (2023) \cite{rahman2023} & Prediksi Aliran Trafik & GCN & Efektif untuk pola spasial. Bedanya: GAT lebih fleksibel dibanding GCN statis. \\
+        \hline
+        \textbf{Penelitian Ini} & \textbf{Rekomendasi Jalur ISP Lokal} & \textbf{GAT + AHP} & \textbf{Menggabungkan adaptabilitas GAT dengan validasi pakar via AHP.} \\
+        \hline
+    \end{tabular}
+\end{table}
 
-\subsection{Teori Pendukung}
+\section{Landasan Teori}
 
-Jelaskan teori-teori yang mendukung penelitian. Teori ini harus relevan dengan metode atau pendekatan yang akan digunakan. Gunakan contoh atau ilustrasi jika diperlukan untuk memperjelas pemahaman.
+\subsection{Manajemen Trafik Jaringan}
+Manajemen jaringan modern menuntut kemampuan untuk menangani tantangan yang kompleks dan terdistribusi \cite{alhachem2025}. \textit{Traffic Engineering} (TE) bertujuan untuk mengoptimalkan kinerja jaringan operasional dengan memindahkan trafik ke jalur yang kurang padat. Pada jaringan Layer 2 yang menggunakan VLAN, manajemen jalur menjadi krusial untuk mencegah \textit{looping} dan memastikan penggunaan \textit{link} yang seimbang. Kegagalan dalam manajemen ini dapat menyebabkan \textit{downtime} yang merugikan, sehingga prediksi kegagalan jaringan menggunakan \textit{machine learning} menjadi sangat penting \cite{basikolo2023}.
 
-Menurut penelitian \cite{satria2004}, teori X menunjukkan bahwa... Sedangkan penelitian lain \cite{anwar2006} menyatakan bahwa...
+\subsection{Graph Neural Networks (GNN)}
+\textit{Graph Neural Network} (GNN) adalah kerangka kerja \textit{deep learning} yang dirancang khusus untuk data yang direpresentasikan dalam bentuk graf. GNN memperbarui representasi fitur dari sebuah \textit{node} dengan mengagregasi informasi dari tetangga-tetangganya \cite{wu2021}. Dalam konteks jaringan komputer, \textit{router} atau \textit{switch} direpresentasikan sebagai \textit{node}, sedangkan kabel fisik direpresentasikan sebagai \textit{edge} \cite{zhou2020}.
 
-\section{Penelitian Terdahulu (State of the Art)}
+\subsection{Graph Attention Network (GAT)}
+\textit{Graph Attention Network} (GAT) diperkenalkan oleh Veličković dkk. (2017) sebagai pengembangan dari GNN yang memanfaatkan mekanisme \textit{masked self-attention}. Keunggulan utama GAT adalah kemampuannya untuk memberikan bobot kepentingan (\textit{attention score}) yang berbeda-beda untuk setiap tetangga \textit{node}, tanpa bergantung pada struktur graf yang statis seperti pada GCN \cite{velickovic2017, kato2024}.
 
-Bagian ini mengulas penelitian-penelitian sebelumnya yang relevan dengan topik Tugas Akhir. Tujuannya untuk menunjukkan gap atau kesenjangan penelitian yang akan diisi oleh penelitian ini.
+Secara matematis, koefisien atensi $\alpha_{ij}$ antara node $i$ dan node $j$ dihitung menggunakan persamaan:
+\begin{equation}
+    \alpha_{ij} = \frac{\exp(\text{LeakyReLU}(\vec{a}^T [W\vec{h}_i || W\vec{h}_j]))}{\sum_{k \in \mathcal{N}_i} \exp(\text{LeakyReLU}(\vec{a}^T [W\vec{h}_i || W\vec{h}_k]))}
+\end{equation}
+Dimana $\vec{h}$ adalah fitur node, $W$ adalah matriks bobot, dan $\vec{a}$ adalah vektor bobot atensi. Mekanisme ini memungkinkan model untuk fokus pada \textit{link} yang memiliki kualitas lebih baik (misalnya latensi rendah) saat melakukan agregasi informasi \cite{su2024}.
 
-\subsection{Penelitian Pertama}
+**Arsitektur GAT dalam Penelitian:**
 
-Nama peneliti (tahun) melakukan penelitian tentang... dengan metode... Hasil penelitian menunjukkan bahwa... \cite{nurtjahya2011}. Kelebihan penelitian ini adalah... sedangkan kelemahannya adalah...
-
-\subsection{Penelitian Kedua}
-
-Penelitian lain oleh... (tahun) membahas tentang... Penelitian ini menggunakan pendekatan... dan menghasilkan... \cite{nasoetion2002}.
-
-\subsection{Analisis Gap Penelitian}
-
-Dari beberapa penelitian di atas, dapat diidentifikasi bahwa:
+Model GAT yang diimplementasikan dalam penelitian ini memiliki arsitektur sebagai berikut:
 \begin{enumerate}
-    \item Penelitian pertama belum membahas aspek X
-    \item Penelitian kedua menggunakan metode Y yang memiliki keterbatasan Z
-    \item Belum ada penelitian yang mengombinasikan pendekatan A dengan B
+    \item \textbf{Layer 1 (GAT Conv):}
+    \begin{itemize}
+        \item Input: Node features (5 dimensi) dan Edge features (7 dimensi)
+        \item Output: Hidden dimension 64 dengan 4 attention heads
+        \item Total output: 256 dimensi (64 × 4)
+        \item Activation: ELU (Exponential Linear Unit)
+        \item Dropout: 0.3
+    \end{itemize}
+
+    \item \textbf{Layer 2 (GAT Conv):}
+    \begin{itemize}
+        \item Input: 256 dimensi dari layer sebelumnya
+        \item Output: Hidden dimension 64 dengan 4 attention heads
+        \item Total output: 256 dimensi
+        \item Activation: ELU
+        \item Dropout: 0.3
+    \end{itemize}
+
+    \item \textbf{Layer 3 (GAT Conv):}
+    \begin{itemize}
+        \item Input: 256 dimensi
+        \item Output: Hidden dimension 64 dengan 1 attention head
+        \item Total output: 64 dimensi (node embeddings)
+        \item Dropout: 0.3
+    \end{itemize}
+
+    \item \textbf{Path Quality Predictor:}
+    \begin{itemize}
+        \item Fully Connected Network dengan 3 layer
+        \item Layer 1: 128 $\rightarrow$ 128 (ReLU, Dropout 0.3)
+        \item Layer 2: 128 $\rightarrow$ 64 (ReLU, Dropout 0.3)
+        \item Layer 3: 64 $\rightarrow$ 1 (Sigmoid)
+        \item Output: Quality score [0, 1]
+    \end{itemize}
 \end{enumerate}
 
-Oleh karena itu, penelitian ini akan mengisi gap tersebut dengan cara...
+**Mekanisme Prediksi Kualitas Jalur:**
 
-\section{Metode/Teknologi yang Digunakan}
+Untuk memprediksi kualitas sebuah jalur, model melakukan langkah-langkah berikut:
+\begin{enumerate}
+    \item Generate node embeddings untuk seluruh node dalam graf menggunakan 3 layer GAT
+    \item Untuk setiap hop dalam jalur, concatenate embedding node source dan target: $h_{hop} = [h_i || h_j]$
+    \item Hitung skor kualitas setiap hop menggunakan Path Quality Predictor
+    \item Aggregate skor semua hop dengan rata-rata dan apply hop penalty:
+    \begin{equation}
+        Q_{predicted} = \text{mean}(Q_{hop_1}, ..., Q_{hop_n}) \times (1 - 0.03 \times n)
+    \end{equation}
+\end{enumerate}
 
-\subsection{Metode A}
+Penggunaan multi-head attention (4 heads pada layer 1 dan 2) memungkinkan model untuk mempelajari berbagai aspek penting dari koneksi jaringan secara paralel \cite{velickovic2017}. Total parameter model adalah sekitar 100.000-150.000 parameter, yang cukup ekspresif untuk menangkap kompleksitas topologi jaringan tanpa risiko overfitting yang signifikan.
 
-Jelaskan metode atau teknologi utama yang akan digunakan dalam penelitian. Berikan dasar teori yang kuat dan referensi yang mendukung.
 
-Metode ini dipilih karena memiliki keunggulan dalam hal... dibandingkan dengan metode lain \cite{pelczar1986}.
+\subsection{Analytic Hierarchy Process (AHP)}
+\textit{Analytic Hierarchy Process} (AHP) adalah metode pengambilan keputusan multikriteria yang dikembangkan oleh Thomas L. Saaty pada tahun 1970-an. AHP dirancang untuk memecahkan masalah keputusan yang kompleks dengan menyusunnya ke dalam hierarki tujuan, kriteria, dan alternatif \cite{saaty2008}. Metode ini telah diterapkan secara luas di berbagai bidang termasuk manajemen jaringan dan teknik transportasi \cite{khan2020, giouroukelis2026}.
 
-\subsection{Metode B (Untuk Sarjana Terapan)}
+Prinsip dasar AHP adalah melakukan perbandingan berpasangan (\textit{pairwise comparison}) antar kriteria menggunakan skala fundamental Saaty 1-9, dimana nilai 1 menunjukkan kedua kriteria memiliki kepentingan yang sama, sedangkan nilai 9 menunjukkan satu kriteria sangat lebih penting dibanding yang lain \cite{saaty2003}. Hasil dari perbandingan berpasangan ini kemudian diolah menggunakan metode \textit{eigenvalue} untuk menghasilkan bobot prioritas setiap kriteria.
 
-Untuk jenjang Sarjana Terapan, minimal harus ada perbandingan 2 metode atau lebih. Jelaskan metode kedua yang akan dibandingkan.
+**Tahapan AHP dalam penelitian ini:**
+\begin{enumerate}
+    \item \textbf{Identifikasi Kriteria:} Parameter jaringan yang dibobotkan terdiri dari dua kategori:
+    \begin{itemize}
+        \item \textit{Node criteria}: CPU usage, RAM usage, traffic score, interface utilization, dan status
+        \item \textit{Edge criteria}: Link quality, bandwidth utilization A/B, interface speed A/B, distance, dan status
+    \end{itemize}
 
-Perbandingan kedua metode ini akan membantu dalam pengambilan keputusan solusi terbaik untuk menyelesaikan permasalahan penelitian.
+    \item \textbf{Pairwise Comparison Matrix:} Pakar membuat matriks perbandingan berpasangan $A = [a_{ij}]$ dimana $a_{ij}$ merepresentasikan tingkat kepentingan kriteria $i$ terhadap kriteria $j$.
+
+    \item \textbf{Perhitungan Bobot:} Vektor bobot prioritas $w$ dihitung dari eigenvector principal dari matriks $A$ yang memenuhi:
+    \begin{equation}
+        A \cdot w = \lambda_{max} \cdot w
+    \end{equation}
+    dimana $\lambda_{max}$ adalah eigenvalue maksimum.
+
+    \item \textbf{Uji Konsistensi:} Konsistensi penilaian dievaluasi menggunakan \textit{Consistency Index} (CI) dan \textit{Consistency Ratio} (CR):
+    \begin{equation}
+        CI = \frac{\lambda_{max} - n}{n - 1}
+    \end{equation}
+    \begin{equation}
+        CR = \frac{CI}{RI}
+    \end{equation}
+    dimana $n$ adalah jumlah kriteria dan $RI$ adalah \textit{Random Index}. Nilai CR $\leq$ 0.10 dianggap konsisten \cite{bose2024}.
+\end{enumerate}
+
+**Penerapan AHP dalam Penelitian:**
+
+Dalam konteks penelitian ini, AHP digunakan untuk menghitung skor kualitas jalur yang menjadi label target dalam pelatihan model GAT. Skor kualitas node dihitung sebagai:
+\begin{equation}
+    Q_{node} = \sum_{i=1}^{5} w_i \cdot f_i
+\end{equation}
+dimana $w_i$ adalah bobot AHP untuk fitur ke-$i$ dan $f_i$ adalah nilai fitur yang dinormalisasi.
+
+Skor kualitas edge dihitung sebagai:
+\begin{equation}
+    Q_{edge} = \sum_{j=1}^{7} w_j \cdot g_j
+\end{equation}
+dimana $w_j$ adalah bobot AHP untuk fitur edge ke-$j$ dan $g_j$ adalah nilai fitur edge yang dinormalisasi.
+
+Skor kualitas jalur total dihitung sebagai rata-rata skor node dan edge dalam jalur, dengan penalti untuk panjang jalur:
+\begin{equation}
+    Q_{path} = \frac{\sum Q_{node} + \sum Q_{edge}}{N_{components}} \times (1 - 0.05 \times N_{hops})
+\end{equation}
+dimana $N_{components}$ adalah jumlah node dan edge dalam jalur, dan $N_{hops}$ adalah panjang jalur.
+
+Keunggulan AHP dalam penelitian ini adalah kemampuannya untuk mengintegrasikan penilaian subjektif pakar dengan data objektif, serta menghasilkan bobot yang konsisten melalui perhitungan \textit{Consistency Ratio} (CR) \cite{bose2024}. Bobot AHP yang dihasilkan kemudian disimpan dalam file konfigurasi JSON dan digunakan secara konsisten dalam pembentukan label training dan evaluasi model.
+
+
+\subsection{PyTorch Geometric}
+PyTorch Geometric (PyG) adalah pustaka ekstensi untuk PyTorch yang menyediakan implementasi efisien dari berbagai metode pembelajaran mendalam pada graf, termasuk GAT \cite{fey2019}. PyG memfasilitasi penanganan data graf yang tidak teratur dan mempercepat proses pelatihan model melalui pemrosesan GPU yang teroptimasi.
 
 \section{Kerangka Pemikiran}
+Kerangka pemikiran menggambarkan alur logika penelitian dari identifikasi masalah hingga solusi yang dihasilkan. Pada penelitian ini, permasalahan utama adalah ketidakefisienan penentuan jalur pada jaringan yang kompleks dengan banyak parameter kualitas yang harus dipertimbangkan. Solusi yang ditawarkan adalah sistem rekomendasi berbasis GAT yang diperkuat dengan pembobotan AHP.
 
-Bagian ini menjelaskan alur berpikir penelitian dari awal hingga akhir. Dapat disajikan dalam bentuk diagram atau narasi.
+Alur kerangka pemikiran penelitian ini dijelaskan sebagai berikut:
+\begin{enumerate}
+    \item \textbf{Input Data Jaringan:}
+    \begin{itemize}
+        \item Data topologi jaringan (nodes dan edges)
+        \item Metrik kinerja node: CPU usage, RAM usage, traffic in/out, interface utilization, status
+        \item Metrik kinerja edge: Link quality, bandwidth utilization A/B, interface speed A/B, distance, status
+    \end{itemize}
 
-\begin{figure}[htbp]
+    \item \textbf{Proses Pembobotan (AHP):}
+    \begin{itemize}
+        \item Pakar jaringan memberikan penilaian perbandingan berpasangan terhadap parameter kualitas jaringan
+        \item Hitung bobot prioritas menggunakan metode eigenvalue
+        \item Validasi konsistensi menggunakan Consistency Ratio (CR $\leq$ 0.10)
+        \item Simpan bobot dalam konfigurasi (ahp\_weights\_config.json)
+    \end{itemize}
+
+    \item \textbf{Pembentukan Dataset Training:}
+    \begin{itemize}
+        \item Generate 10.000 sample jalur (60\% optimal, 40\% alternatif)
+        \item Hitung skor kualitas setiap jalur menggunakan bobot AHP sebagai label target
+        \item Buat 30 skenario kegagalan link (10-30\% edge disabled) untuk robustness training
+    \end{itemize}
+
+    \item \textbf{Proses Learning (GAT):}
+    \begin{itemize}
+        \item Konstruksi graf PyTorch Geometric dari data topologi
+        \item Training model GAT (3 layers, 4 heads, hidden dim 64) menggunakan supervised learning
+        \item Optimasi dengan Adam optimizer, learning rate 0.001, Cosine Annealing scheduler
+        \item Loss function: Mean Squared Error (MSE)
+        \item Early stopping dengan patience 25 epoch
+        \item Alternate training antara normal graph dan failure scenarios
+    \end{itemize}
+
+    \item \textbf{Output - Rekomendasi Jalur:}
+    \begin{itemize}
+        \item Model menghasilkan node embeddings untuk seluruh graf
+        \item Untuk query source-target tertentu, temukan semua simple paths
+        \item Prediksi skor kualitas setiap path menggunakan Path Quality Predictor
+        \item Ranking dan return top-k paths (k=3) dengan skor tertinggi
+    \end{itemize}
+
+    \item \textbf{Evaluasi:}
+    \begin{itemize}
+        \item Metrik: Training/Validation Loss dan Accuracy (toleransi ±0.05, ±0.08, ±0.10)
+        \item Perbandingan dengan shortest path algorithm (Dijkstra) berbasis weight konvensional
+        \item Testing dengan failure scenarios untuk validasi ketahanan model
+    \end{itemize}
+
+    \item \textbf{Tujuan Akhir:}
+    \begin{itemize}
+        \item Meningkatkan efisiensi trafik jaringan PT Lare Osing Ndo
+        \item Meminimalkan latensi dan kongesti
+        \item Memberikan rekomendasi jalur yang adaptif terhadap kondisi jaringan real-time
+    \end{itemize}
+\end{enumerate}
+
+Gambar \ref{fig:kerangka_pemikiran} berikut memvisualisasikan kerangka pemikiran tersebut dalam bentuk diagram alir.
+
+\begin{figure}[ht]
     \centering
-    % Uncomment jika sudah ada gambar kerangka pemikiran
-    % \includegraphics[width=0.8\textwidth]{images/kerangka-pemikiran.png}
+    % \includegraphics[width=0.95\textwidth]{images/kerangka_pemikiran.png}
+    \fbox{\begin{minipage}{14cm}
+        \centering
+        \vspace{1cm}
+        \textbf{[DIAGRAM KERANGKA PEMIKIRAN]} \\
+        \vspace{0.5cm}
+        Input: Topologi + Metrik Jaringan \\
+        $\downarrow$ \\
+        Pembobotan AHP (Expert Judgment) \\
+        $\downarrow$ \\
+        Generate Training Samples (10K paths) \\
+        $\downarrow$ \\
+        Training GAT Model (3 layers, 4 heads) \\
+        $\downarrow$ \\
+        Node Embeddings + Path Quality Predictor \\
+        $\downarrow$ \\
+        Top-K Path Recommendation \\
+        $\downarrow$ \\
+        Output: Optimal Routes
+        \vspace{1cm}
+    \end{minipage}}
     \caption{Kerangka Pemikiran Penelitian}
-    \label{fig:kerangka-pemikiran}
+    \label{fig:kerangka_pemikiran}
 \end{figure}
-
-Berdasarkan landasan teori dan penelitian terdahulu, penelitian ini akan dimulai dengan... kemudian dilanjutkan dengan... sehingga menghasilkan...
