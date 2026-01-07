@@ -1,147 +1,101 @@
 \chapter{METODOLOGI PENELITIAN}
 
 \section{Tahapan Penelitian}
-Penelitian ini dilaksanakan melalui serangkaian tahapan sistematis untuk memastikan pencapaian tujuan yang telah ditetapkan. Alur penelitian dimulai dari identifikasi masalah hingga penarikan kesimpulan, sebagaimana divisualisasikan pada Gambar \ref{fig:alur_penelitian}.
+Penelitian ini dilaksanakan melalui serangkaian tahapan sistematis untuk memastikan pencapaian tujuan yang telah ditetapkan. Alur penelitian dimulai dari studi literatur, pengumpulan data, hingga evaluasi model, sebagaimana divisualisasikan pada Gambar \ref{fig:alur_penelitian}.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=10cm]{images/flowchart3.png} 
-    % Pastikan file gambar flowchart3.png ada di folder images
+    \includegraphics[width=0.5\textwidth]{images/flowchart3.png}
     \caption{Diagram Alur Penelitian}
     \label{fig:alur_penelitian}
 \end{figure}
 
-Secara rinci, tahapan penelitian dijelaskan sebagai berikut:
+Secara rinci, tahapan penelitian dijelaskan dalam sub-bab berikut.
 
-\subsection{Studi Literatur}
-Tahap ini difokuskan pada pemahaman konsep dasar melalui jurnal internasional bereputasi dan buku referensi. Topik utama meliputi \textit{Graph Attention Network} (GAT) untuk data topologi \cite{velickovic2017}, metode \textit{Analytic Hierarchy Process} (AHP) untuk pembobotan multikriteria \cite{saaty2008}, serta teknik \textit{Traffic Engineering} modern pada jaringan ISP \cite{marouani2024}.
-
-\subsection{Pengumpulan Data}
-Pengumpulan data dilakukan untuk mendapatkan data topologi jaringan riil dan preferensi kebijakan routing. Instrumen yang digunakan meliputi:
-\begin{itemize}
-    \item \textbf{Observasi SNMP:} Mengambil data metrik perangkat dan link dari perangkat aktif PT Lare Osing Ndo secara \textit{real-time}.
-    \item \textbf{Kuesioner Pakar:} Mengumpulkan penilaian subjektif dari \textit{Network Engineer} senior untuk mengisi matriks perbandingan berpasangan AHP.
-\end{itemize}
-
-\subsection{Preprocessing dan AHP}
-Data mentah dari SNMP dinormalisasi menggunakan teknik \textit{Min-Max Scaling}. Selanjutnya, bobot prioritas kriteria dihitung menggunakan metode AHP. Validitas data diuji menggunakan \textit{Consistency Ratio} (CR). Jika nilai $CR > 0.1$, pakar diminta meninjau ulang penilaiannya untuk menjaga konsistensi data \cite{bose2024}.
-
-\subsection{Pengembangan Model GAT}
-Model GAT dibangun menggunakan kerangka kerja \textit{PyTorch Geometric}. Model dilatih menggunakan dataset jalur yang telah dilabeli dengan skor kualitas hasil perhitungan AHP. Strategi pelatihan melibatkan skenario kegagalan \textit{link} (\textit{failure scenarios}) untuk meningkatkan ketahanan (\textit{robustness}) model terhadap perubahan topologi.
-
-\subsection{Evaluasi dan Analisis}
-Performa model diuji menggunakan data validasi yang belum pernah dilihat sebelumnya (20\% dari dataset). Metrik evaluasi utama adalah \textit{Mean Squared Error} (MSE) untuk regresi skor dan Akurasi prediksi. Analisis dilakukan dengan membandingkan rekomendasi jalur model terhadap jalur terpendek konvensional (Dijkstra) dan jalur optimal manual.
-
-\section{Metode Pengumpulan Data}
-Data penelitian diklasifikasikan menjadi data primer yang bersumber langsung dari infrastruktur jaringan PT Lare Osing Ndo.
+\section{Metode Pengumpulan dan Pengolahan Data}
+Data penelitian diklasifikasikan menjadi data primer yang bersumber langsung dari infrastruktur jaringan PT Lare Osing Ndo. Proses ini mencakup akuisisi data mentah hingga pembobotan fitur.
 
 \subsection{Parameter Jaringan (SNMP)}
-Data kuantitatif diambil menggunakan protokol SNMP. Agar representasi graf sesuai dengan struktur data pelatihan model GAT, parameter dibagi menjadi dimensi Node dan Edge sebagai berikut:
+Data kuantitatif diambil menggunakan protokol SNMP (\textit{Simple Network Management Protocol}). Agar representasi graf sesuai dengan struktur data pelatihan model GAT, parameter dibagi menjadi dimensi \textit{Node} dan \textit{Edge} sebagai berikut:
 
 \begin{enumerate}
-    \item \textbf{Atribut Node (5 Dimensi):}
-    \begin{itemize}
-        \item \textit{CPU Usage}: Persentase penggunaan prosesor perangkat.
-        \item \textit{RAM Usage}: Persentase penggunaan memori perangkat.
-        \item \textit{Traffic In}: Total trafik masuk rata-rata.
-        \item \textit{Traffic Out}: Total trafik keluar rata-rata.
-        \item \textit{Interface Utilization}: Rata-rata penggunaan antarmuka pada node.
-    \end{itemize}
-    
-    \item \textbf{Atribut Edge (7 Dimensi):}
-    \begin{itemize}
-        \item \textit{Link Quality}: Kualitas sinyal atau kesehatan link (dinormalisasi).
-        \item \textit{Bandwidth Utilization Side A}: Persentase penggunaan bandwidth dari sisi perangkat sumber.
-        \item \textit{Bandwidth Utilization Side B}: Persentase penggunaan bandwidth dari sisi perangkat tujuan.
-        \item \textit{Interface Speed Side A}: Kecepatan fisik port pada sisi sumber.
-        \item \textit{Interface Speed Side B}: Kecepatan fisik port pada sisi tujuan.
-        \item \textit{Geographical Distance}: Jarak fisik antar perangkat (km).
-        \item \textit{Link Status}: Status operasional link (Up/Down).
-    \end{itemize}
+    \item \textbf{Node Features}: Parameter yang berkaitan dengan perangkat keras, seperti persentase penggunaan CPU, penggunaan memori (RAM), dan utilisasi antarmuka.
+    \item \textbf{Edge Features}: Parameter yang berkaitan dengan kualitas koneksi antar perangkat, seperti \textit{bandwidth availability}, \textit{latency}, dan kualitas sinyal.
 \end{enumerate}
 
-\subsection{Penilaian Pakar (AHP)}
-Data kualitatif diperoleh melalui kuesioner AHP. Responden (\textit{Network Engineer} Senior) diminta membandingkan tingkat kepentingan antar parameter (misal: "Apakah Kualitas Link lebih penting daripada Jarak?"). Skala penilaian menggunakan Skala Saaty (1-9).
+\subsection{Pembobotan AHP dan Uji Konsistensi}
+Untuk menangani subjektivitas dalam penentuan prioritas parameter, pakar jaringan diminta menilai tingkat kepentingan relatif antar kriteria menggunakan Skala Saaty (1--9) \cite{saaty2008}. Penilaian tersebut disusun ke dalam matriks perbandingan berpasangan $A$ berukuran $n \times n$.
 
-\section{Preprocessing Data}
+Bobot prioritas $w$ (vektor eigen) dihitung melalui langkah-langkah berikut:
+\begin{enumerate}
+    \item Melakukan normalisasi pada setiap kolom matriks $A$.
+    \item Menghitung nilai rata-rata dari setiap baris matriks yang telah dinormalisasi untuk mendapatkan vektor bobot prioritas $w$.
+\end{enumerate}
 
-\subsection{Pembersihan dan Normalisasi}
-Data mentah seringkali memiliki rentang nilai yang berbeda jauh. Normalisasi dilakukan dengan rumus:
-\begin{equation}
-    x' = \frac{x - \min(x)}{\max(x) - \min(x)}
-\end{equation}
-Tujuannya adalah membawa seluruh fitur ke dalam rentang [0, 1] agar proses pelatihan GAT berjalan stabil dan konvergen lebih cepat.
-
-\subsection{Konversi ke Struktur Graf}
-Data tabular dikonversi menjadi objek Graf \textit{PyTorch Geometric} yang terdiri dari:
-\begin{itemize}
-    \item \texttt{x}: Matriks fitur node berdimensi $[N \times 5]$ (CPU, RAM, Util, Temp, Status).
-    \item \texttt{edge\_index}: Matriks konektivitas (indeks \textit{source} $\to$ \textit{target}).
-    \item \texttt{edge\_attr}: Matriks fitur edge berdimensi $[E \times 7]$ (Signal, BW, Dist, Latency, Jitter, Loss, Cost).
-\end{itemize}
-
-\section{Perhitungan Bobot AHP}
-Bobot AHP digunakan untuk menghasilkan \textit{"Ground Truth"} atau label kualitas jalur yang akan dipelajari oleh AI.
-
-\subsection{Matriks Perbandingan Berpasangan}
-Pakar menyusun matriks $A$ berukuran $n \times n$. Bobot prioritas $w$ diperoleh dengan mencari vektor eigen utama dari persamaan:
+Secara matematis, hal ini setara dengan menyelesaikan persamaan eigen:
 \begin{equation}
     A \cdot w = \lambda_{max} \cdot w
 \end{equation}
+Dimana $\lambda_{max}$ adalah nilai eigen maksimum.
 
-\subsection{Uji Konsistensi}
-Konsistensi dihitung dengan indeks $CI = (\lambda_{max} - n)/(n-1)$ dan rasio $CR = CI/RI$. Nilai $CR \le 0.10$ menjadi syarat mutlak agar bobot AHP dapat digunakan dalam pelabelan dataset.
+Selanjutnya, karena manusia memiliki keterbatasan dalam menjaga konsistensi, validitas bobot diuji menggunakan rasio konsistensi ($CR$).
+\begin{equation}
+    CR = \frac{CI}{RI}
+\end{equation}
+Dimana $CI$ adalah \textit{Consistency Index} dan $RI$ adalah \textit{Random Index}. Jika nilai $CR \le 0.1$, maka bobot dianggap valid dan dapat digunakan untuk pelabelan data.
 
 \section{Pembentukan Dataset Training}
-Dataset pelatihan terdiri dari 10.000 sampel jalur yang dibagi menjadi dua kategori untuk memastikan keseimbangan data:
-\begin{enumerate}
-    \item \textbf{Jalur Optimal (60\%):} Jalur terbaik yang dihasilkan oleh algoritma Dijkstra menggunakan \textit{cost} dari bobot AHP. Ini mengajarkan model tentang karakteristik jalur yang "ideal".
-    \item \textbf{Jalur Sub-optimal Valid (40\%):} Jalur alternatif yang didapatkan dari algoritma \textit{K-Shortest Path} (urutan ke-2, ke-3, dst). Ini berfungsi sebagai \textit{negative sample} agar model bisa membedakan jalur terbaik dengan jalur yang "sekadar cukup".
-\end{enumerate}
+Kualitas model sangat bergantung pada kualitas data latih. Dataset disusun untuk merepresentasikan berbagai kondisi jaringan, mulai dari kondisi ideal hingga kondisi padat (kongesti).
 
-\section{Arsitektur Model (Proposed Method)}
-Sistem yang diusulkan menggunakan arsitektur \textit{Graph Attention Network} (GAT) dengan spesifikasi detil pada Tabel \ref{tab:model_spec}.
+\subsection{Pembangkitan Label Kualitas (Ground Truth)}
+Setiap jalur yang mungkin dalam topologi diberikan label skor kualitas ($Q$) yang dihitung berdasarkan penjumlahan terbobot dari nilai atribut ($f$) dikalikan dengan bobot AHP ($w$):
+\begin{equation}
+    Q_{path} = \sum_{i=1}^{k} w_i \cdot f_i
+\end{equation}
+Semakin tinggi nilai $Q$, semakin baik kualitas jalur tersebut menurut preferensi pakar.
+
+\subsection{Kategori Sampel Jalur}
+Agar model dapat membedakan kualitas rute, sampel data dibagi menjadi dua kategori:
+\begin{itemize}
+    \item \textbf{Jalur Optimal:} Jalur dengan skor $Q$ tertinggi yang dihasilkan oleh algoritma Dijkstra menggunakan bobot biaya dari AHP.
+    \item \textbf{Jalur Sub-optimal Valid:} Jalur alternatif (urutan ke-2, ke-3, dst) yang dihasilkan oleh algoritma \textit{K-Shortest Path}, berfungsi sebagai pembanding negatif agar model mempelajari nuansa perbedaan kualitas.
+\end{itemize}
+
+\section{Rancangan Arsitektur Model (Proposed Method)}
+Sistem yang diusulkan menggunakan arsitektur \textit{Graph Attention Network} (GAT) sebagaimana diperkenalkan oleh Veličković et al. \cite{velickovic2017}. Spesifikasi rancangan awal (\textit{baseline}) ditunjukkan pada Tabel \ref{tab:model_spec}, namun parameter final akan ditentukan melalui proses \textit{hyperparameter tuning}.
 
 \begin{table}[H]
     \centering
-    \caption{Spesifikasi Arsitektur GAT}
+    \caption{Rancangan Awal Arsitektur GAT}
     \label{tab:model_spec}
     \small
-    \renewcommand{\arraystretch}{1.2} 
-    \begin{tabular}{p{3cm} p{5cm} p{6cm}}
+    \renewcommand{\arraystretch}{1.2}
+    \begin{tabular}{p{3cm} p{5cm} p{5cm}}
         \toprule
-        \textbf{Komponen} & \textbf{Spesifikasi} & \textbf{Fungsi} \\
+        \textbf{Komponen} & \textbf{Konfigurasi Awal} & \textbf{Fungsi} \\
         \midrule
-        Input Layer & Node (5 dim), Edge (7 dim) & Menerima fitur jaringan lengkap yang telah dinormalisasi. \\
+        Input Layer & Node Features, Edge Features & Menerima fitur jaringan lengkap yang telah dinormalisasi. \\
         \midrule
-        GAT Layer 1 & 64 Hidden Units, 4 Heads & Ekstraksi fitur graf tingkat rendah (lokal). \\
+        GAT Layers & Stacked Layers (e.g., 3 Layers), Multi-Head Attention & Ekstraksi fitur graf dari level lokal hingga tetangga yang lebih luas. \\
         \midrule
-        GAT Layer 2 & 64 Hidden Units, 4 Heads & Ekstraksi fitur graf tingkat menengah (tetangga). \\
+        Hidden Units & Tunable (e.g., 64/128 units) & Dimensi fitur tersembunyi untuk merepresentasikan kompleksitas data. \\
         \midrule
-        GAT Layer 3 & 64 Hidden Units, 1 Head & Agregasi akhir menjadi \textit{Node Embeddings}. \\
-        \midrule
-        % Perbaikan di sini: Menggunakan math mode ($\to$) dengan spasi yang cukup
-        Path Predictor & MLP (128 $\to$ 64 $\to$ 1) & Memprediksi skor kualitas jalur dari gabungan embedding node. \\
+        Path Predictor & Multilayer Perceptron (MLP) & Memprediksi skor kualitas jalur dari gabungan embedding node (agregasi). \\
         \bottomrule
     \end{tabular}
 \end{table}
 
-Mekanisme \textit{Multi-Head Attention} memungkinkan model mempelajari berbagai aspek hubungan antar perangkat secara paralel \cite{velickovic2017}.
-
 \section{Skenario Pengujian (Robustness)}
-Untuk menjawab tantangan jaringan dinamis, penelitian ini merancang 30 skenario kegagalan (\textit{Failure Scenarios}).
+Untuk menjawab tantangan jaringan dinamis, penelitian ini merancang simulasi kegagalan tautan (\textit{Failure Scenarios}).
 \begin{itemize}
-    \item \textbf{Metode:} Menonaktifkan 10\% hingga 30\% \textit{link} secara acak pada graf topologi.
-    \item \textbf{Tujuan:} Menguji kemampuan \textit{inductive learning} model, yaitu apakah model tetap mampu menemukan jalur alternatif terbaik pada topologi yang belum pernah dilihat sebelumnya (tanpa \textit{retraining}) \cite{ye2025}.
+    \item \textbf{Metode:} Menonaktifkan sejumlah persentase \textit{link} secara acak pada graf topologi saat pengujian.
+    \item \textbf{Tujuan:} Menguji kemampuan \textit{inductive learning} model, yaitu memastikan model tetap mampu menemukan jalur alternatif terbaik meskipun topologi berubah drastis dibanding saat pelatihan.
 \end{itemize}
 
 \section{Evaluasi Model}
-Keberhasilan model diukur berdasarkan indikator berikut:
+Keberhasilan model diukur berdasarkan indikator kinerja utama berikut:
 \begin{enumerate}
-    \item \textbf{Loss Function (MSE):} Mengukur selisih kuadrat antara skor prediksi model dan skor AHP. Target: $Loss < 0.01$.
-    \item \textbf{Akurasi ($\pm$ 0.08):} Persentase prediksi yang memiliki deviasi kurang dari 8\% terhadap target. Target: $Akurasi > 80\%$.
-    \item \textbf{Waktu Inferensi:} Waktu yang dibutuhkan untuk memberikan rekomendasi jalur. Target: $< 100$ milidetik.
+    \item \textbf{Loss Function (MSE):} Mengukur selisih kuadrat antara skor prediksi model dan skor referensi AHP, dengan tujuan meminimalkan nilai \textit{error} saat konvergensi.
+    \item \textbf{Akurasi Prediksi:} Tingkat ketepatan model dalam merekomendasikan jalur yang sesuai dengan preferensi pakar (\textit{Top-k Precision}, dengan $k=3$).
+    \item \textbf{Waktu Inferensi:} Waktu komputasi yang dibutuhkan model untuk memberikan rekomendasi jalur, dengan target performa \textit{real-time} (< 100 ms).
 \end{enumerate}
-
-\section{Lingkungan Implementasi}
-Eksperimen dilakukan menggunakan perangkat keras dengan prosesor Intel Core i5/Ryzen 5 dan RAM 16GB. Perangkat lunak yang digunakan berbasis Python 3.9 dengan pustaka utama \textit{PyTorch Geometric} untuk GNN dan \textit{NetworkX} untuk manipulasi graf dasar.

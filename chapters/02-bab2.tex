@@ -1,5 +1,3 @@
-
-
 \chapter{TINJAUAN PUSTAKA}
 
 \section{Tinjauan Studi}
@@ -20,17 +18,17 @@ Berdasarkan tinjauan di atas, ditemukan celah permasalahan di mana belum ada pen
     \label{tab:state_of_the_art}
     \small
     \begin{tabular}{p{3cm} p{3cm} p{2.5cm} p{4.5cm}}
-        \toprule
+        \hline
         \textbf{Peneliti (Tahun)} & \textbf{Masalah} & \textbf{Metode} & \textbf{Hasil \& Perbedaan} \\
-        \midrule
+        \hline
         Marouani dkk. (2024) \cite{marouani2024} & Optimasi trafik pada WAN & GAT & Unggul di topologi dinamis. \textbf{Bedanya:} Penelitian ini menambahkan validasi pakar via AHP. \\
-        \midrule
+        \hline
         Almasan dkk. (2022) \cite{almasan2022} & Optimasi \textit{Routing} & DRL + GNN & Generalisasi baik tapi training berat. \textbf{Bedanya:} Penelitian ini menggunakan \textit{Supervised Learning} yang lebih efisien. \\
-        \midrule
+        \hline
         Rahman \& Hasan (2023) \cite{rahman2023} & Prediksi Trafik & GCN & Efektif spasial. \textbf{Bedanya:} GAT memiliki mekanisme \textit{attention} yang lebih presisi dibanding GCN. \\
-        \midrule
+        \hline
         \textbf{Penelitian Ini} & \textbf{Rekomendasi Jalur ISP} & \textbf{GAT + AHP} & \textbf{Integrasi \textit{expert judgment} (AHP) ke dalam arsitektur \textit{Deep Learning} (GAT).} \\
-        \bottomrule
+        \hline
     \end{tabular}
 \end{table}
 
@@ -71,7 +69,7 @@ AHP adalah metode pengambilan keputusan multikriteria yang dikembangkan oleh Tho
 
 Dalam penelitian ini, AHP digunakan untuk menghitung skor kualitas ($Q$) yang menjadi label target pelatihan:
 \begin{equation}
-    Q_{path} = \sum w_i \cdot f_i \text{ (node)} + \sum w_j \cdot g_j \text{ (edge)}
+    Q_{path} = \sum w_i \cdot f_i(\text{node}) + \sum w_j \cdot g_j(\text{edge})
 \end{equation}
 Penggunaan AHP menjamin bahwa model AI belajar dari preferensi pakar yang terukur dan konsisten \cite{khan2020}.
 
@@ -82,16 +80,13 @@ Kerangka pemikiran menggambarkan alur logika penelitian dari variabel yang diobs
     \item \textbf{Indicators (Observed Variables):} Merupakan parameter input yang diambil dari perangkat jaringan, terdiri dari parameter Node (CPU, RAM, Trafik, Utilisasi) dan parameter Edge (Kualitas Link, Bandwidth, Kecepatan, Jarak, Status).
     \item \textbf{Proposed Method:} Solusi yang diusulkan menggabungkan dua metode utama. Pertama, \textit{Analytic Hierarchy Process} (AHP) digunakan pada tahap pra-pemrosesan untuk memberikan bobot prioritas valid berdasarkan penilaian pakar. Kedua, \textit{Graph Attention Network} (GAT) digunakan sebagai algoritma pembelajaran utama untuk mengenali pola topologi dan memprediksi kualitas jalur.
     \item \textbf{Objectives:} Tujuan akhir dari sistem adalah menghasilkan model rekomendasi jalur yang memiliki akurasi tinggi dan mampu mengoptimalkan distribusi trafik jaringan.
-    \item \textbf{Measurement:} Keberhasilan metode diukur menggunakan metrik statistik \textit{Root Mean Square Error} (RMSE) untuk performa regresi, dan \textit{Accuracy} dengan toleransi error ($\pm 0.05, \pm 0.08, \pm 0.10$) untuk performa klasifikasi kualitas.
+    \item \textbf{Measurement:} Keberhasilan metode diukur menggunakan metrik statistik \textit{Root Mean Square Error} (RMSE) untuk performa regresi, dan \textit{Accuracy} untuk mengukur ketepatan klasifikasi kualitas jalur yang direkomendasikan.
 \end{enumerate}
-
-% (Kode gambar TikZ Anda yang sebelumnya sudah bagus, tidak perlu diubah kecuali teks di dalam kotak Indicators jika Anda ingin sangat detail, tapi deskripsi teks di atas sudah cukup mewakili).
 
 Visualisasi kerangka pemikiran penelitian ditunjukkan pada Gambar \ref{fig:kerangka_pemikiran}.
 
 \begin{figure}[ht]
     \centering
-    % Resizebox digunakan agar gambar otomatis mengikuti lebar teks (textwidth)
     \resizebox{\textwidth}{!}{%
     \begin{tikzpicture}[
         node distance=0.5cm,
@@ -102,37 +97,37 @@ Visualisasi kerangka pemikiran penelitian ditunjukkan pada Gambar \ref{fig:keran
 
     % --- COLUMN 1: INDICATORS ---
     \node[font=\bfseries] (ind_title) {INDICATORS};
-    
+
     \node[box, below=0.5cm of ind_title, fill=white] (cpu) {CPU \& RAM\\Usage};
     \node[box, below=0.3cm of cpu, fill=white] (traf) {Interface\\Utilization};
     \node[box, below=0.3cm of traf, fill=white] (link) {Link Quality\\(Signal/Loss)};
     \node[box, below=0.3cm of link, fill=white] (bw) {Bandwidth\\Availability};
     \node[box, below=0.3cm of bw, fill=white] (dist) {Geographical\\Distance};
-    
+
     % Frame for Indicators
     \node[groupbox, fit=(cpu)(dist), label=below:\textit{Observed Variables}] (ind_group) {};
 
     % --- COLUMN 2: PROPOSED METHOD ---
     \node[font=\bfseries, right=1.5cm of ind_title] (met_title) {PROPOSED METHOD};
-    
-    \node[box, below=0.5cm of met_title, fill=gray!10, minimum width=4cm] (data) {Dataset Generation\\(Topologi \& Metrik)};
+
+    \node[box, below=0.5cm of met_title, fill=gray!10, minimum width=4cm] (data) {Dataset Generation\\(Topology \& Metrics)};
     \node[box, below=0.8cm of data, fill=gray!10, minimum width=4cm] (ahp) {\textbf{Weighting Strategy}\\Analytic Hierarchy Process\\(AHP)};
-    \node[box, below=0.8cm of ahp, fill=gray!20, minimum width=4cm, minimum height=1.5cm] (gat) {\textbf{Learning Algorithm}\\Graph Attention Network\\(3 Layers, 4 Heads)};
+    \node[box, below=0.8cm of ahp, fill=gray!20, minimum width=4cm, minimum height=1.5cm] (gat) {\textbf{Learning Algorithm}\\Graph Attention Network\\(Multi-Head Attention)};
     \node[box, below=0.8cm of gat, fill=gray!10, minimum width=4cm] (pred) {Path Quality\\Predictor};
 
     \node[groupbox, fit=(data)(pred)] (met_group) {};
 
     % --- COLUMN 3: OBJECTIVES ---
     \node[font=\bfseries, right=1cm of met_title] (obj_title) {OBJECTIVES};
-    
+
     \node[circle, draw, align=center, minimum size=2.5cm, below=2cm of obj_title] (obj1) {High Accuracy\\Model};
     \node[circle, draw, align=center, minimum size=2.5cm, below=0.5cm of obj1] (obj2) {Optimal Path\\Recommendation};
 
     % --- COLUMN 4: MEASUREMENT ---
     \node[font=\bfseries, right=1cm of obj_title] (meas_title) {MEASUREMENT};
-    
+
     \node[box, below=2cm of meas_title] (rmse) {Root Mean\\Square Error (RMSE)};
-    \node[box, below=0.5cm of rmse] (acc) {Accuracy\\($\pm 0.05, \pm 0.08$)};
+    \node[box, below=0.5cm of rmse] (acc) {Model\\Accuracy};
     \node[box, below=0.5cm of acc] (time) {Inference Time};
 
     \node[groupbox, fit=(rmse)(time), label=below:\textit{Observed Results}] (meas_group) {};
@@ -153,4 +148,3 @@ Visualisasi kerangka pemikiran penelitian ditunjukkan pada Gambar \ref{fig:keran
     \caption{Kerangka Pemikiran GAT berbasis AHP}
     \label{fig:kerangka_pemikiran}
 \end{figure}
-
