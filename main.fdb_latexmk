@@ -1,14 +1,15 @@
 # Fdb version 4
-["bibtex main"] 1767752619.43969 "main.aux" "main.bbl" "main" 1767752620.93232 0
+["bibtex main"] 1767755960.79946 "main.aux" "main.bbl" "main" 1767755962.39801 0
   "./references.bib" 1767673730.82422 9356 5d9f3472c7f665b8c4d89e5da1a1f93a ""
   "/usr/share/texlive/texmf-dist/bibtex/bst/apacite/apacite.bst" 1374530685 141073 9d7b79dbf9d91133318126032cff8c27 ""
-  "main.aux" 1767752620.75584 10267 d445d948b2de66ab9885aab44042e14d "pdflatex"
+  "main.aux" 1767755962.21598 10316 df900ca0f7bfa034c5ac4c8afc62b51c "pdflatex"
   (generated)
   "main.bbl"
   "main.blg"
   (rewritten before read)
-["pdflatex"] 1767752619.47065 "main.tex" "main.pdf" "main" 1767752620.93257 0
+["pdflatex"] 1767755960.82874 "main.tex" "main.pdf" "main" 1767755962.39826 0
   "/home/agungb/.texlive2023/texmf-var/fonts/pk/ljfour/public/rsfs/rsfs10.540pk" 1767620137.36865 5568 2f9459b9d59acb64530eb8b84f083a37 ""
+  "/home/agungb/.texlive2023/texmf-var/fonts/pk/ljfour/public/rsfs/rsfs10.720pk" 1767665892.84145 8084 c38e462ab0aa875a68828ae8d64f1072 ""
   "/usr/share/texlive/texmf-dist/fonts/enc/dvips/base/8r.enc" 1764115200 4850 80dc9bab7f31fb78a000ccfed0e27cab ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/adobe/symbol/psyr.tfm" 1136768653 1408 5937f58aa508ea2cea4901c07d10f5fe ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/adobe/times/psyro.tfm" 1136768653 1544 23a042a74981a3e4b6ce2e350e390409 ""
@@ -224,17 +225,17 @@
   "/var/lib/texmf/web2c/pdftex/pdflatex.fmt" 1767667369 6447581 5578cd2ae139991dc8d85ce051b9fea2 ""
   "chapters/00-cover.tex" 1767752492.02092 1405 cd107e3d543aa5aa1c04fc4b153c590b ""
   "chapters/01-bab1.tex" 1767705799.22649 8014 67368d6fade337bd3155c35daa6ef8ea ""
-  "chapters/02-bab2.tex" 1767705884.2465 11407 89de7a15a0477b43d96d29e5bf4dd7ea ""
-  "chapters/03-bab3.tex" 1767708408.86303 6358 8f0df361f9be644df96998ad84a73343 ""
+  "chapters/02-bab2.tex" 1767754690.57743 15725 862042ed88ee97fb49ba56e250fe6922 ""
+  "chapters/03-bab3.tex" 1767755958.42089 6358 8f0df361f9be644df96998ad84a73343 ""
   "images/flowchart3.png" 1767669656.29386 50961 45254abd3cab22d4276dc880558f3697 ""
   "images/logo-poliwangi.png" 1767465704 310146 2f9be8ec26bc7f316e6080e6757ec55c ""
-  "main.aux" 1767752620.75584 10267 d445d948b2de66ab9885aab44042e14d "pdflatex"
-  "main.bbl" 1767752619.46582 13414 4b8b2da524e5f46a03bd48067ab3f9c3 "bibtex main"
-  "main.lof" 1767752620.75784 321 2c4fc0784cc68027db72c8cc691b2ab8 "pdflatex"
-  "main.lot" 1767752620.75784 316 d45029075233f407e802fc1ec272c483 "pdflatex"
-  "main.out" 1767752620.75784 5000 d171c4adbee23e9bcec79f77c8554539 "pdflatex"
+  "main.aux" 1767755962.21598 10316 df900ca0f7bfa034c5ac4c8afc62b51c "pdflatex"
+  "main.bbl" 1767755960.82195 13414 4b8b2da524e5f46a03bd48067ab3f9c3 "bibtex main"
+  "main.lof" 1767755962.21898 323 bdc54ce73860b980046ac644d496c7d7 "pdflatex"
+  "main.lot" 1767755962.21898 316 d3bd598a9bbdea1cc6195f64d91bc91a "pdflatex"
+  "main.out" 1767755962.21798 5104 5034ef330d15264bfc361a42f0d1d95a "pdflatex"
   "main.tex" 1767752509.03233 7007 d1839a6080b82c974abe3e743dc6152c ""
-  "main.toc" 1767752620.75784 2455 9b7a42bde88610be9a97f314a99acb58 "pdflatex"
+  "main.toc" 1767755962.21898 2476 740090938c52541343c097f2bb7b9fcf "pdflatex"
   (generated)
   "main.aux"
   "main.lof"

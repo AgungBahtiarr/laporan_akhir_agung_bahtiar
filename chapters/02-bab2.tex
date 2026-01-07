@@ -34,8 +34,10 @@ Berdasarkan tinjauan di atas, ditemukan celah permasalahan di mana belum ada pen
 
 \section{Landasan Teori}
 
-\subsection{Manajemen Jaringan ISP}
-Manajemen jaringan pada \textit{Internet Service Provider} (ISP) melibatkan pemantauan dan pengendalian sumber daya jaringan untuk menjamin ketersediaan layanan. Tantangan utama pada infrastruktur Layer 2 dan VLAN adalah mencegah \textit{looping} dan menyeimbangkan beban trafik \cite{alhachem2025}. Kegagalan dalam manajemen ini dapat berdampak fatal pada SLA (\textit{Service Level Agreement}), sehingga diperlukan metode prediksi kegagalan berbasis \textit{machine learning} untuk menuju era \textit{zero downtime} \cite{basikolo2023}.
+\subsection{Traffic Engineering pada Jaringan Layer 2}
+\textit{Traffic Engineering} (TE) adalah disiplin rekayasa jaringan yang berfokus pada pengukuran, pemodelan, karakterisasi, dan kontrol lalu lintas internet untuk mengoptimalkan kinerja jaringan. Tujuan utama TE adalah meminimalkan kongesti dan meningkatkan pemanfaatan sumber daya melalui penyeimbangan beban trafik (\textit{load balancing}) \cite{marouani2024}.
+
+Pada lingkungan ISP yang menggunakan infrastruktur \textit{Switching} Layer 2 dan VLAN (\textit{Virtual Local Area Network}), tantangan TE menjadi lebih kompleks dibandingkan jaringan IP tradisional (Layer 3). Hal ini dikarenakan mekanisme \textit{Spanning Tree Protocol} (STP) pada Layer 2 cenderung memblokir jalur redundan untuk mencegah \textit{looping}, yang mengakibatkan tautan cadangan tidak termanfaatkan (\textit{underutilized}) \cite{alhachem2025}. Oleh karena itu, diperlukan optimasi cerdas untuk memprediksi kegagalan dan mendistribusikan trafik secara dinamis tanpa melanggar topologi logis Layer 2 \cite{basikolo2023}.
 
 \subsection{Graph Neural Networks (GNN)}
 \textit{Graph Neural Network} (GNN) adalah kerangka kerja \textit{deep learning} yang dirancang untuk data berbentuk graf. Berbeda dengan CNN yang bekerja pada data grid (gambar), GNN bekerja pada struktur data non-Euclidean. GNN memperbarui representasi fitur sebuah \textit{node} dengan mengagregasi informasi dari tetangganya \cite{wu2021}. Dalam jaringan komputer, perangkat direpresentasikan sebagai \textit{node} dan kabel fisik sebagai \textit{edge} \cite{zhou2020}.
@@ -46,32 +48,102 @@ Manajemen jaringan pada \textit{Internet Service Provider} (ISP) melibatkan pema
 Untuk memudahkan pemahaman komputasi, proses perhitungan koefisien atensi $\alpha_{ij}$ dipecah menjadi tiga tahapan sebagai berikut:
 
 \begin{enumerate}
-    \item \textbf{Transformasi Linear:} Fitur input node ($\vec{h}$) dikalikan dengan matriks bobot ($W$) yang dipelajari.
+    \item \textbf{Transformasi Linear:} Fitur input node dikalikan dengan matriks bobot.
     \begin{equation}
         z_i = W \cdot \vec{h}_i
     \end{equation}
+    \textbf{Keterangan:}
+    \begin{itemize}
+        \item $z_i$ : Fitur hasil transformasi pada node $i$.
+        \item $W$ : Matriks bobot transformasi (parameter yang dilatih oleh model).
+        \item $\vec{h}_i$ : Vektor fitur input awal pada node $i$ (misal: data CPU, trafik).
+    \end{itemize}
 
     \item \textbf{Mekanisme Atensi:} Menghitung skor kedekatan mentah ($e_{ij}$) antara node sumber dan tetangga menggunakan fungsi aktivasi \textit{LeakyReLU}.
     \begin{equation}
         e_{ij} = \text{LeakyReLU}\left(\vec{a}^T [W\vec{h}_i \, \| \, W\vec{h}_j]\right)
     \end{equation}
+    \textbf{Keterangan:}
+    \begin{itemize}
+        \item $e_{ij}$ : Skor atensi mentah (seberapa penting node $j$ bagi node $i$).
+        \item $\vec{a}^T$ : Vektor bobot atensi (transpose).
+        \item $\|$ : Operasi penggabungan (\textit{concatenation}) dua vektor fitur.
+    \end{itemize}
 
     \item \textbf{Normalisasi Softmax:} Mengubah skor mentah menjadi probabilitas atensi (total bernilai 1).
     \begin{equation}
         \alpha_{ij} = \frac{\exp(e_{ij})}{\sum_{k \in \mathcal{N}_i} \exp(e_{ik})}
     \end{equation}
+     \textbf{Keterangan:}
+    \begin{itemize}
+        \item $\alpha_{ij}$ : Koefisien atensi final (nilai 0 s.d 1).
+        \item $\mathcal{N}_i$ : Himpunan seluruh node tetangga yang terhubung ke node $i$.
+    \end{itemize}
 \end{enumerate}
 
-Dimana $\|$ adalah operasi penggabungan (\textit{concatenation}) dan $\vec{a}$ adalah vektor bobot atensi. Mekanisme ini memungkinkan model untuk "memperhatikan" jalur dengan kualitas sinyal lebih baik dan mengabaikan jalur yang buruk \cite{kato2024}.
+Mekanisme ini memungkinkan model untuk "memperhatikan" jalur dengan kualitas sinyal lebih baik dan mengabaikan jalur yang buruk \cite{kato2024}.
+
+\subsubsection*{Contoh Penerapan GAT pada Pemilihan Jalur}
+Untuk mengilustrasikan mekanisme \textit{attention} dalam konteks jaringan, dimisalkan sebuah topologi sederhana di mana \textbf{Switch A} (node sumber) memiliki dua koneksi tetangga, yaitu ke \textbf{Switch B} dan \textbf{Switch C}. Tujuan model adalah menentukan jalur mana yang lebih optimal untuk melewatkan trafik data agar tidak terjadi kongesti.
+
+\begin{enumerate}
+    \item \textbf{Representasi Fitur Node ($\vec{h}$):}
+    Setiap perangkat (Switch) memiliki vektor fitur input.
+    \begin{itemize}
+        \item \textbf{Switch B}: Kapasitas Bandwidth Besar (1Gbps), namun \textbf{CPU Load Tinggi (90\%)}.
+        \item \textbf{Switch C}: Kapasitas Bandwidth Sedang (500Mbps), namun \textbf{CPU Load Rendah (10\%)}.
+    \end{itemize}
+
+    \item \textbf{Perhitungan Koefisien Atensi ($\alpha$):}
+    Mekanisme \textit{self-attention} membandingkan fitur tetangga.
+    \begin{itemize}
+        \item Jalur $A \rightarrow B$: Mendeteksi "CPU Load Tinggi" sebagai risiko \textit{packet loss}. Skor atensi ($\alpha_{AB}$) \textbf{rendah} (misal: 0.2).
+        \item Jalur $A \rightarrow C$: Mendeteksi stabilitas tinggi. Skor atensi ($\alpha_{AC}$) \textbf{tinggi} (misal: 0.8).
+    \end{itemize}
+
+    \item \textbf{Agregasi dan Keputusan:}
+    Karena $\alpha_{AC} > \alpha_{AB}$, algoritma merekomendasikan jalur menuju \textbf{Switch C} sebagai rute prioritas, menghindari jalur B yang berpotensi \textit{bottleneck} meskipun bandwidth-nya besar.
+\end{enumerate}
 
 \subsection{Analytic Hierarchy Process (AHP)}
 AHP adalah metode pengambilan keputusan multikriteria yang dikembangkan oleh Thomas L. Saaty. AHP memecah masalah kompleks menjadi hierarki kriteria dan alternatif. Bobot prioritas ditentukan melalui perbandingan berpasangan (\textit{pairwise comparison}) yang divalidasi dengan rasio konsistensi ($CR \le 0.1$) \cite{saaty2008}.
 
 Dalam penelitian ini, AHP digunakan untuk menghitung skor kualitas ($Q$) yang menjadi label target pelatihan:
 \begin{equation}
-    Q_{path} = \sum w_i \cdot f_i(\text{node}) + \sum w_j \cdot g_j(\text{edge})
+    Q_{path} = \sum_{i=1}^{n} w_i \cdot f_i(\text{node}) + \sum_{j=1}^{m} w_j \cdot g_j(\text{edge})
 \end{equation}
+
+\noindent \textbf{Dimana:}
+\begin{itemize}
+    \item $Q_{path}$ : Skor kualitas total sebuah jalur (semakin tinggi semakin baik).
+    \item $w_i, w_j$ : Bobot prioritas untuk parameter node dan edge (hasil hitungan AHP).
+    \item $f_i(\text{node})$ : Nilai atribut perangkat (misal: sisa kapasitas CPU).
+    \item $g_j(\text{edge})$ : Nilai atribut koneksi (misal: Bandwidth tersedia).
+\end{itemize}
+
 Penggunaan AHP menjamin bahwa model AI belajar dari preferensi pakar yang terukur dan konsisten \cite{khan2020}.
+
+\subsubsection*{Contoh Penerapan Perhitungan AHP pada Traffic Engineering}
+Sebagai ilustrasi penerapan metode dalam manajemen trafik Layer 2, dimisalkan terdapat tiga kriteria penentu prioritas port: \textbf{Utilisasi Interface} ($C_1$), \textbf{Kualitas Link} ($C_2$), dan \textbf{Beban CPU Switch} ($C_3$). Tujuan utamanya adalah \textit{load balancing}.
+
+\begin{enumerate}
+    \item \textbf{Matriks Perbandingan Berpasangan:}
+    Untuk mencegah \textit{bottleneck}, \textit{Utilisasi Interface} (kemacetan) dinilai lebih penting (skala 3) dibanding \textit{Kualitas Link}, dan mutlak lebih penting (skala 5) dibanding \textit{CPU}.
+    \begin{equation}
+        A = \begin{bmatrix}
+        1 & 3 & 5 \\
+        1/3 & 1 & 2 \\
+        1/5 & 1/2 & 1
+        \end{bmatrix}
+    \end{equation}
+
+    \item \textbf{Normalisasi dan Bobot Prioritas:}
+    Setelah normalisasi matriks, rata-rata baris menghasilkan vektor bobot prioritas:
+    \begin{equation}
+        w = [0.63, 0.26, 0.11]^T
+    \end{equation}
+    Nilai bobot 0.63 (63\%) pada $C_1$ menunjukkan algoritma akan memprioritaskan pemilihan jalur yang masih kosong (\textit{low utilization}) untuk meratakan beban trafik di jaringan.
+\end{enumerate}
 
 \section{Kerangka Pemikiran}
 Kerangka pemikiran menggambarkan alur logika penelitian dari variabel yang diobservasi hingga pengukuran keberhasilan. Sesuai dengan pendekatan sistem cerdas, kerangka ini disusun dalam empat komponen utama: \textit{Indicators}, \textit{Proposed Method}, \textit{Objectives}, dan \textit{Measurement}.
