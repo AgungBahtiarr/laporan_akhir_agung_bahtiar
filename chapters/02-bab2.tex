@@ -9,7 +9,6 @@ Penelitian kedua oleh Almasan dkk. (2022) mengusulkan pendekatan \textit{Deep Re
 
 Penelitian ketiga oleh Rahman dan Hasan (2023) menggunakan \textit{Graph Convolutional Network} (GCN) untuk memprediksi aliran trafik \cite{rahman2023}. GCN efektif dalam menangkap fitur spasial, namun memiliki keterbatasan karena memberikan bobot yang seragam pada tetangga \textit{node} (isotropik), sehingga kurang sensitif terhadap variasi kualitas \textit{link} yang signifikan pada jaringan nirkabel atau campuran.
 
-\textbf{Posisi Penelitian:}
 Berdasarkan tinjauan di atas, ditemukan celah permasalahan di mana belum ada penelitian yang menggabungkan kemampuan adaptif GAT dalam mempelajari topologi graf dengan metode pembobotan multikriteria (\textit{Analytic Hierarchy Process} - AHP). Integrasi ini penting untuk memastikan bahwa rekomendasi AI tidak hanya optimal secara matematis, tetapi juga valid menurut standar operasional dan intuisi pakar jaringan (\textit{Network Engineer}). Rangkuman perbandingan penelitian ditunjukkan pada Tabel \ref{tab:state_of_the_art}.
 
 \begin{table}[ht]
@@ -21,11 +20,11 @@ Berdasarkan tinjauan di atas, ditemukan celah permasalahan di mana belum ada pen
         \hline
         \textbf{Peneliti (Tahun)} & \textbf{Masalah} & \textbf{Metode} & \textbf{Hasil \& Perbedaan} \\
         \hline
-        Marouani dkk. (2024) \cite{marouani2024} & Optimasi trafik pada WAN & GAT & Unggul di topologi dinamis. \textbf{Bedanya:} Penelitian ini menambahkan validasi pakar via AHP. \\
+        \cite{marouani2024} & Optimasi trafik pada WAN & GAT & Unggul di topologi dinamis. \textbf{Bedanya:} Penelitian ini menambahkan validasi pakar via AHP. \\
         \hline
-        Almasan dkk. (2022) \cite{almasan2022} & Optimasi \textit{Routing} & DRL + GNN & Generalisasi baik tapi training berat. \textbf{Bedanya:} Penelitian ini menggunakan \textit{Supervised Learning} yang lebih efisien. \\
+       \cite{almasan2022} & Optimasi \textit{Routing} & DRL + GNN & Generalisasi baik tapi training berat. \textbf{Bedanya:} Penelitian ini menggunakan \textit{Supervised Learning} yang lebih efisien. \\
         \hline
-        Rahman \& Hasan (2023) \cite{rahman2023} & Prediksi Trafik & GCN & Efektif spasial. \textbf{Bedanya:} GAT memiliki mekanisme \textit{attention} yang lebih presisi dibanding GCN. \\
+        \cite{rahman2023} & Prediksi Trafik & GCN & Efektif spasial. \textbf{Bedanya:} GAT memiliki mekanisme \textit{attention} yang lebih presisi dibanding GCN. \\
         \hline
         \textbf{Penelitian Ini} & \textbf{Rekomendasi Jalur ISP} & \textbf{GAT + AHP} & \textbf{Integrasi \textit{expert judgment} (AHP) ke dalam arsitektur \textit{Deep Learning} (GAT).} \\
         \hline
