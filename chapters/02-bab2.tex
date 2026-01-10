@@ -7,7 +7,6 @@
 
 TE modern membutuhkan kemampuan untuk menangani pola trafik yang dinamis dan beragam, di mana pendekatan konvensional berbasis algoritma statis seperti jalur terpendek (Dijkstra) seringkali tidak mampu beradaptasi dengan kondisi jaringan yang berubah secara real-time. Oleh karena itu, pendekatan berbasis kecerdasan buatan semakin diperlukan untuk melakukan optimasi distribusi trafik secara adaptif dan efisien.
 
-% Tambahkan gambar ilustrasi Traffic Engineering di sini
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.8\textwidth]{images/te.png}
@@ -26,6 +25,76 @@ Pada lingkungan ISP yang menggunakan infrastruktur \textit{switching} Layer 2 de
     \caption{Arsitektur Jaringan Layer 2 dengan VLAN}
     \label{fig:layer2_vlan}
 \end{figure}
+
+\subsection{Kriteria Evaluasi Kualitas Jalur}
+
+Dalam penelitian ini, kualitas jalur jaringan dievaluasi berdasarkan dua kategori utama kriteria: kriteria tingkat node dan kriteria tingkat edge. Pendekatan dual-level ini memastikan evaluasi yang komprehensif dengan mempertimbangkan baik kemampuan perangkat maupun kualitas koneksi \cite{joint_node_edge_optimization, holistic_network_metrics}.
+
+\subsubsection{Kriteria Tingkat Node}
+
+Kriteria tingkat node mengevaluasi kapasitas dan kondisi operasional dari perangkat jaringan (switch/router) yang dilalui oleh sebuah jalur. Berdasarkan literatur resource-aware routing \cite{resource_aware_sdn, node_capacity_routing}, kriteria yang dipilih adalah:
+
+\begin{enumerate}
+    \item \textbf{CPU Score}: Normalized CPU utilization yang menunjukkan ketersediaan processing power. CPU utilization merupakan indikator krusial untuk memastikan node tidak overloaded, yang dapat menyebabkan packet processing delay \cite{cpu_aware_routing, resource_aware_sdn}.
+
+    \item \textbf{RAM Score}: Normalized memory availability untuk buffering dan state management. Ketersediaan memori mempengaruhi kemampuan buffering dan handling concurrent connections \cite{resource_aware_sdn, node_capacity_routing}.
+
+    \item \textbf{Traffic Score}: Volume trafik yang sedang ditangani node. Current traffic load merupakan metric penting untuk load balancing dan congestion avoidance \cite{utilization_based_te, adaptive_utilization_routing}.
+
+    \item \textbf{Utilization Score}: Aggregate interface utilization yang menunjukkan seberapa sibuk node dalam menangani trafik \cite{interface_speed_impact, utilization_based_te}.
+
+    \item \textbf{Status Score}: Binary indicator operational status (up/down) yang sangat penting untuk failure-aware routing \cite{failure_aware_te}.
+\end{enumerate}
+
+Skor komposit node dihitung sebagai weighted sum:
+\begin{equation}
+    S_{node} = \sum_{i=1}^{5} w_i^{node} \cdot f_i^{node}
+\end{equation}
+
+\noindent dimana $w_i^{node}$ adalah bobot kriteria yang diperoleh dari AHP dan $f_i^{node}$ adalah nilai kriteria yang telah dinormalisasi. Pemilihan kriteria node ini mengikuti pendekatan resource-aware routing yang mempertimbangkan kapasitas processing dan forwarding capability dari setiap perangkat jaringan \cite{joint_node_edge_optimization, holistic_network_metrics}.
+
+\subsubsection{Kriteria Tingkat Edge}
+
+Kriteria tingkat edge mengevaluasi karakteristik koneksi fisik atau logis antar perangkat. Mengikuti framework multi-constraint routing \cite{te_multiconstraint, sdn_multiconstraint_routing}, kriteria yang dipilih meliputi:
+
+\begin{enumerate}
+    \item \textbf{Optical Link Quality Score}: Kualitas sinyal optik berdasarkan Optical Signal-to-Noise Ratio (OSNR), received power, Q-factor, atau chromatic dispersion pada fiber optic infrastructure \cite{optical_signal_quality, fiber_link_quality, osnr_monitoring}. Semakin tinggi kualitas sinyal optik, semakin reliable physical layer transmission.
+
+    \item \textbf{Error Rate Score}: Inverse dari Bit Error Rate (BER) atau Packet Error Rate (PER) yang menunjukkan reliabilitas data transmission \cite{ber_per_optical, ber_monitoring, error_rate_impact}. Metrik ini berbeda dari optical quality karena mengukur actual transmission errors setelah decoding.
+
+    \item \textbf{Packet Loss Score}: Inverse dari packet loss rate untuk mengindikasikan reliability. Persentase paket yang hilang atau dropped selama transmisi, yang dapat disebabkan oleh congestion, buffer overflow, atau TTL expiry \cite{packet_loss_detection}.
+
+    \item \textbf{Bandwidth Utilization (a→b, b→a)}: Utilisasi bandwidth pada kedua arah link merupakan indikator critical untuk menghindari congestion \cite{bandwidth_aware_te, utilization_based_te}.
+
+    \item \textbf{Interface Speed (a, b)}: Maximum capacity kedua endpoint yang menentukan throughput ceiling dari link \cite{interface_speed_impact, qos_composite_metric}.
+
+    \item \textbf{Distance}: Geographic atau logical distance yang mempengaruhi propagation delay dan dapat menjadi faktor dalam path cost calculation \cite{geographic_routing, distance_aware_datacenter, latency_distance_routing}.
+
+    \item \textbf{Status}: Link operational state (up/down) essential untuk topology-aware routing \cite{link_state_routing, failure_aware_te}.
+\end{enumerate}
+
+Skor komposit edge dihitung sebagai:
+\begin{equation}
+    S_{edge} = \sum_{j=1}^{9} w_j^{edge} \cdot g_j^{edge}
+\end{equation}
+
+\noindent dimana kini terdapat 9 kriteria edge. Pemisahan antara optical signal quality, error rate, dan packet loss penting karena ketiganya mengukur aspek yang berbeda dari reliability link pada layer yang berbeda.
+
+\paragraph{Perbedaan Optical Quality, Error Rate, dan Packet Loss}
+
+Ketiga metrik ini saling melengkapi dalam mengevaluasi kualitas koneksi pada layer yang berbeda:
+
+\begin{enumerate}
+    \item \textbf{Optical Link Quality} (Physical Layer): Mengukur kualitas sinyal cahaya pada fiber optic sebelum proses decoding. Parameter seperti OSNR (Optical Signal-to-Noise Ratio), received optical power (dBm), Q-factor, dan chromatic dispersion mengindikasikan seberapa baik sinyal optik dapat dibedakan dari noise \cite{optical_signal_quality, osnr_monitoring}. Degradasi optical quality dapat disebabkan oleh attenuasi fiber, dispersion, atau interferensi optik.
+
+    \item \textbf{Error Rate} (Data Link Layer): Mengukur tingkat kesalahan bit atau paket setelah proses photodetection, analog-to-digital conversion, dan forward error correction (FEC). BER atau PER menunjukkan berapa banyak bit/paket yang corrupt setelah decoding \cite{ber_per_optical, ber_monitoring}. Bahkan dengan optical quality yang baik, error rate bisa tinggi jika ada masalah pada transceiver atau proses decoding.
+
+    \item \textbf{Packet Loss Rate} (Network Layer): Mengukur paket yang hilang atau di-drop karena congestion, buffer overflow, atau TTL expiry, bukan karena corruption \cite{packet_loss_detection}. Packet loss dapat terjadi meskipun optical quality baik dan error rate rendah, terutama saat terjadi congestion pada switch/router.
+\end{enumerate}
+
+Kombinasi ketiga metrik ini memberikan gambaran holistik tentang health dari sebuah link, dari physical layer hingga network layer \cite{holistic_network_metrics}. Integrasi multiple edge metrics ini mengikuti paradigma multi-criteria path selection yang telah terbukti efektif dalam traffic engineering modern \cite{routing_multiple_optimality, madm_heuristic_routing, te_multiconstraint, sdn_multiconstraint_routing}.
+
+Pendekatan weighted composite scoring yang mengintegrasikan kriteria node dan edge ini telah terbukti efektif dalam various QoS routing scenarios \cite{qos_composite_metric, weighted_composite_routing, madm_heuristic_routing, routing_multiple_optimality}.
 
 \subsection{Graph Attention Network (GAT)}
 
@@ -54,12 +123,18 @@ Setiap node memiliki vektor fitur input yang dapat dinyatakan sebagai:
 \noindent dimana $F$ adalah dimensi fitur. Dalam kasus jaringan PT Lare Osing Ndo, fitur node dapat mencakup:
 
 \begin{itemize}
-    \item Utilisasi CPU (\%)
-    \item Konsumsi memori RAM (\%)
-    \item Volume trafik saat ini (Mbps)
-    \item Jumlah koneksi aktif
-    \item Kapasitas buffer
+    \item \textbf{Utilisasi CPU (\%)}: CPU utilization merupakan indikator krusial untuk memastikan node tidak overloaded, yang dapat menyebabkan packet processing delay \cite{cpu_aware_routing, resource_aware_sdn}.
+
+    \item \textbf{Konsumsi memori RAM (\%)}: Ketersediaan memori mempengaruhi kemampuan buffering dan handling concurrent connections \cite{resource_aware_sdn, node_capacity_routing}.
+
+    \item \textbf{Volume trafik saat ini (Mbps)}: Current traffic load merupakan metric penting untuk load balancing dan congestion avoidance \cite{utilization_based_te, adaptive_utilization_routing}.
+
+    \item \textbf{Utilisasi interface}: Aggregate interface utilization menunjukkan seberapa sibuk node dalam menangani trafik \cite{interface_speed_impact}.
+
+    \item \textbf{Status node}: Operational status (up/down) sangat penting untuk failure-aware routing \cite{failure_aware_te}.
 \end{itemize}
+
+Pemilihan kriteria node ini mengikuti pendekatan resource-aware routing yang mempertimbangkan kapasitas processing dan forwarding capability dari setiap perangkat jaringan \cite{joint_node_edge_optimization, holistic_network_metrics}.
 
 \paragraph{Fitur Edge}
 Selain fitur pada node, setiap edge yang menghubungkan dua node juga memiliki atribut yang merepresentasikan karakteristik koneksi tersebut. Fitur edge dapat direpresentasikan sebagai:
@@ -75,14 +150,22 @@ Selain fitur pada node, setiap edge yang menghubungkan dua node juga memiliki at
 \noindent dimana $F_e$ adalah dimensi fitur edge. Fitur-fitur ini meliputi:
 
 \begin{itemize}
-    \item Bandwidth maksimum link (Mbps atau Gbps)
-    \item Utilisasi bandwidth saat ini (\%)
-    \item Latensi propagasi (ms)
-    \item Packet loss rate (\%)
-    \item Jitter (variasi delay)
-    \item Status link (up/down atau binary 1/0)
-    \item Tipe media (fiber, copper, wireless)
+    \item \textbf{Optical Link Quality}: Kualitas sinyal optik yang diukur melalui parameter seperti Optical Signal-to-Noise Ratio (OSNR), received optical power (dBm), Q-factor, atau chromatic dispersion pada fiber optic links \cite{optical_signal_quality, fiber_link_quality, osnr_monitoring}. Metrik ini mengukur kualitas fisik sinyal optik pada physical layer sebelum terjadi decoding.
+
+    \item \textbf{Error Rate}: Bit Error Rate (BER) atau Packet Error Rate (PER) yang mengindikasikan tingkat kesalahan transmisi data setelah proses decoding \cite{ber_per_optical, error_rate_impact, ber_monitoring}. Parameter ini mengukur reliabilitas actual data transmission pada data link layer dan berbeda dari optical signal quality karena mencerminkan end-to-end transmission reliability setelah forward error correction.
+
+    \item \textbf{Packet Loss Rate}: Persentase paket yang hilang atau dropped selama transmisi, yang dapat disebabkan oleh congestion, buffer overflow, atau TTL expiry pada network layer \cite{packet_loss_detection}. Metrik ini melengkapi error rate dengan menangkap packet-level failures yang bukan disebabkan oleh corruption.
+
+    \item \textbf{Bandwidth Utilization (bidirectional)}: Utilisasi bandwidth pada kedua arah link (a→b dan b→a) merupakan indikator critical untuk menghindari congestion \cite{bandwidth_aware_te, utilization_based_te}.
+
+    \item \textbf{Interface Speed (kedua endpoint)}: Kapasitas maksimum interface pada kedua endpoint menentukan throughput ceiling dari link \cite{interface_speed_impact, qos_composite_metric}.
+
+    \item \textbf{Geographic Distance}: Jarak fisik mempengaruhi propagation delay dan dapat menjadi faktor dalam path cost calculation \cite{geographic_routing, distance_aware_datacenter, latency_distance_routing}.
+
+    \item \textbf{Link Status}: Operational state (up/down) essential untuk topology-aware routing \cite{link_state_routing, failure_aware_te}.
 \end{itemize}
+
+Integrasi multiple edge metrics ini mengikuti paradigma multi-criteria path selection yang telah terbukti efektif dalam traffic engineering modern \cite{routing_multiple_optimality, madm_heuristic_routing, te_multiconstraint, sdn_multiconstraint_routing}.
 
 \paragraph{Matriks Adjacency}
 Struktur konektivitas graf dapat direpresentasikan menggunakan matriks adjacency:
@@ -94,7 +177,7 @@ Struktur konektivitas graf dapat direpresentasikan menggunakan matriks adjacency
 \noindent dimana:
 
 \begin{equation}
-    A_{ij} = \begin{cases} 
+    A_{ij} = \begin{cases}
         1 & \text{jika } (v_i, v_j) \in \mathcal{E} \\
         0 & \text{jika sebaliknya}
     \end{cases}
@@ -117,18 +200,18 @@ Dalam implementasi GAT standar, fitur edge tidak secara eksplisit dimasukkan ke 
         e_{ij} = \text{LeakyReLU}\left(\vec{a}^T [W\vec{h}_i \, \| \, W\vec{h}_j \, \| \, W_e\vec{e}_{ij}]\right)
     \end{equation}
     \noindent dimana $W_e$ adalah matriks bobot untuk transformasi fitur edge.
-    
+
     \item \textbf{Edge Gating}: Fitur edge digunakan sebagai gating mechanism untuk memodulasi koefisien atensi:
     \begin{equation}
         \alpha_{ij}^{gated} = \alpha_{ij} \cdot \sigma(W_g \vec{e}_{ij})
     \end{equation}
     \noindent dimana $\sigma$ adalah fungsi sigmoid dan $W_g$ adalah matriks bobot gating.
-    
+
     \item \textbf{Pre-aggregation Weighting}: Fitur edge digunakan untuk memberikan bobot awal sebelum mekanisme atensi:
     \begin{equation}
         \tilde{\alpha}_{ij} = w_{ij} \cdot \alpha_{ij}
     \end{equation}
-    \noindent dimana $w_{ij}$ adalah bobot yang diturunkan dari fitur edge (misalnya, bandwidth yang tersedia atau inverse dari latency).
+    \noindent dimana $w_{ij}$ adalah bobot yang diturunkan dari fitur edge (misalnya, bandwidth yang tersedia atau inverse dari error rate).
 \end{enumerate}
 
 Pemilihan strategi integrasi fitur edge bergantung pada kompleksitas model yang diinginkan dan ketersediaan data pelatihan. Dalam konteks penelitian ini, strategi yang dipilih akan disesuaikan dengan karakteristik data jaringan PT Lare Osing Ndo dan hasil eksperimen awal.
@@ -195,7 +278,7 @@ Operasi concatenation menghasilkan:
 Fungsi LeakyReLU didefinisikan sebagai:
 
 \begin{equation}
-    \text{LeakyReLU}(x) = \begin{cases} 
+    \text{LeakyReLU}(x) = \begin{cases}
         x & \text{jika } x \geq 0 \\
         \alpha x & \text{jika } x < 0
     \end{cases}
@@ -258,7 +341,7 @@ Untuk menstabilkan proses pembelajaran dan meningkatkan kapasitas ekspresif mode
 Untuk layer tersembunyi (\textit{hidden layers}), hasil dari $K$ head digabungkan melalui concatenation:
 
 \begin{equation}
-    \vec{h'}_i = \|{k=1}^{K} \sigma\left(\sum_{j \in \mathcal{N}_i \cup \{i\}} \alpha_{ij}^k W^k \vec{h}_j\right)
+    \vec{h'}_i = \|_{k=1}^{K} \sigma\left(\sum_{j \in \mathcal{N}_i \cup \{i\}} \alpha_{ij}^k W^k \vec{h}_j\right)
 \end{equation}
 
 dimana $\|$ menunjukkan operasi concatenation, $\alpha_{ij}^k$ adalah koefisien atensi yang dinormalisasi untuk head ke-$k$, dan $W^k$ adalah matriks bobot transformasi untuk head ke-$k$. Hasil concatenation ini menghasilkan vektor fitur dengan dimensi $K \cdot F'$.
@@ -290,19 +373,19 @@ Dalam konteks aplikasi Traffic Engineering di jaringan PT Lare Osing Ndo, GAT me
 
 \begin{enumerate}
     \item \textbf{Adaptivitas Dinamis}: Koefisien atensi dihitung secara dinamis berdasarkan kondisi jaringan terkini, memungkinkan model untuk beradaptasi dengan perubahan beban trafik atau kegagalan link secara real-time \cite{kato2024}.
-    
+
     \item \textbf{Efisiensi Komputasi}: Berbeda dengan algoritma Dijkstra yang memerlukan kalkulasi ulang penuh setiap ada perubahan topologi, GAT melakukan inferensi dalam sekali forward pass tanpa iterasi berulang, sehingga lebih efisien untuk deployment production.
-    
-    \item \textbf{Pembelajaran Fitur Kompleks}: GAT dapat mempelajari representasi fitur tingkat tinggi yang menangkap interaksi kompleks antar parameter jaringan (CPU, bandwidth, latency) yang sulit dimodelkan secara eksplisit.
-    
+
+    \item \textbf{Pembelajaran Fitur Kompleks}: GAT dapat mempelajari representasi fitur tingkat tinggi yang menangkap interaksi kompleks antar parameter jaringan (CPU, bandwidth, error rate) yang sulit dimodelkan secara eksplisit.
+
     \item \textbf{Independensi Struktur}: Mekanisme atensi tidak bergantung pada struktur graf yang telah ditentukan sebelumnya, sehingga dapat menangani topologi yang dinamis atau tidak teratur dengan baik.
-    
+
     \item \textbf{Interpretabilitas}: Nilai koefisien atensi $\alpha_{ij}$ dapat divisualisasikan untuk memahami jalur mana yang diprioritaskan oleh model, memberikan transparansi dalam pengambilan keputusan routing.
 \end{enumerate}
 
-Kombinasi keunggulan-keunggulan ini menjadikan GAT sebagai pendekatan yang sangat sesuai untuk mengatasi tantangan Traffic E.ngineering modern, khususnya dalam skenario jaringan Layer 2 dengan VLAN yang kompleks seperti yang dihadapi PT Lare Osing Ndo.
+Kombinasi keunggulan-keunggulan ini menjadikan GAT sebagai pendekatan yang sangat sesuai untuk mengatasi tantangan Traffic Engineering modern, khususnya dalam skenario jaringan Layer 2 dengan VLAN yang kompleks seperti yang dihadapi PT Lare Osing Ndo.
 
-\section{Analytic Hierarchy Process (AHP)}
+\subsection{Analytic Hierarchy Process (AHP)}
 
 \textit{Analytic Hierarchy Process} (AHP) adalah metode pengambilan keputusan multikriteria yang dikembangkan oleh Thomas L. Saaty pada tahun 1970 \cite{saaty2008}. AHP dirancang untuk menangani masalah kompleks yang melibatkan berbagai kriteria dengan tingkat kepentingan yang berbeda-beda, dimana setiap alternatif memiliki preferensi yang bervariasi menurut masing-masing kriteria yang digunakan.
 
@@ -314,32 +397,57 @@ AHP dibangun di atas tiga prinsip fundamental yang menjamin validitas hasil kepu
 
 \begin{enumerate}
     \item \textbf{Decomposition (Dekomposisi)}: Memecah masalah kompleks menjadi struktur hierarki yang terdiri dari tujuan, kriteria, dan alternatif yang lebih sederhana dan terukur.
-    
+
     \item \textbf{Comparative Judgement (Penilaian Komparatif)}: Melakukan perbandingan berpasangan (\textit{pairwise comparison}) antar elemen pada level hierarki yang sama untuk menentukan tingkat kepentingan relatif.
-    
+
     \item \textbf{Logical Consistency (Konsistensi Logis)}: Memastikan bahwa penilaian yang diberikan bersifat konsisten dan dapat diandalkan melalui pengujian rasio konsistensi.
 \end{enumerate}
 
 \subsubsection{Struktur Hierarki AHP}
 
-Struktur hierarki AHP dalam penelitian ini terdiri dari tiga level:
+Struktur hierarki AHP disusun untuk memodelkan preferensi manajemen jaringan ke dalam bentuk bobot kuantitatif. Hasil akhir dari hierarki ini bukanlah pemilihan jalur secara langsung, melainkan seperangkat vektor bobot (\textit{weight vectors}) yang akan digunakan untuk menyusun \textit{ground truth} pada pelatihan model GAT.
+
+Struktur hierarki terdiri dari tiga level sebagai berikut:
 
 \begin{enumerate}
-    \item \textbf{Level 1 (Tujuan)}: Menentukan jalur jaringan dengan kualitas terbaik untuk Traffic Engineering.
-    
-    \item \textbf{Level 2 (Kriteria)}: Parameter-parameter yang mempengaruhi kualitas jalur, yang terbagi menjadi:
+    \item \textbf{Level 1 (Tujuan Utama)}: Menentukan bobot prioritas (\textit{Priority Weights}) dari setiap parameter penentu kualitas jalur.
+
+    \item \textbf{Level 2 (Kategori Kriteria)}: Pengelompokan parameter berdasarkan letaknya dalam struktur graf jaringan:
     \begin{itemize}
-        \item Kriteria Node: Utilisasi CPU, konsumsi RAM, volume trafik, jumlah koneksi aktif
-        \item Kriteria Edge: Bandwidth tersedia, utilisasi bandwidth, latensi, packet loss rate, jitter
+        \item \textbf{Kriteria Node}: Parameter yang mengukur kinerja perangkat (\textit{switch}).
+        \item \textbf{Kriteria Edge}: Parameter yang mengukur kualitas tautan (\textit{link}).
     \end{itemize}
-    
-    \item \textbf{Level 3 (Alternatif)}: Berbagai jalur yang mungkin dilalui dalam topologi jaringan PT Lare Osing Ndo.
+
+    \item \textbf{Level 3 (Sub-Kriteria/Indikator)}: Parameter spesifik yang akan diberi bobot:
+    \begin{itemize}
+        \item \textbf{Sub-Kriteria Node (5 Parameter):}
+        \begin{enumerate}
+            \item \textbf{CPU Score}: Bobot kepentingan untuk ketersediaan CPU.
+            \item \textbf{RAM Score}: Bobot kepentingan untuk ketersediaan memori.
+            \item \textbf{Traffic Score}: Bobot kepentingan untuk volume trafik.
+            \item \textbf{Utilization Score}: Bobot kepentingan untuk kesibukan interface.
+            \item \textbf{Status Score}: Bobot kepentingan untuk status hidup/mati perangkat.
+        \end{enumerate}
+
+        \item \textbf{Sub-Kriteria Edge (7 Parameter):}
+        \begin{enumerate}
+            \item \textbf{Optical Link Quality Score}: Bobot kepentingan kualitas fisik optik.
+            \item \textbf{Error Rate Score}: Bobot kepentingan minimnya error transmisi.
+            \item \textbf{Packet Loss Score}: Bobot kepentingan reliabilitas pengiriman paket.
+            \item \textbf{Bandwidth Utilization}: Bobot kepentingan ketersediaan bandwidth.
+            \item \textbf{Interface Speed}: Bobot kepentingan kapasitas maksimum link.
+            \item \textbf{Distance}: Bobot kepentingan jarak fisik/logis.
+            \item \textbf{Link Status}: Bobot kepentingan status hidup/mati link.
+        \end{enumerate}
+    \end{itemize}
 \end{enumerate}
+
+Output dari proses hierarki ini adalah vektor bobot $\mathbf{w}_{node}$ dan $\mathbf{w}_{edge}$ yang kemudian diaplikasikan dalam persamaan komposit untuk menghasilkan label kualitas jalur ($Q_{path}$) sebagai target pembelajaran model GAT.
 
 \begin{figure}[H]
     \centering
-    % \includegraphics[width=0.8\textwidth]{images/ahp_hierarchy.png}
-    \caption{Struktur Hierarki AHP untuk Penilaian Kualitas Jalur Jaringan}
+    \includegraphics[width=0.9\textwidth]{images/hirarki.png}
+    \caption{Struktur Hierarki AHP untuk Penentuan Bobot Parameter}
     \label{fig:ahp_hierarchy}
 \end{figure}
 
@@ -369,10 +477,10 @@ Matriks perbandingan berpasangan dapat dinyatakan sebagai:
     a_{ji} = \frac{1}{a_{ij}}
 \end{equation}
 
-Sebagai contoh, jika bandwidth tersedia dinilai 3 kali lebih penting dari latensi, maka:
+Sebagai contoh, jika optical link quality dinilai 3 kali lebih penting dari distance, maka:
 
 \begin{equation}
-    a_{bandwidth,latency} = 3 \quad \text{dan} \quad a_{latency,bandwidth} = \frac{1}{3}
+    a_{optical,distance} = 3 \quad \text{dan} \quad a_{distance,optical} = \frac{1}{3}
 \end{equation}
 
 Skala perbandingan yang digunakan mengikuti standar Saaty seperti ditunjukkan pada Tabel \ref{tab:saaty_scale}.
@@ -474,35 +582,6 @@ Matriks perbandingan dinyatakan konsisten jika:
 
 Jika $CR > 0.1$, maka penilaian perbandingan perlu direvisi karena mengandung inkonsistensi yang signifikan.
 
-\paragraph{5. Agregasi Skor untuk Alternatif}
-
-Setelah bobot kriteria diperoleh, proses yang sama diulang untuk membandingkan alternatif (dalam hal ini, jalur-jalur jaringan) pada setiap kriteria. Hasil akhirnya adalah matriks bobot alternatif:
-
-\begin{equation}
-    \mathbf{W}_A = \begin{bmatrix}
-        w_{11} & w_{12} & \cdots & w_{1m} \\
-        w_{21} & w_{22} & \cdots & w_{2m} \\
-        \vdots & \vdots & \ddots & \vdots \\
-        w_{k1} & w_{k2} & \cdots & w_{km}
-    \end{bmatrix}
-\end{equation}
-
-\noindent dimana $k$ adalah jumlah alternatif (jalur) dan $m$ adalah jumlah kriteria.
-
-Skor akhir untuk setiap alternatif dihitung dengan mengalikan matriks bobot alternatif dengan vektor bobot kriteria:
-
-\begin{equation}
-    \mathbf{S} = \mathbf{W}_A \cdot \mathbf{w}
-\end{equation}
-
-\noindent yang dapat diekspresikan untuk setiap alternatif sebagai:
-
-\begin{equation}
-    S_k = \sum_{j=1}^{m} w_{kj} \cdot w_j
-\end{equation}
-
-\noindent dimana $S_k$ adalah skor total untuk alternatif (jalur) ke-$k$.
-
 \subsubsection{Integrasi AHP dengan GAT}
 
 Dalam penelitian ini, AHP diintegrasikan dengan GAT untuk menghasilkan sistem Traffic Engineering yang cerdas dan selaras dengan kebijakan operasional. Skor yang dihasilkan oleh AHP digunakan sebagai label target dalam proses pelatihan model GAT.
@@ -519,47 +598,31 @@ Secara matematis, skor kualitas jalur dapat diformulasikan sebagai:
     \item $w_i^{node}$ : Bobot prioritas untuk parameter node ke-$i$ (hasil perhitungan AHP)
     \item $w_j^{edge}$ : Bobot prioritas untuk parameter edge ke-$j$ (hasil perhitungan AHP)
     \item $f_i(\text{node})$ : Nilai atribut perangkat ke-$i$ (misalnya: sisa kapasitas CPU dalam \%)
-    \item $g_j(\text{edge})$ : Nilai atribut koneksi ke-$j$ (misalnya: bandwidth tersedia dalam Mbps)
-    \item $n_{node}$ : Jumlah parameter node yang dipertimbangkan
-    \item $n_{edge}$ : Jumlah parameter edge yang dipertimbangkan
+    \item $g_j(\text{edge})$ : Nilai atribut koneksi ke-$j$ (misalnya: optical signal quality atau bandwidth tersedia)
+    \item $n_{node}$ : Jumlah parameter node yang dipertimbangkan (dalam penelitian ini: 5 kriteria)
+    \item $n_{edge}$ : Jumlah parameter edge yang dipertimbangkan (dalam penelitian ini: 7 kriteria)
 \end{itemize}
+
+Formula agregasi ini mengadopsi pendekatan weighted composite scoring yang umum digunakan dalam multi-criteria decision making untuk network path selection \cite{weighted_composite_routing, qos_composite_metric, madm_heuristic_routing}. Setiap komponen dinormalisasi dan dikalikan dengan bobot yang ditentukan melalui AHP, menghasilkan skor holistik yang mencerminkan kualitas keseluruhan node dan edge \cite{routing_multiple_optimality, rpso_link_quality}.
 
 Alur kerja integrasi AHP-GAT dapat dijelaskan sebagai berikut:
 
 \begin{enumerate}
-    \item \textbf{Tahap Pra-komputasi AHP}: Administrator jaringan atau pakar melakukan penilaian perbandingan berpasangan untuk menentukan tingkat kepentingan relatif dari setiap parameter jaringan (CPU, RAM, bandwidth, latensi, dll.). Hasil perhitungan AHP menghasilkan vektor bobot $\mathbf{w}$.
-    
+    \item \textbf{Tahap Pra-komputasi AHP}: Administrator jaringan atau pakar melakukan penilaian perbandingan berpasangan untuk menentukan tingkat kepentingan relatif dari setiap parameter jaringan (CPU, RAM, optical quality, error rate, bandwidth, dll.). Hasil perhitungan AHP menghasilkan vektor bobot $\mathbf{w}$.
+
     \item \textbf{Pemberian Label}: Untuk setiap jalur yang mungkin dalam topologi jaringan, skor kualitas $Q_{path}$ dihitung menggunakan formula di atas berdasarkan kondisi jaringan aktual dan bobot AHP. Skor ini menjadi ground truth label untuk pelatihan.
-    
+
     \item \textbf{Pelatihan GAT}: Model GAT dilatih untuk memprediksi skor kualitas jalur berdasarkan fitur-fitur node dan edge. Fungsi loss yang digunakan adalah:
     \begin{equation}
         \mathcal{L} = \frac{1}{N_{paths}} \sum_{p=1}^{N_{paths}} (Q_{path}^{pred} - Q_{path}^{AHP})^2
     \end{equation}
     dimana $Q_{path}^{pred}$ adalah prediksi model GAT dan $Q_{path}^{AHP}$ adalah label dari perhitungan AHP.
-    
+
     \item \textbf{Inferensi Real-time}: Setelah model terlatih, GAT dapat memprediksi kualitas jalur secara real-time tanpa perlu menghitung ulang bobot AHP, karena pengetahuan pakar telah terinternalisasi dalam parameter model.
 \end{enumerate}
 
-\subsubsection{Keunggulan Pendekatan Hibrida AHP-GAT}
-
-Kombinasi AHP dengan GAT menghasilkan sistem Traffic Engineering dengan keunggulan sebagai berikut:
-
-\begin{enumerate}
-    \item \textbf{Validitas Label Pelatihan}: AHP memastikan bahwa label yang digunakan untuk melatih model GAT mencerminkan preferensi pakar jaringan yang terukur dan konsisten \cite{khan2020}, bukan hanya metrik teknis semata.
-    
-    \item \textbf{Interpretabilitas}: Bobot yang dihasilkan AHP memberikan transparansi mengenai parameter mana yang dianggap paling penting dalam penentuan jalur, memudahkan audit dan penyesuaian kebijakan.
-    
-    \item \textbf{Efisiensi Komputasi}: Setelah model GAT terlatih, prediksi jalur optimal dapat dilakukan dengan sangat cepat (single forward pass) tanpa perlu kalkulasi iteratif AHP untuk setiap keputusan routing.
-    
-    \item \textbf{Adaptabilitas}: Jika kebijakan operasional berubah, cukup dengan menyesuaikan matriks perbandingan AHP dan melatih ulang model, tanpa mengubah arsitektur sistem secara fundamental.
-    
-    \item \textbf{Konsistensi Keputusan}: Pengujian rasio konsistensi dalam AHP memastikan bahwa preferensi pakar tidak mengandung kontradiksi logis yang dapat menyebabkan keputusan routing yang tidak stabil.
-\end{enumerate}
-
-Pendekatan hibrida ini menjembatani kesenjangan antara kalkulasi matematis murni dengan intuisi operasional, menghasilkan sistem Traffic Engineering yang tidak hanya optimal secara teknis, tetapi juga selaras dengan realitas operasional PT Lare Osing Ndo.
-
-
 \section{Penelitian Terkait}
+
 Tinjauan studi dilakukan untuk memetakan posisi penelitian ini terhadap penelitian-penelitian sebelumnya yang relevan (\textit{State of the Art}). Pemetaan ini bertujuan untuk mengidentifikasi kesenjangan penelitian (\textit{research gap}) dan memastikan kebaruan kontribusi yang ditawarkan.
 
 Penelitian pertama oleh Marouani dkk. (2024) menerapkan \textit{Graph Attention Networks} (GAT) untuk \textit{Traffic Engineering} pada jaringan WAN. Penelitian tersebut membuktikan bahwa mekanisme \textit{attention} pada GAT mampu menangani topologi dinamis lebih baik daripada metode heuristik konvensional \cite{marouani2024}. Namun, penelitian ini hanya berfokus pada metrik performa teknis murni tanpa mempertimbangkan preferensi kebijakan manajemen jaringan yang seringkali bersifat subjektif pada ISP lokal.
@@ -591,12 +654,16 @@ Berdasarkan tinjauan di atas, ditemukan celah permasalahan di mana belum ada pen
 \end{table}
 
 \section{Kerangka Pemikiran}
+
 Kerangka pemikiran menggambarkan alur logika penelitian dari variabel yang diobservasi hingga pengukuran keberhasilan. Sesuai dengan pendekatan sistem cerdas, kerangka ini disusun dalam empat komponen utama: \textit{Indicators}, \textit{Proposed Method}, \textit{Objectives}, dan \textit{Measurement}.
 
 \begin{enumerate}
-    \item \textbf{Indicators (Observed Variables):} Merupakan parameter input yang diambil dari perangkat jaringan, terdiri dari parameter Node (CPU, RAM, Trafik, Utilisasi) dan parameter Edge (Kualitas Link, Bandwidth, Kecepatan, Jarak, Status).
+    \item \textbf{Indicators (Observed Variables):} Merupakan parameter input yang diambil dari perangkat jaringan, terdiri dari parameter Node (CPU, RAM, Trafik, Utilisasi, Status) dan parameter Edge (Optical Link Quality, Error Rate, Packet Loss, Bandwidth Utilization bidirectional, Interface Speed kedua endpoint, Jarak, Status).
+
     \item \textbf{Proposed Method:} Solusi yang diusulkan menggabungkan dua metode utama. Pertama, \textit{Analytic Hierarchy Process} (AHP) digunakan pada tahap pra-pemrosesan untuk memberikan bobot prioritas valid berdasarkan penilaian pakar. Kedua, \textit{Graph Attention Network} (GAT) digunakan sebagai algoritma pembelajaran utama untuk mengenali pola topologi dan memprediksi kualitas jalur.
+
     \item \textbf{Objectives:} Tujuan akhir dari sistem adalah menghasilkan model rekomendasi jalur yang memiliki akurasi tinggi dan mampu mengoptimalkan distribusi trafik jaringan.
+
     \item \textbf{Measurement:} Keberhasilan metode diukur menggunakan metrik statistik \textit{Root Mean Square Error} (RMSE) untuk performa regresi, dan \textit{Accuracy} untuk mengukur ketepatan klasifikasi kualitas jalur yang direkomendasikan.
 \end{enumerate}
 
@@ -616,10 +683,10 @@ Visualisasi kerangka pemikiran penelitian ditunjukkan pada Gambar \ref{fig:keran
     \node[font=\bfseries] (ind_title) {INDICATORS};
 
     \node[box, below=0.5cm of ind_title, fill=white] (cpu) {CPU \& RAM\\Usage};
-    \node[box, below=0.3cm of cpu, fill=white] (traf) {Interface\\Utilization};
-    \node[box, below=0.3cm of traf, fill=white] (link) {Link Quality\\(Signal/Loss)};
+    \node[box, below=0.3cm of cpu, fill=white] (traf) {Traffic \&\\Utilization};
+    \node[box, below=0.3cm of traf, fill=white] (link) {Optical Quality\\Error Rate};
     \node[box, below=0.3cm of link, fill=white] (bw) {Bandwidth\\Availability};
-    \node[box, below=0.3cm of bw, fill=white] (dist) {Geographical\\Distance};
+    \node[box, below=0.3cm of bw, fill=white] (dist) {Distance \&\\Status};
 
     % Frame for Indicators
     \node[groupbox, fit=(cpu)(dist), label=below:\textit{Observed Variables}] (ind_group) {};
