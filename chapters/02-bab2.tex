@@ -1,6 +1,565 @@
 \chapter{TINJAUAN PUSTAKA}
 
-\section{Tinjauan Studi}
+\section{Landasan Teori}
+
+\subsection{Traffic Engineering}
+\textit{Traffic Engineering} (TE) adalah disiplin rekayasa jaringan yang berfokus pada pengukuran, pemodelan, karakterisasi, dan kontrol lalu lintas internet untuk mengoptimalkan kinerja jaringan. Tujuan utama TE adalah meminimalkan kongesti dan meningkatkan pemanfaatan sumber daya melalui penyeimbangan beban trafik (\textit{load balancing}) \cite{marouani2024}.
+
+TE modern membutuhkan kemampuan untuk menangani pola trafik yang dinamis dan beragam, di mana pendekatan konvensional berbasis algoritma statis seperti jalur terpendek (Dijkstra) seringkali tidak mampu beradaptasi dengan kondisi jaringan yang berubah secara real-time. Oleh karena itu, pendekatan berbasis kecerdasan buatan semakin diperlukan untuk melakukan optimasi distribusi trafik secara adaptif dan efisien.
+
+% Tambahkan gambar ilustrasi Traffic Engineering di sini
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{images/te.png}
+    \caption{Ilustrasi Traffic Engineering dalam Jaringan}
+    \label{fig:traffic_engineering}
+\end{figure}
+
+\subsection{Jaringan Layer 2 dan VLAN}
+Jaringan Layer 2 beroperasi pada lapisan \textit{Data Link} dalam model OSI, di mana perangkat \textit{switch} mengirimkan frame berdasarkan alamat MAC\@. Teknologi VLAN (\textit{Virtual Local Area Network}) memungkinkan segmentasi jaringan secara logis dalam satu infrastruktur fisik, meningkatkan keamanan dan efisiensi manajemen jaringan. Segmentasi VLAN terbukti dapat meningkatkan performa jaringan dengan membagi \textit{broadcast domain} yang besar menjadi domain-domain yang lebih kecil dan terkelola \cite{warse2025vlan}.
+
+Pada lingkungan ISP yang menggunakan infrastruktur \textit{switching} Layer 2 dengan VLAN, penerapan Traffic Engineering menghadapi tantangan khusus. Mekanisme \textit{Spanning Tree Protocol} (STP) pada Layer 2 cenderung memblokir jalur redundan untuk mencegah \textit{looping}, yang mengakibatkan tautan cadangan tidak termanfaatkan (\textit{underutilized}) \cite{rashid2024performance, aruba2025campus}. Meskipun varian yang lebih modern seperti \textit{Rapid Spanning Tree Protocol} (RSTP) menawarkan konvergensi yang lebih cepat, kondisi ini tetap membuat optimasi jalur menjadi lebih kompleks dibandingkan jaringan IP tradisional (Layer 3) \cite{ahmad2020intervlan}. Oleh karena itu, diperlukan pendekatan cerdas untuk memprediksi kegagalan dan mendistribusikan trafik secara dinamis tanpa melanggar topologi logis Layer 2 \cite{alhachem2025}.
+
+\begin{figure}[H]
+    \centering
+    % \includegraphics[width=0.8\textwidth]{images/layer2_vlan.png}
+    \caption{Arsitektur Jaringan Layer 2 dengan VLAN}
+    \label{fig:layer2_vlan}
+\end{figure}
+
+\subsection{Graph Attention Network (GAT)}
+
+\textit{Graph Attention Network} (GAT) merupakan pengembangan lanjut dari \textit{Graph Neural Networks} (GNN) yang memperkenalkan mekanisme \textit{masked self-attention} untuk mengatasi keterbatasan metode berbasis graf konvensional. Berbeda dengan GNN tradisional yang memperlakukan semua tetangga node dengan bobot yang sama atau bergantung pada struktur graf yang telah ditentukan sebelumnya, GAT memiliki kemampuan untuk secara adaptif menentukan tingkat kepentingan (\textit{attention coefficients}) dari setiap node tetangga \cite{velickovic2017}.
+
+Dalam konteks jaringan komputer, mekanisme atensi ini sangat relevan karena tidak semua jalur yang terhubung memiliki kualitas yang setara. Sebagai contoh, dalam topologi jaringan PT Lare Osing Ndo, sebuah switch mungkin memiliki beberapa jalur alternatif menuju switch tujuan, namun kualitas masing-masing jalur dapat berbeda secara signifikan bergantung pada kondisi beban trafik, kapasitas bandwidth, dan performa perangkat. GAT memungkinkan model untuk "memperhatikan" jalur dengan kualitas sinyal lebih baik dan secara otomatis mengabaikan atau memberikan bobot rendah pada jalur yang mengalami degradasi \cite{kato2024}.
+
+\subsubsection{Representasi Graf Jaringan}
+
+Sebelum memahami mekanisme GAT, perlu dipahami terlebih dahulu bagaimana topologi jaringan direpresentasikan sebagai graf matematis. Sebuah jaringan komputer dapat dimodelkan sebagai graf tidak berarah $\mathcal{G} = (\mathcal{V}, \mathcal{E})$, dimana:
+
+\begin{itemize}
+    \item $\mathcal{V} = \{v_1, v_2, \ldots, v_N\}$ adalah himpunan node yang merepresentasikan perangkat jaringan (switch, router, atau endpoint)
+    \item $\mathcal{E} \subseteq \mathcal{V} \times \mathcal{V}$ adalah himpunan edge yang merepresentasikan koneksi fisik atau logis antar perangkat
+    \item $N = |\mathcal{V}|$ adalah jumlah total node dalam jaringan
+    \item $M = |\mathcal{E}|$ adalah jumlah total edge (koneksi) dalam jaringan
+\end{itemize}
+
+\paragraph{Fitur Node}
+Setiap node memiliki vektor fitur input yang dapat dinyatakan sebagai:
+
+\begin{equation}
+    \vec{h}_i \in \mathbb{R}^F
+\end{equation}
+
+\noindent dimana $F$ adalah dimensi fitur. Dalam kasus jaringan PT Lare Osing Ndo, fitur node dapat mencakup:
+
+\begin{itemize}
+    \item Utilisasi CPU (\%)
+    \item Konsumsi memori RAM (\%)
+    \item Volume trafik saat ini (Mbps)
+    \item Jumlah koneksi aktif
+    \item Kapasitas buffer
+\end{itemize}
+
+\paragraph{Fitur Edge}
+Selain fitur pada node, setiap edge yang menghubungkan dua node juga memiliki atribut yang merepresentasikan karakteristik koneksi tersebut. Fitur edge dapat direpresentasikan sebagai:
+
+\begin{equation}
+    e_{ij} = (v_i, v_j) \in \mathcal{E}
+\end{equation}
+
+\begin{equation}
+    \vec{e}_{ij} \in \mathbb{R}^{F_e}
+\end{equation}
+
+\noindent dimana $F_e$ adalah dimensi fitur edge. Fitur-fitur ini meliputi:
+
+\begin{itemize}
+    \item Bandwidth maksimum link (Mbps atau Gbps)
+    \item Utilisasi bandwidth saat ini (\%)
+    \item Latensi propagasi (ms)
+    \item Packet loss rate (\%)
+    \item Jitter (variasi delay)
+    \item Status link (up/down atau binary 1/0)
+    \item Tipe media (fiber, copper, wireless)
+\end{itemize}
+
+\paragraph{Matriks Adjacency}
+Struktur konektivitas graf dapat direpresentasikan menggunakan matriks adjacency:
+
+\begin{equation}
+    \mathbf{A} \in \{0,1\}^{N \times N}
+\end{equation}
+
+\noindent dimana:
+
+\begin{equation}
+    A_{ij} = \begin{cases} 
+        1 & \text{jika } (v_i, v_j) \in \mathcal{E} \\
+        0 & \text{jika sebaliknya}
+    \end{cases}
+\end{equation}
+
+Untuk graf tidak berarah (seperti topologi jaringan Layer 2), matriks adjacency bersifat simetris. Matriks ini menjadi dasar dalam menentukan himpunan tetangga yang dapat dinyatakan sebagai:
+
+\begin{equation}
+    \mathcal{N}_i = \{v_j : A_{ij} = 1\}
+\end{equation}
+
+\noindent yang akan digunakan dalam komputasi atensi GAT.
+
+\paragraph{Representasi Edge dalam GAT}
+Dalam implementasi GAT standar, fitur edge tidak secara eksplisit dimasukkan ke dalam perhitungan koefisien atensi. Namun, untuk aplikasi Traffic Engineering, fitur edge sangat penting karena kualitas link menjadi faktor krusial dalam penentuan jalur. Oleh karena itu, terdapat beberapa strategi untuk mengintegrasikan fitur edge:
+
+\begin{enumerate}
+    \item \textbf{Edge Feature Concatenation}: Fitur edge digabungkan dengan fitur node dalam perhitungan skor atensi:
+    \begin{equation}
+        e_{ij} = \text{LeakyReLU}\left(\vec{a}^T [W\vec{h}_i \, \| \, W\vec{h}_j \, \| \, W_e\vec{e}_{ij}]\right)
+    \end{equation}
+    \noindent dimana $W_e$ adalah matriks bobot untuk transformasi fitur edge.
+    
+    \item \textbf{Edge Gating}: Fitur edge digunakan sebagai gating mechanism untuk memodulasi koefisien atensi:
+    \begin{equation}
+        \alpha_{ij}^{gated} = \alpha_{ij} \cdot \sigma(W_g \vec{e}_{ij})
+    \end{equation}
+    \noindent dimana $\sigma$ adalah fungsi sigmoid dan $W_g$ adalah matriks bobot gating.
+    
+    \item \textbf{Pre-aggregation Weighting}: Fitur edge digunakan untuk memberikan bobot awal sebelum mekanisme atensi:
+    \begin{equation}
+        \tilde{\alpha}_{ij} = w_{ij} \cdot \alpha_{ij}
+    \end{equation}
+    \noindent dimana $w_{ij}$ adalah bobot yang diturunkan dari fitur edge (misalnya, bandwidth yang tersedia atau inverse dari latency).
+\end{enumerate}
+
+Pemilihan strategi integrasi fitur edge bergantung pada kompleksitas model yang diinginkan dan ketersediaan data pelatihan. Dalam konteks penelitian ini, strategi yang dipilih akan disesuaikan dengan karakteristik data jaringan PT Lare Osing Ndo dan hasil eksperimen awal.
+
+\subsubsection{Arsitektur Layer GAT}
+
+Sebuah layer GAT menerima himpunan fitur node sebagai input dan menghasilkan himpunan fitur baru sebagai output. Proses ini dapat dinyatakan secara matematis sebagai:
+
+\begin{equation}
+    \mathbf{h} = \{\vec{h}_1, \vec{h}_2, \ldots, \vec{h}_N\}, \quad \vec{h}_i \in \mathbb{R}^F
+\end{equation}
+
+\begin{equation}
+    \mathbf{h'} = \{\vec{h'}_1, \vec{h'}_2, \ldots, \vec{h'}_N\}, \quad \vec{h'}_i \in \mathbb{R}^{F'}
+\end{equation}
+
+\noindent dimana $\mathbf{h}$ adalah input layer dan $\mathbf{h'}$ adalah output layer. Proses transformasi ini terdiri dari beberapa tahapan komputasi yang akan dijelaskan secara rinci berikut ini.
+
+\subsubsection{Tahapan Komputasi GAT}
+
+Untuk memudahkan pemahaman, proses perhitungan koefisien atensi dan agregasi fitur dalam GAT dipecah menjadi lima tahapan utama:
+
+\paragraph{1. Transformasi Linear Fitur Input}
+
+Tahap pertama adalah melakukan transformasi linear pada fitur input setiap node menggunakan matriks bobot yang dapat dipelajari. Tujuan tahap ini adalah untuk memproyeksikan fitur input ke dalam ruang fitur yang lebih ekspresif.
+
+\begin{equation}
+    z_i = W \cdot \vec{h}_i
+\end{equation}
+
+\noindent\textbf{Keterangan:}
+\begin{itemize}
+    \item $z_i \in \mathbb{R}^{F'}$ : Fitur hasil transformasi pada node $i$
+    \item $W \in \mathbb{R}^{F' \times F}$ : Matriks bobot transformasi linear yang dilatih oleh model
+    \item $\vec{h}_i \in \mathbb{R}^F$ : Vektor fitur input awal pada node $i$
+    \item $F$ : Dimensi fitur input
+    \item $F'$ : Dimensi fitur output (dapat berbeda dari $F$)
+\end{itemize}
+
+Transformasi ini diterapkan pada seluruh node dalam graf, sehingga untuk setiap pasangan node $i$ dan $j$ yang terhubung, akan diperoleh $z_i$ dan $z_j$ yang siap diproses pada tahap berikutnya.
+
+\paragraph{2. Komputasi Skor Atensi Mentah}
+
+Setelah fitur ditransformasi, tahap selanjutnya adalah menghitung seberapa penting pengaruh node tetangga $j$ terhadap node sumber $i$. Proses ini menggunakan mekanisme atensi yang diparameterisasi oleh vektor bobot $\vec{a}$.
+
+\begin{equation}
+    e_{ij} = \text{LeakyReLU}\left(\vec{a}^T [W\vec{h}_i \, \| \, W\vec{h}_j]\right)
+\end{equation}
+
+\noindent\textbf{Keterangan:}
+\begin{itemize}
+    \item $e_{ij}$ : Skor atensi mentah yang menunjukkan pentingnya node $j$ bagi node $i$
+    \item $\vec{a}^T$ : Vektor bobot mekanisme atensi (transpose), dengan dimensi $\vec{a}^T \in \mathbb{R}^{2F'}$
+    \item $\|$ : Operasi concatenation (penggabungan) dua vektor fitur
+    \item $\text{LeakyReLU}$ : Fungsi aktivasi untuk mempertahankan gradient negatif dengan slope kecil (biasanya 0.2)
+\end{itemize}
+
+Operasi concatenation menghasilkan:
+
+\begin{equation}
+    [W\vec{h}_i \, \| \, W\vec{h}_j] \in \mathbb{R}^{2F'}
+\end{equation}
+
+Fungsi LeakyReLU didefinisikan sebagai:
+
+\begin{equation}
+    \text{LeakyReLU}(x) = \begin{cases} 
+        x & \text{jika } x \geq 0 \\
+        \alpha x & \text{jika } x < 0
+    \end{cases}
+\end{equation}
+
+\noindent dimana $\alpha$ adalah parameter slope negatif (umumnya 0.2). Pemilihan LeakyReLU dibanding ReLU standar penting untuk mencegah \textit{dying neurons} dan mempertahankan aliran gradient selama pelatihan.
+
+Perlu dicatat bahwa komputasi $e_{ij}$ hanya dilakukan untuk node yang memenuhi:
+
+\begin{equation}
+    j \in \mathcal{N}_i \cup \{i\}
+\end{equation}
+
+\noindent dimana $\mathcal{N}_i$ adalah himpunan node tetangga yang terhubung langsung dengan node $i$. Ini sejalan dengan konsep \textit{masked attention}, dimana model hanya mempertimbangkan koneksi yang benar-benar ada dalam topologi jaringan.
+
+\paragraph{3. Normalisasi dengan Softmax}
+
+Skor atensi mentah yang diperoleh pada tahap sebelumnya masih berupa nilai real yang tidak memiliki interpretasi probabilistik. Oleh karena itu, diperlukan normalisasi menggunakan fungsi softmax untuk mengubah skor mentah menjadi koefisien atensi yang merupakan distribusi probabilitas.
+
+\begin{equation}
+    \alpha_{ij} = \frac{\exp(e_{ij})}{\sum_{k \in \mathcal{N}_i \cup \{i\}} \exp(e_{ik})}
+\end{equation}
+
+\noindent\textbf{Keterangan:}
+\begin{itemize}
+    \item $\alpha_{ij}$ : Koefisien atensi final yang telah dinormalisasi, dengan nilai dalam rentang $[0, 1]$
+    \item $\mathcal{N}_i$ : Himpunan seluruh node tetangga yang terhubung langsung ke node $i$
+\end{itemize}
+
+Normalisasi softmax memastikan bahwa:
+
+\begin{equation}
+    \sum_{k \in \mathcal{N}_i \cup \{i\}} \alpha_{ik} = 1
+\end{equation}
+
+\noindent sehingga koefisien atensi dapat diinterpretasikan sebagai distribusi probabilitas, dimana nilai yang lebih tinggi mengindikasikan kepentingan yang lebih besar dari node tetangga tersebut. Dalam konteks routing jaringan, nilai $\alpha_{ij}$ yang tinggi menunjukkan bahwa jalur menuju node $j$ lebih direkomendasikan dibanding jalur alternatif lainnya.
+
+\paragraph{4. Agregasi Fitur dengan Weighted Sum}
+
+Setelah koefisien atensi diperoleh, tahap berikutnya adalah mengagregasi informasi dari node tetangga menggunakan weighted sum berdasarkan nilai atensi yang telah dihitung. Proses ini menghasilkan representasi fitur baru untuk setiap node.
+
+\begin{equation}
+    \vec{h'}_i = \sigma\left(\sum_{j \in \mathcal{N}_i \cup \{i\}} \alpha_{ij} W \vec{h}_j\right)
+\end{equation}
+
+\noindent\textbf{Keterangan:}
+\begin{itemize}
+    \item $\vec{h'}_i$ : Fitur output node $i$ setelah agregasi, dengan dimensi $\vec{h'}_i \in \mathbb{R}^{F'}$
+    \item $\sigma$ : Fungsi aktivasi nonlinear (umumnya ELU atau ReLU)
+    \item $\alpha_{ij}$ : Koefisien atensi yang mengatur kontribusi node $j$
+    \item $W\vec{h}_j$ : Fitur node $j$ yang telah ditransformasi
+\end{itemize}
+
+Agregasi ini memungkinkan setiap node untuk mengumpulkan informasi dari lingkungan lokalnya dengan memberikan penekanan lebih pada node tetangga yang lebih relevan (nilai atensi tinggi) dan mengurangi pengaruh dari node yang kurang penting (nilai atensi rendah).
+
+\paragraph{5. Multi-Head Attention}
+
+Untuk menstabilkan proses pembelajaran dan meningkatkan kapasitas ekspresif model, GAT menggunakan mekanisme \textit{multi-head attention}. Ide dasarnya adalah menjalankan $K$ mekanisme atensi independen secara paralel, kemudian menggabungkan hasilnya.
+
+Untuk layer tersembunyi (\textit{hidden layers}), hasil dari $K$ head digabungkan melalui concatenation:
+
+\begin{equation}
+    \vec{h'}_i = \|{k=1}^{K} \sigma\left(\sum_{j \in \mathcal{N}_i \cup \{i\}} \alpha_{ij}^k W^k \vec{h}_j\right)
+\end{equation}
+
+dimana $\|$ menunjukkan operasi concatenation, $\alpha_{ij}^k$ adalah koefisien atensi yang dinormalisasi untuk head ke-$k$, dan $W^k$ adalah matriks bobot transformasi untuk head ke-$k$. Hasil concatenation ini menghasilkan vektor fitur dengan dimensi $K \cdot F'$.
+
+Untuk layer output (prediksi akhir), averaging digunakan sebagai pengganti concatenation untuk menghasilkan prediksi yang lebih stabil:
+
+\begin{equation}
+    \vec{h'}_i = \sigma\left(\frac{1}{K}\sum_{k=1}^{K} \sum_{j \in \mathcal{N}_i \cup \{i\}} \alpha_{ij}^k W^k \vec{h}_j\right)
+\end{equation}
+
+\noindent\textbf{Keterangan:}
+\begin{itemize}
+    \item $K$ : Jumlah attention heads
+    \item $\alpha_{ij}^k$ : Koefisien atensi untuk attention head ke-$k$
+    \item $W^k$ : Matriks bobot untuk attention head ke-$k$
+    \item $\|$ : Operasi concatenation
+\end{itemize}
+
+Penggunaan multi-head attention memberikan beberapa keuntungan penting:
+\begin{enumerate}
+    \item Memungkinkan model untuk mengeksplorasi berbagai aspek relasi antar node secara simultan
+    \item Meningkatkan stabilitas gradien selama pelatihan
+    \item Memperkaya representasi fitur dengan menangkap pola yang beragam
+\end{enumerate}
+
+\subsubsection{Keunggulan GAT untuk Traffic Engineering}
+
+Dalam konteks aplikasi Traffic Engineering di jaringan PT Lare Osing Ndo, GAT menawarkan beberapa keunggulan signifikan dibanding metode konvensional:
+
+\begin{enumerate}
+    \item \textbf{Adaptivitas Dinamis}: Koefisien atensi dihitung secara dinamis berdasarkan kondisi jaringan terkini, memungkinkan model untuk beradaptasi dengan perubahan beban trafik atau kegagalan link secara real-time \cite{kato2024}.
+    
+    \item \textbf{Efisiensi Komputasi}: Berbeda dengan algoritma Dijkstra yang memerlukan kalkulasi ulang penuh setiap ada perubahan topologi, GAT melakukan inferensi dalam sekali forward pass tanpa iterasi berulang, sehingga lebih efisien untuk deployment production.
+    
+    \item \textbf{Pembelajaran Fitur Kompleks}: GAT dapat mempelajari representasi fitur tingkat tinggi yang menangkap interaksi kompleks antar parameter jaringan (CPU, bandwidth, latency) yang sulit dimodelkan secara eksplisit.
+    
+    \item \textbf{Independensi Struktur}: Mekanisme atensi tidak bergantung pada struktur graf yang telah ditentukan sebelumnya, sehingga dapat menangani topologi yang dinamis atau tidak teratur dengan baik.
+    
+    \item \textbf{Interpretabilitas}: Nilai koefisien atensi $\alpha_{ij}$ dapat divisualisasikan untuk memahami jalur mana yang diprioritaskan oleh model, memberikan transparansi dalam pengambilan keputusan routing.
+\end{enumerate}
+
+Kombinasi keunggulan-keunggulan ini menjadikan GAT sebagai pendekatan yang sangat sesuai untuk mengatasi tantangan Traffic E.ngineering modern, khususnya dalam skenario jaringan Layer 2 dengan VLAN yang kompleks seperti yang dihadapi PT Lare Osing Ndo.
+
+\section{Analytic Hierarchy Process (AHP)}
+
+\textit{Analytic Hierarchy Process} (AHP) adalah metode pengambilan keputusan multikriteria yang dikembangkan oleh Thomas L. Saaty pada tahun 1970 \cite{saaty2008}. AHP dirancang untuk menangani masalah kompleks yang melibatkan berbagai kriteria dengan tingkat kepentingan yang berbeda-beda, dimana setiap alternatif memiliki preferensi yang bervariasi menurut masing-masing kriteria yang digunakan.
+
+Dalam konteks penelitian ini, AHP berperan krusial sebagai metode untuk menghasilkan label kualitas jalur yang akan digunakan sebagai target pelatihan model GAT. Penggunaan AHP memastikan bahwa label yang dihasilkan bukan hanya berdasarkan perhitungan matematis semata, tetapi juga mencerminkan preferensi dan pengetahuan dari pakar jaringan PT Lare Osing Ndo \cite{khan2020}. Dengan demikian, model pembelajaran mesin yang dilatih akan mempelajari pola yang selaras dengan kebijakan operasional perusahaan.
+
+\subsubsection{Prinsip Dasar AHP}
+
+AHP dibangun di atas tiga prinsip fundamental yang menjamin validitas hasil keputusan:
+
+\begin{enumerate}
+    \item \textbf{Decomposition (Dekomposisi)}: Memecah masalah kompleks menjadi struktur hierarki yang terdiri dari tujuan, kriteria, dan alternatif yang lebih sederhana dan terukur.
+    
+    \item \textbf{Comparative Judgement (Penilaian Komparatif)}: Melakukan perbandingan berpasangan (\textit{pairwise comparison}) antar elemen pada level hierarki yang sama untuk menentukan tingkat kepentingan relatif.
+    
+    \item \textbf{Logical Consistency (Konsistensi Logis)}: Memastikan bahwa penilaian yang diberikan bersifat konsisten dan dapat diandalkan melalui pengujian rasio konsistensi.
+\end{enumerate}
+
+\subsubsection{Struktur Hierarki AHP}
+
+Struktur hierarki AHP dalam penelitian ini terdiri dari tiga level:
+
+\begin{enumerate}
+    \item \textbf{Level 1 (Tujuan)}: Menentukan jalur jaringan dengan kualitas terbaik untuk Traffic Engineering.
+    
+    \item \textbf{Level 2 (Kriteria)}: Parameter-parameter yang mempengaruhi kualitas jalur, yang terbagi menjadi:
+    \begin{itemize}
+        \item Kriteria Node: Utilisasi CPU, konsumsi RAM, volume trafik, jumlah koneksi aktif
+        \item Kriteria Edge: Bandwidth tersedia, utilisasi bandwidth, latensi, packet loss rate, jitter
+    \end{itemize}
+    
+    \item \textbf{Level 3 (Alternatif)}: Berbagai jalur yang mungkin dilalui dalam topologi jaringan PT Lare Osing Ndo.
+\end{enumerate}
+
+\begin{figure}[H]
+    \centering
+    % \includegraphics[width=0.8\textwidth]{images/ahp_hierarchy.png}
+    \caption{Struktur Hierarki AHP untuk Penilaian Kualitas Jalur Jaringan}
+    \label{fig:ahp_hierarchy}
+\end{figure}
+
+\subsubsection{Tahapan Metode AHP}
+
+Implementasi AHP dalam penelitian ini mengikuti lima tahapan sistematis yang dijelaskan sebagai berikut:
+
+\paragraph{1. Penyusunan Matriks Perbandingan Berpasangan}
+
+Tahap pertama adalah membuat matriks perbandingan berpasangan untuk kriteria-kriteria yang telah ditentukan. Setiap pasangan kriteria dibandingkan untuk menentukan tingkat kepentingan relatifnya berdasarkan skala Saaty 1-9.
+
+Matriks perbandingan berpasangan dapat dinyatakan sebagai:
+
+\begin{equation}
+    \mathbf{A} = \begin{bmatrix}
+        1 & a_{12} & a_{13} & \cdots & a_{1n} \\
+        1/a_{12} & 1 & a_{23} & \cdots & a_{2n} \\
+        1/a_{13} & 1/a_{23} & 1 & \cdots & a_{3n} \\
+        \vdots & \vdots & \vdots & \ddots & \vdots \\
+        1/a_{1n} & 1/a_{2n} & 1/a_{3n} & \cdots & 1
+    \end{bmatrix}
+\end{equation}
+
+\noindent dimana $a_{ij}$ merepresentasikan tingkat kepentingan kriteria $i$ terhadap kriteria $j$. Matriks ini bersifat resiprokal, yang berarti:
+
+\begin{equation}
+    a_{ji} = \frac{1}{a_{ij}}
+\end{equation}
+
+Sebagai contoh, jika bandwidth tersedia dinilai 3 kali lebih penting dari latensi, maka:
+
+\begin{equation}
+    a_{bandwidth,latency} = 3 \quad \text{dan} \quad a_{latency,bandwidth} = \frac{1}{3}
+\end{equation}
+
+Skala perbandingan yang digunakan mengikuti standar Saaty seperti ditunjukkan pada Tabel \ref{tab:saaty_scale}.
+
+\begin{table}[H]
+\centering
+\caption{Skala Perbandingan Berpasangan Saaty}
+\label{tab:saaty_scale}
+\begin{tabular}{|c|l|}
+\hline
+\textbf{Nilai} & \textbf{Interpretasi} \\
+\hline
+1 & Kedua elemen sama pentingnya \\
+3 & Elemen pertama sedikit lebih penting dari elemen kedua \\
+5 & Elemen pertama lebih penting dari elemen kedua \\
+7 & Elemen pertama sangat lebih penting dari elemen kedua \\
+9 & Elemen pertama mutlak lebih penting dari elemen kedua \\
+2, 4, 6, 8 & Nilai antara untuk penilaian yang bersifat kompromistis \\
+\hline
+\end{tabular}
+\end{table}
+
+\paragraph{2. Normalisasi Matriks Perbandingan}
+
+Setelah matriks perbandingan disusun, langkah selanjutnya adalah melakukan normalisasi. Pertama, hitung total nilai setiap kolom:
+
+\begin{equation}
+    T_j = \sum_{i=1}^{n} a_{ij}
+\end{equation}
+
+Kemudian, setiap elemen matriks dibagi dengan total kolomnya untuk mendapatkan matriks ternormalisasi:
+
+\begin{equation}
+    n_{ij} = \frac{a_{ij}}{T_j}
+\end{equation}
+
+\noindent dimana $n_{ij}$ adalah elemen ternormalisasi pada baris $i$ dan kolom $j$.
+
+\paragraph{3. Perhitungan Vektor Prioritas dan Bobot}
+
+Dari matriks ternormalisasi, vektor prioritas (\textit{Priority Vector}, PV) dihitung dengan menjumlahkan nilai-nilai dalam setiap baris:
+
+\begin{equation}
+    PV_i = \sum_{j=1}^{n} n_{ij}
+\end{equation}
+
+Selanjutnya, bobot akhir setiap kriteria diperoleh dengan menormalisasi vektor prioritas:
+
+\begin{equation}
+    w_i = \frac{PV_i}{n}
+\end{equation}
+
+\noindent dimana $n$ adalah jumlah total kriteria yang dibandingkan. Bobot $w_i$ merepresentasikan tingkat kepentingan relatif dari kriteria $i$ terhadap keseluruhan kriteria, dan memenuhi kondisi:
+
+\begin{equation}
+    \sum_{i=1}^{n} w_i = 1
+\end{equation}
+
+\paragraph{4. Uji Konsistensi}
+
+Untuk memastikan bahwa perbandingan yang dilakukan konsisten dan dapat diandalkan, AHP menggunakan pengujian konsistensi. Pertama, hitung nilai eigen maksimum:
+
+\begin{equation}
+    \lambda_{max} = \sum_{i=1}^{n} T_i \cdot w_i
+\end{equation}
+
+Kemudian, hitung \textit{Consistency Index} (CI):
+
+\begin{equation}
+    CI = \frac{\lambda_{max} - n}{n - 1}
+\end{equation}
+
+Selanjutnya, hitung \textit{Consistency Ratio} (CR) dengan membandingkan CI terhadap \textit{Random Consistency Index} (RI):
+
+\begin{equation}
+    CR = \frac{CI}{RI}
+\end{equation}
+
+Nilai RI bergantung pada jumlah kriteria yang dibandingkan, seperti ditunjukkan pada Tabel \ref{tab:random_index}.
+
+\begin{table}[H]
+\centering
+\caption{Nilai Random Consistency Index (RI)}
+\label{tab:random_index}
+\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|}
+\hline
+\textbf{n} & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 \\
+\hline
+\textbf{RI} & 0 & 0 & 0.58 & 0.90 & 1.12 & 1.24 & 1.32 & 1.41 & 1.45 \\
+\hline
+\end{tabular}
+\end{table}
+
+Matriks perbandingan dinyatakan konsisten jika:
+
+\begin{equation}
+    CR \leq 0.1
+\end{equation}
+
+Jika $CR > 0.1$, maka penilaian perbandingan perlu direvisi karena mengandung inkonsistensi yang signifikan.
+
+\paragraph{5. Agregasi Skor untuk Alternatif}
+
+Setelah bobot kriteria diperoleh, proses yang sama diulang untuk membandingkan alternatif (dalam hal ini, jalur-jalur jaringan) pada setiap kriteria. Hasil akhirnya adalah matriks bobot alternatif:
+
+\begin{equation}
+    \mathbf{W}_A = \begin{bmatrix}
+        w_{11} & w_{12} & \cdots & w_{1m} \\
+        w_{21} & w_{22} & \cdots & w_{2m} \\
+        \vdots & \vdots & \ddots & \vdots \\
+        w_{k1} & w_{k2} & \cdots & w_{km}
+    \end{bmatrix}
+\end{equation}
+
+\noindent dimana $k$ adalah jumlah alternatif (jalur) dan $m$ adalah jumlah kriteria.
+
+Skor akhir untuk setiap alternatif dihitung dengan mengalikan matriks bobot alternatif dengan vektor bobot kriteria:
+
+\begin{equation}
+    \mathbf{S} = \mathbf{W}_A \cdot \mathbf{w}
+\end{equation}
+
+\noindent yang dapat diekspresikan untuk setiap alternatif sebagai:
+
+\begin{equation}
+    S_k = \sum_{j=1}^{m} w_{kj} \cdot w_j
+\end{equation}
+
+\noindent dimana $S_k$ adalah skor total untuk alternatif (jalur) ke-$k$.
+
+\subsubsection{Integrasi AHP dengan GAT}
+
+Dalam penelitian ini, AHP diintegrasikan dengan GAT untuk menghasilkan sistem Traffic Engineering yang cerdas dan selaras dengan kebijakan operasional. Skor yang dihasilkan oleh AHP digunakan sebagai label target dalam proses pelatihan model GAT.
+
+Secara matematis, skor kualitas jalur dapat diformulasikan sebagai:
+
+\begin{equation}
+    Q_{path} = \sum_{i=1}^{n_{node}} w_i^{node} \cdot f_i(\text{node}) + \sum_{j=1}^{n_{edge}} w_j^{edge} \cdot g_j(\text{edge})
+\end{equation}
+
+\noindent\textbf{Keterangan:}
+\begin{itemize}
+    \item $Q_{path}$ : Skor kualitas total sebuah jalur (semakin tinggi semakin baik)
+    \item $w_i^{node}$ : Bobot prioritas untuk parameter node ke-$i$ (hasil perhitungan AHP)
+    \item $w_j^{edge}$ : Bobot prioritas untuk parameter edge ke-$j$ (hasil perhitungan AHP)
+    \item $f_i(\text{node})$ : Nilai atribut perangkat ke-$i$ (misalnya: sisa kapasitas CPU dalam \%)
+    \item $g_j(\text{edge})$ : Nilai atribut koneksi ke-$j$ (misalnya: bandwidth tersedia dalam Mbps)
+    \item $n_{node}$ : Jumlah parameter node yang dipertimbangkan
+    \item $n_{edge}$ : Jumlah parameter edge yang dipertimbangkan
+\end{itemize}
+
+Alur kerja integrasi AHP-GAT dapat dijelaskan sebagai berikut:
+
+\begin{enumerate}
+    \item \textbf{Tahap Pra-komputasi AHP}: Administrator jaringan atau pakar melakukan penilaian perbandingan berpasangan untuk menentukan tingkat kepentingan relatif dari setiap parameter jaringan (CPU, RAM, bandwidth, latensi, dll.). Hasil perhitungan AHP menghasilkan vektor bobot $\mathbf{w}$.
+    
+    \item \textbf{Pemberian Label}: Untuk setiap jalur yang mungkin dalam topologi jaringan, skor kualitas $Q_{path}$ dihitung menggunakan formula di atas berdasarkan kondisi jaringan aktual dan bobot AHP. Skor ini menjadi ground truth label untuk pelatihan.
+    
+    \item \textbf{Pelatihan GAT}: Model GAT dilatih untuk memprediksi skor kualitas jalur berdasarkan fitur-fitur node dan edge. Fungsi loss yang digunakan adalah:
+    \begin{equation}
+        \mathcal{L} = \frac{1}{N_{paths}} \sum_{p=1}^{N_{paths}} (Q_{path}^{pred} - Q_{path}^{AHP})^2
+    \end{equation}
+    dimana $Q_{path}^{pred}$ adalah prediksi model GAT dan $Q_{path}^{AHP}$ adalah label dari perhitungan AHP.
+    
+    \item \textbf{Inferensi Real-time}: Setelah model terlatih, GAT dapat memprediksi kualitas jalur secara real-time tanpa perlu menghitung ulang bobot AHP, karena pengetahuan pakar telah terinternalisasi dalam parameter model.
+\end{enumerate}
+
+\subsubsection{Keunggulan Pendekatan Hibrida AHP-GAT}
+
+Kombinasi AHP dengan GAT menghasilkan sistem Traffic Engineering dengan keunggulan sebagai berikut:
+
+\begin{enumerate}
+    \item \textbf{Validitas Label Pelatihan}: AHP memastikan bahwa label yang digunakan untuk melatih model GAT mencerminkan preferensi pakar jaringan yang terukur dan konsisten \cite{khan2020}, bukan hanya metrik teknis semata.
+    
+    \item \textbf{Interpretabilitas}: Bobot yang dihasilkan AHP memberikan transparansi mengenai parameter mana yang dianggap paling penting dalam penentuan jalur, memudahkan audit dan penyesuaian kebijakan.
+    
+    \item \textbf{Efisiensi Komputasi}: Setelah model GAT terlatih, prediksi jalur optimal dapat dilakukan dengan sangat cepat (single forward pass) tanpa perlu kalkulasi iteratif AHP untuk setiap keputusan routing.
+    
+    \item \textbf{Adaptabilitas}: Jika kebijakan operasional berubah, cukup dengan menyesuaikan matriks perbandingan AHP dan melatih ulang model, tanpa mengubah arsitektur sistem secara fundamental.
+    
+    \item \textbf{Konsistensi Keputusan}: Pengujian rasio konsistensi dalam AHP memastikan bahwa preferensi pakar tidak mengandung kontradiksi logis yang dapat menyebabkan keputusan routing yang tidak stabil.
+\end{enumerate}
+
+Pendekatan hibrida ini menjembatani kesenjangan antara kalkulasi matematis murni dengan intuisi operasional, menghasilkan sistem Traffic Engineering yang tidak hanya optimal secara teknis, tetapi juga selaras dengan realitas operasional PT Lare Osing Ndo.
+
+
+\section{Penelitian Terkait}
 Tinjauan studi dilakukan untuk memetakan posisi penelitian ini terhadap penelitian-penelitian sebelumnya yang relevan (\textit{State of the Art}). Pemetaan ini bertujuan untuk mengidentifikasi kesenjangan penelitian (\textit{research gap}) dan memastikan kebaruan kontribusi yang ditawarkan.
 
 Penelitian pertama oleh Marouani dkk. (2024) menerapkan \textit{Graph Attention Networks} (GAT) untuk \textit{Traffic Engineering} pada jaringan WAN. Penelitian tersebut membuktikan bahwa mekanisme \textit{attention} pada GAT mampu menangani topologi dinamis lebih baik daripada metode heuristik konvensional \cite{marouani2024}. Namun, penelitian ini hanya berfokus pada metrik performa teknis murni tanpa mempertimbangkan preferensi kebijakan manajemen jaringan yang seringkali bersifat subjektif pada ISP lokal.
@@ -30,119 +589,6 @@ Berdasarkan tinjauan di atas, ditemukan celah permasalahan di mana belum ada pen
         \hline
     \end{tabular}
 \end{table}
-
-\section{Landasan Teori}
-
-\subsection{Traffic Engineering pada Jaringan Layer 2}
-\textit{Traffic Engineering} (TE) adalah disiplin rekayasa jaringan yang berfokus pada pengukuran, pemodelan, karakterisasi, dan kontrol lalu lintas internet untuk mengoptimalkan kinerja jaringan. Tujuan utama TE adalah meminimalkan kongesti dan meningkatkan pemanfaatan sumber daya melalui penyeimbangan beban trafik (\textit{load balancing}) \cite{marouani2024}.
-
-Pada lingkungan ISP yang menggunakan infrastruktur \textit{Switching} Layer 2 dan VLAN (\textit{Virtual Local Area Network}), tantangan TE menjadi lebih kompleks dibandingkan jaringan IP tradisional (Layer 3). Hal ini dikarenakan mekanisme \textit{Spanning Tree Protocol} (STP) pada Layer 2 cenderung memblokir jalur redundan untuk mencegah \textit{looping}, yang mengakibatkan tautan cadangan tidak termanfaatkan (\textit{underutilized}) \cite{alhachem2025}. Oleh karena itu, diperlukan optimasi cerdas untuk memprediksi kegagalan dan mendistribusikan trafik secara dinamis tanpa melanggar topologi logis Layer 2 \cite{basikolo2023}.
-
-\subsection{Graph Neural Networks (GNN)}
-\textit{Graph Neural Network} (GNN) adalah kerangka kerja \textit{deep learning} yang dirancang untuk data berbentuk graf. Berbeda dengan CNN yang bekerja pada data grid (gambar), GNN bekerja pada struktur data non-Euclidean. GNN memperbarui representasi fitur sebuah \textit{node} dengan mengagregasi informasi dari tetangganya \cite{wu2021}. Dalam jaringan komputer, perangkat direpresentasikan sebagai \textit{node} dan kabel fisik sebagai \textit{edge} \cite{zhou2020}.
-
-\subsection{Graph Attention Network (GAT)}
-\textit{Graph Attention Network} (GAT) adalah pengembangan GNN yang memperkenalkan mekanisme \textit{masked self-attention}. Keunggulan utamanya adalah kemampuan memberikan bobot kepentingan (\textit{attention coefficients}) yang berbeda pada setiap tetangga, tanpa bergantung pada struktur graf statis \cite{velickovic2017}.
-
-Untuk memudahkan pemahaman komputasi, proses perhitungan koefisien atensi $\alpha_{ij}$ dipecah menjadi tiga tahapan sebagai berikut:
-
-\begin{enumerate}
-    \item \textbf{Transformasi Linear:} Fitur input node dikalikan dengan matriks bobot.
-    \begin{equation}
-        z_i = W \cdot \vec{h}_i
-    \end{equation}
-    \textbf{Keterangan:}
-    \begin{itemize}
-        \item $z_i$ : Fitur hasil transformasi pada node $i$.
-        \item $W$ : Matriks bobot transformasi (parameter yang dilatih oleh model).
-        \item $\vec{h}_i$ : Vektor fitur input awal pada node $i$ (misal: data CPU, trafik).
-    \end{itemize}
-
-    \item \textbf{Mekanisme Atensi:} Menghitung skor kedekatan mentah ($e_{ij}$) antara node sumber dan tetangga menggunakan fungsi aktivasi \textit{LeakyReLU}.
-    \begin{equation}
-        e_{ij} = \text{LeakyReLU}\left(\vec{a}^T [W\vec{h}_i \, \| \, W\vec{h}_j]\right)
-    \end{equation}
-    \textbf{Keterangan:}
-    \begin{itemize}
-        \item $e_{ij}$ : Skor atensi mentah (seberapa penting node $j$ bagi node $i$).
-        \item $\vec{a}^T$ : Vektor bobot atensi (transpose).
-        \item $\|$ : Operasi penggabungan (\textit{concatenation}) dua vektor fitur.
-    \end{itemize}
-
-    \item \textbf{Normalisasi Softmax:} Mengubah skor mentah menjadi probabilitas atensi (total bernilai 1).
-    \begin{equation}
-        \alpha_{ij} = \frac{\exp(e_{ij})}{\sum_{k \in \mathcal{N}_i} \exp(e_{ik})}
-    \end{equation}
-     \textbf{Keterangan:}
-    \begin{itemize}
-        \item $\alpha_{ij}$ : Koefisien atensi final (nilai 0 s.d 1).
-        \item $\mathcal{N}_i$ : Himpunan seluruh node tetangga yang terhubung ke node $i$.
-    \end{itemize}
-\end{enumerate}
-
-Mekanisme ini memungkinkan model untuk "memperhatikan" jalur dengan kualitas sinyal lebih baik dan mengabaikan jalur yang buruk \cite{kato2024}.
-
-\subsubsection*{Contoh Penerapan GAT pada Pemilihan Jalur}
-Untuk mengilustrasikan mekanisme \textit{attention} dalam konteks jaringan, dimisalkan sebuah topologi sederhana di mana \textbf{Switch A} (node sumber) memiliki dua koneksi tetangga, yaitu ke \textbf{Switch B} dan \textbf{Switch C}. Tujuan model adalah menentukan jalur mana yang lebih optimal untuk melewatkan trafik data agar tidak terjadi kongesti.
-
-\begin{enumerate}
-    \item \textbf{Representasi Fitur Node ($\vec{h}$):}
-    Setiap perangkat (Switch) memiliki vektor fitur input.
-    \begin{itemize}
-        \item \textbf{Switch B}: Kapasitas Bandwidth Besar (1Gbps), namun \textbf{CPU Load Tinggi (90\%)}.
-        \item \textbf{Switch C}: Kapasitas Bandwidth Sedang (500Mbps), namun \textbf{CPU Load Rendah (10\%)}.
-    \end{itemize}
-
-    \item \textbf{Perhitungan Koefisien Atensi ($\alpha$):}
-    Mekanisme \textit{self-attention} membandingkan fitur tetangga.
-    \begin{itemize}
-        \item Jalur $A \rightarrow B$: Mendeteksi "CPU Load Tinggi" sebagai risiko \textit{packet loss}. Skor atensi ($\alpha_{AB}$) \textbf{rendah} (misal: 0.2).
-        \item Jalur $A \rightarrow C$: Mendeteksi stabilitas tinggi. Skor atensi ($\alpha_{AC}$) \textbf{tinggi} (misal: 0.8).
-    \end{itemize}
-
-    \item \textbf{Agregasi dan Keputusan:}
-    Karena $\alpha_{AC} > \alpha_{AB}$, algoritma merekomendasikan jalur menuju \textbf{Switch C} sebagai rute prioritas, menghindari jalur B yang berpotensi \textit{bottleneck} meskipun bandwidth-nya besar.
-\end{enumerate}
-
-\subsection{Analytic Hierarchy Process (AHP)}
-AHP adalah metode pengambilan keputusan multikriteria yang dikembangkan oleh Thomas L. Saaty. AHP memecah masalah kompleks menjadi hierarki kriteria dan alternatif. Bobot prioritas ditentukan melalui perbandingan berpasangan (\textit{pairwise comparison}) yang divalidasi dengan rasio konsistensi ($CR \le 0.1$) \cite{saaty2008}.
-
-Dalam penelitian ini, AHP digunakan untuk menghitung skor kualitas ($Q$) yang menjadi label target pelatihan:
-\begin{equation}
-    Q_{path} = \sum_{i=1}^{n} w_i \cdot f_i(\text{node}) + \sum_{j=1}^{m} w_j \cdot g_j(\text{edge})
-\end{equation}
-
-\noindent \textbf{Dimana:}
-\begin{itemize}
-    \item $Q_{path}$ : Skor kualitas total sebuah jalur (semakin tinggi semakin baik).
-    \item $w_i, w_j$ : Bobot prioritas untuk parameter node dan edge (hasil hitungan AHP).
-    \item $f_i(\text{node})$ : Nilai atribut perangkat (misal: sisa kapasitas CPU).
-    \item $g_j(\text{edge})$ : Nilai atribut koneksi (misal: Bandwidth tersedia).
-\end{itemize}
-
-Penggunaan AHP menjamin bahwa model AI belajar dari preferensi pakar yang terukur dan konsisten \cite{khan2020}.
-
-\subsubsection*{Contoh Penerapan Perhitungan AHP pada Traffic Engineering}
-Sebagai ilustrasi penerapan metode dalam manajemen trafik Layer 2, dimisalkan terdapat tiga kriteria penentu prioritas port: \textbf{Utilisasi Interface} ($C_1$), \textbf{Kualitas Link} ($C_2$), dan \textbf{Beban CPU Switch} ($C_3$). Tujuan utamanya adalah \textit{load balancing}.
-
-\begin{enumerate}
-    \item \textbf{Matriks Perbandingan Berpasangan:}
-    Untuk mencegah \textit{bottleneck}, \textit{Utilisasi Interface} (kemacetan) dinilai lebih penting (skala 3) dibanding \textit{Kualitas Link}, dan mutlak lebih penting (skala 5) dibanding \textit{CPU}.
-    \begin{equation}
-        A = \begin{bmatrix}
-        1 & 3 & 5 \\
-        1/3 & 1 & 2 \\
-        1/5 & 1/2 & 1
-        \end{bmatrix}
-    \end{equation}
-
-    \item \textbf{Normalisasi dan Bobot Prioritas:}
-    Setelah normalisasi matriks, rata-rata baris menghasilkan vektor bobot prioritas:
-    \begin{equation}
-        w = [0.63, 0.26, 0.11]^T
-    \end{equation}
-    Nilai bobot 0.63 (63\%) pada $C_1$ menunjukkan algoritma akan memprioritaskan pemilihan jalur yang masih kosong (\textit{low utilization}) untuk meratakan beban trafik di jaringan.
-\end{enumerate}
 
 \section{Kerangka Pemikiran}
 Kerangka pemikiran menggambarkan alur logika penelitian dari variabel yang diobservasi hingga pengukuran keberhasilan. Sesuai dengan pendekatan sistem cerdas, kerangka ini disusun dalam empat komponen utama: \textit{Indicators}, \textit{Proposed Method}, \textit{Objectives}, dan \textit{Measurement}.

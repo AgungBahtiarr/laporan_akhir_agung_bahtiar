@@ -12,37 +12,47 @@ Untuk mengatasi keterbatasan algoritma konvensional dan subjektivitas dalam pene
 
 Meski integrasi GNN dengan optimasi \textit{routing} terbukti dapat meningkatkan ketahanan (\textit{robustness}) jaringan \cite{ye2025}, tantangan utama dalam penerapan AI adalah memastikan validitas data latih agar sesuai dengan preferensi operasional. Karena itu, integrasi AHP dalam penelitian ini berfungsi untuk menghasilkan label kualitas jalur yang valid berdasarkan penilaian pakar \cite{khan2020}. Pendekatan hibrida ini diharapkan dapat mempelajari pola aliran trafik dengan lebih akurat dibanding metode statistik konvensional \cite{rahman2023, lassen2025}, sekaligus menjembatani kesenjangan antara kalkulasi matematis murni dengan intuisi operasional dari pakar jaringan.
 
+
 \section{Perumusan Masalah}
-Dari pemaparan latar belakang yang telah diuraikan, beberapa pertanyaan penelitian yang perlu dijawab meliputi:
+Berdasarkan uraian latar belakang di atas, beberapa permasalahan yang perlu dijawab dalam penelitian ini adalah:
 \begin{enumerate}
-    \item Bagaimana pendekatan \textit{Analytic Hierarchy Process} (AHP) dapat diterapkan dalam menentukan tingkat kepentingan masing-masing parameter jaringan (meliputi kualitas link, bandwidth, kecepatan, jarak, beban trafik, utilisasi CPU, dan kapasitas RAM) yang kemudian menjadi acuan dalam pembentukan label kualitas setiap jalur komunikasi?
-    \item Bagaimana proses perancangan serta implementasi arsitektur \textit{Graph Attention Network} (GAT) sehingga mampu mempelajari karakteristik graf topologi jaringan dan memberikan usulan rute yang paling optimal?
-    \item Sejauh mana keunggulan model GAT yang dikombinasikan dengan AHP ketika diperbandingkan dengan pendekatan konvensional, khususnya dari sisi ketahanan terhadap dinamika perubahan topologi serta efisiensi dalam waktu pemrosesan?
+    \item Bagaimana menentukan bobot prioritas antar fitur jaringan secara sistematis dan konsisten menggunakan metode AHP untuk menghasilkan label kualitas jalur yang valid?
+    
+    \item Bagaimana metode GAT dapat menilai dan merekomendasikan jalur terbaik berdasarkan fitur-fitur pada level node dan edge serta bobot prioritas yang diperoleh dari AHP?
+    
+    \item Bagaimana pendekatan GAT-AHP dapat mengoptimalkan traffic engineering dalam menangani distribusi beban dan pola trafik yang dinamis?
+    
+    \item Sejauh mana keunggulan model GAT-AHP dibandingkan algoritma konvensional dalam hal adaptabilitas terhadap perubahan topologi dan efisiensi komputasi?
 \end{enumerate}
 
 \section{Tujuan Penelitian}
 Tujuan yang hendak dicapai melalui penelitian ini meliputi:
 \begin{enumerate}
-    \item Menerapkan pendekatan AHP untuk mendapatkan bobot prioritas setiap parameter jaringan secara valid dan konsisten berdasarkan pertimbangan ahli, yang kemudian digunakan dalam penghitungan skor kualitas jalur sebagai target pembelajaran model.
-    \item Mengembangkan dan melatih model rekomendasi jalur dengan memanfaatkan arsitektur GAT beserta konfigurasi optimal dan mekanisme \textit{multi-head attention}, sehingga dapat memahami representasi graf dari topologi jaringan PT Lare Osing Ndo secara komprehensif.
-    \item Mengukur dan menilai kemampuan model GAT dalam menyesuaikan diri terhadap kondisi dinamis jaringan seperti putusnya koneksi link, sekaligus membandingkan efisiensi komputasinya dengan algoritma pencarian jalur yang sudah ada.
+    \item Menerapkan metode AHP untuk mendapatkan bobot prioritas antar fitur jaringan secara valid dan konsisten berdasarkan pertimbangan pakar, yang kemudian digunakan dalam penghitungan label kualitas jalur sebagai target pembelajaran model.
+    
+    \item Mengembangkan model GAT yang mampu menilai dan merekomendasikan jalur terbaik berdasarkan fitur-fitur node dan edge serta bobot prioritas dari AHP untuk optimasi traffic engineering pada jaringan PT Lare Osing Ndo.
+    
+    \item Mengukur dan membandingkan performa model GAT-AHP dengan algoritma konvensional dalam hal adaptabilitas terhadap perubahan topologi dinamis dan efisiensi komputasi.
 \end{enumerate}
 
 \section{Manfaat Penelitian}
 Hasil penelitian ini diharapkan dapat memberikan kontribusi berupa:
 \begin{enumerate}
-    \item \textbf{Bagi Perusahaan:} Menghadirkan alternatif solusi yang dapat mempercepat respons terhadap gangguan jaringan dan mengoptimalkan distribusi trafik melalui pendekatan berbasis kecerdasan buatan, sekaligus menjadi landasan bagi pengembangan sistem otomasi jaringan di periode mendatang.
-    \item \textbf{Bagi Akademisi:} Menyumbangkan wawasan ilmiah mengenai aplikasi algoritma GAT dalam konteks pengelolaan jaringan WAN/ISP skala lokal, serta melengkapi penelitian-penelitian terdahulu yang umumnya lebih menitikberatkan pada pendekatan simulasi atau jaringan dengan skala lebih luas \cite{marouani2024, saha2024}.
+    \item \textbf{Bagi Perusahaan:} Menghadirkan solusi berbasis kecerdasan buatan yang dapat mengoptimalkan traffic engineering, mempercepat respons terhadap gangguan jaringan, dan meningkatkan efisiensi distribusi trafik, sekaligus menjadi landasan bagi pengembangan sistem otomasi jaringan di masa mendatang.
+    
+    \item \textbf{Secara Teoritis:} Menyumbangkan wawasan ilmiah mengenai integrasi metode AHP dengan GAT untuk optimasi routing dan traffic engineering pada jaringan WAN/ISP skala lokal, serta melengkapi penelitian-penelitian terdahulu yang umumnya lebih menitikberatkan pada pendekatan simulasi atau jaringan dengan skala lebih luas.
 \end{enumerate}
 
 \section{Batasan Masalah}
 Agar penelitian tetap terarah pada sasaran utama, beberapa pembatasan masalah ditetapkan sebagai berikut:
 \begin{enumerate}
-    \item Data mengenai topologi dan karakteristik jaringan diperoleh dari perangkat operasional PT Lare Osing Ndo, mencakup atribut pada tingkat \textit{Node} (CPU, RAM, beban Trafik, tingkat Utilisasi) serta atribut pada tingkat \textit{Edge} (Kualitas Link, Bandwidth, Kecepatan, Jarak, dan Status).
-    \item Penentuan bobot prioritas antar parameter dilakukan melalui metode AHP dengan mendasarkan pada penilaian dari pakar, dalam hal ini \textit{network engineer} berpengalaman di PT Lare Osing Ndo.
-    \item Pembangunan model rekomendasi jalur menggunakan arsitektur \textit{Graph Attention Network} (GAT) dengan pengaturan \textit{hyperparameter} seperti jumlah lapisan dan unit tersembunyi yang ditetapkan melalui serangkaian eksperimen guna memperoleh hasil terbaik \cite{fey2019}.
+    \item Data mengenai topologi dan karakteristik jaringan diperoleh dari perangkat operasional PT Lare Osing Ndo, mencakup fitur pada tingkat \textit{Node} (CPU, RAM, beban Trafik, tingkat Utilisasi) serta fitur pada tingkat \textit{Edge} (Kualitas Link, Bandwidth, Kecepatan, Jarak, dan Status).
+    
+    \item Penentuan bobot prioritas antar fitur dilakukan melalui metode AHP dengan mendasarkan pada penilaian dari pakar, dalam hal ini \textit{network engineer} berpengalaman di PT Lare Osing Ndo.
+    
+    \item Pembangunan model rekomendasi jalur menggunakan arsitektur \textit{Graph Attention Network} (GAT) dengan pengaturan \textit{hyperparameter} seperti jumlah lapisan, unit tersembunyi, dan konfigurasi \textit{multi-head attention} yang ditetapkan melalui serangkaian eksperimen guna memperoleh hasil terbaik.
+    
+    \item Evaluasi model mencakup pengujian pada skenario perubahan topologi dinamis dan perbandingan efisiensi komputasi dengan algoritma pencarian jalur konvensional seperti \textit{Dijkstra}.
+    
     \item Dataset yang digunakan untuk pelatihan mencakup sampel jalur dengan tingkat optimalitas yang beragam, dengan proporsi yang disesuaikan agar mendukung proses pembelajaran terawasi (\textit{supervised learning}).
-    \item Proses evaluasi model menitikberatkan pada akurasi prediksi skor kualitas jalur melalui metrik seperti MSE, tingkat ketepatan rekomendasi jalur (\textit{Top-k Precision}), serta konsistensi model ketika menghadapi perubahan struktur topologi.
-    \item Sistem yang dikembangkan difokuskan pada pemberian rekomendasi sejumlah jalur terbaik ($k=3$), tanpa melakukan pengaturan konfigurasi otomatis pada perangkat jaringan yang bersangkutan.
-    \item Uji ketahanan model dilakukan dengan mensimulasikan berbagai skenario kegagalan link secara dinamis untuk mengevaluasi kapasitas adaptasi model (\textit{inductive learning}) terhadap perubahan yang terjadi pada topologi.
 \end{enumerate}
