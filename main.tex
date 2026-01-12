@@ -10,7 +10,7 @@
 % ============================================
 \usepackage[bahasa]{babel}      % Bahasa Indonesia
 \usepackage[utf8]{inputenc}
-\usepackage{mathptmx}           
+\usepackage{mathptmx}
 \DeclareMathAlphabet{\mathcal}{OMS}{cmsy}{m}{n}
 \usepackage{geometry}           % Pengaturan Margin
 \usepackage{setspace}           % Pengaturan Spasi
@@ -31,7 +31,10 @@
 \usepackage{graphicx}
 \usepackage{pifont}
 % Baris di bawah ini SANGAT PENTING, jangan sampai ada yang kurang:
-\usetikzlibrary{shapes, arrows, positioning, fit, calc, backgrounds}
+\usetikzlibrary{shapes, arrows, positioning, fit, calc, backgrounds, shadows}
+
+\newcommand{\cmark}{\ding{51}}
+\newcommand{\xmark}{\ding{55}}
 
 % Definisi style (Pastikan ini juga ada)
 \tikzset{
@@ -135,6 +138,7 @@
 \titleformat{\subsection}
     {\normalfont\fontsize{12}{14}\bfseries}
     {\thesubsection}{1em}{}
+
 
 % Jarak Spasi Judul Bab
 \titlespacing*{\chapter}{0pt}{-20pt}{20pt}

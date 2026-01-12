@@ -32,53 +32,44 @@ Dalam penelitian ini, kualitas jalur jaringan dievaluasi berdasarkan dua kategor
 
 \subsubsection{Kriteria Tingkat Node}
 
-Kriteria tingkat node mengevaluasi kapasitas dan kondisi operasional dari perangkat jaringan (switch/router) yang dilalui oleh sebuah jalur. Berdasarkan literatur resource-aware routing \cite{resource_aware_sdn, node_capacity_routing}, kriteria yang dipilih adalah:
+Kriteria tingkat node mengevaluasi kapasitas dan kondisi operasional dari perangkat jaringan (switch/router) yang dilalui oleh sebuah jalur. Berdasarkan literatur resource-aware routing \cite{resource_aware_sdn, node_capacity_routing}, terdapat 6 kriteria yang dipilih:
 
 \begin{enumerate}
-    \item \textbf{CPU Score}: Normalized CPU utilization yang menunjukkan ketersediaan processing power. CPU utilization merupakan indikator krusial untuk memastikan node tidak overloaded, yang dapat menyebabkan packet processing delay \cite{cpu_aware_routing, resource_aware_sdn}.
-
-    \item \textbf{RAM Score}: Normalized memory availability untuk buffering dan state management. Ketersediaan memori mempengaruhi kemampuan buffering dan handling concurrent connections \cite{resource_aware_sdn, node_capacity_routing}.
-
-    \item \textbf{Traffic Score}: Volume trafik yang sedang ditangani node. Current traffic load merupakan metric penting untuk load balancing dan congestion avoidance \cite{utilization_based_te, adaptive_utilization_routing}.
-
-    \item \textbf{Utilization Score}: Aggregate interface utilization yang menunjukkan seberapa sibuk node dalam menangani trafik \cite{interface_speed_impact, utilization_based_te}.
-
+    \item \textbf{CPU Score}: Normalized CPU utilization yang menunjukkan ketersediaan processing power \cite{cpu_aware_routing}.
+    \item \textbf{RAM Score}: Normalized memory availability untuk buffering dan state management \cite{node_capacity_routing}.
+    \item \textbf{Traffic In}: Volume trafik masuk yang sedang ditangani node \cite{utilization_based_te}.
+    \item \textbf{Traffic Out}: Volume trafik keluar yang sedang ditangani node \cite{adaptive_utilization_routing}.
+    \item \textbf{Utilization Score}: Aggregate interface utilization yang menunjukkan seberapa sibuk node dalam menangani trafik secara keseluruhan \cite{interface_speed_impact}.
     \item \textbf{Status Score}: Binary indicator operational status (up/down) yang sangat penting untuk failure-aware routing \cite{failure_aware_te}.
 \end{enumerate}
 
 Skor komposit node dihitung sebagai weighted sum:
 \begin{equation}
-    S_{node} = \sum_{i=1}^{5} w_i^{node} \cdot f_i^{node}
+    S_{node} = \sum_{i=1}^{6} w_i^{node} \cdot f_i^{node}
 \end{equation}
 
-\noindent dimana $w_i^{node}$ adalah bobot kriteria yang diperoleh dari AHP dan $f_i^{node}$ adalah nilai kriteria yang telah dinormalisasi. Pemilihan kriteria node ini mengikuti pendekatan resource-aware routing yang mempertimbangkan kapasitas processing dan forwarding capability dari setiap perangkat jaringan \cite{joint_node_edge_optimization, holistic_network_metrics}.
+\noindent dimana $w_i^{node}$ adalah bobot kriteria yang diperoleh dari AHP dan $f_i^{node}$ adalah nilai kriteria yang telah dinormalisasi.
 
 \subsubsection{Kriteria Tingkat Edge}
 
-Kriteria tingkat edge mengevaluasi karakteristik koneksi fisik atau logis antar perangkat. Mengikuti framework multi-constraint routing \cite{te_multiconstraint, sdn_multiconstraint_routing}, kriteria yang dipilih meliputi:
+Kriteria tingkat edge mengevaluasi karakteristik koneksi fisik atau logis antar perangkat. Mengikuti framework multi-constraint routing \cite{te_multiconstraint}, kriteria yang dipilih meliputi:
 
 \begin{enumerate}
-    \item \textbf{Optical Link Quality Score}: Kualitas sinyal optik berdasarkan Optical Signal-to-Noise Ratio (OSNR), received power, Q-factor, atau chromatic dispersion pada fiber optic infrastructure \cite{optical_signal_quality, fiber_link_quality, osnr_monitoring}. Semakin tinggi kualitas sinyal optik, semakin reliable physical layer transmission.
-
-    \item \textbf{Error Rate Score}: Inverse dari Bit Error Rate (BER) atau Packet Error Rate (PER) yang menunjukkan reliabilitas data transmission \cite{ber_per_optical, ber_monitoring, error_rate_impact}. Metrik ini berbeda dari optical quality karena mengukur actual transmission errors setelah decoding.
-
-    \item \textbf{Packet Loss Score}: Inverse dari packet loss rate untuk mengindikasikan reliability. Persentase paket yang hilang atau dropped selama transmisi, yang dapat disebabkan oleh congestion, buffer overflow, atau TTL expiry \cite{packet_loss_detection}.
-
-    \item \textbf{Bandwidth Utilization (a→b, b→a)}: Utilisasi bandwidth pada kedua arah link merupakan indikator critical untuk menghindari congestion \cite{bandwidth_aware_te, utilization_based_te}.
-
-    \item \textbf{Interface Speed (a, b)}: Maximum capacity kedua endpoint yang menentukan throughput ceiling dari link \cite{interface_speed_impact, qos_composite_metric}.
-
-    \item \textbf{Distance}: Geographic atau logical distance yang mempengaruhi propagation delay dan dapat menjadi faktor dalam path cost calculation \cite{geographic_routing, distance_aware_datacenter, latency_distance_routing}.
-
-    \item \textbf{Status}: Link operational state (up/down) essential untuk topology-aware routing \cite{link_state_routing, failure_aware_te}.
+    \item \textbf{Optical Link Quality Score}: Kualitas sinyal optik (OSNR, dBm) pada fiber optic infrastructure \cite{optical_signal_quality}.
+    \item \textbf{Error Rate Score}: Inverse dari Bit Error Rate (BER) atau Packet Error Rate (PER) \cite{ber_monitoring}.
+    \item \textbf{Packet Loss Score}: Persentase paket yang hilang atau dropped selama transmisi \cite{packet_loss_detection}.
+    \item \textbf{Bandwidth Utilization}: Rata-rata utilisasi bandwidth pada kedua arah link (bidirectional average) \cite{bandwidth_aware_te}.
+    \item \textbf{Interface Speed}: Kapasitas maksimum interface yang menentukan throughput ceiling \cite{interface_speed_impact}.
+    \item \textbf{Distance}: Jarak fisik atau logis yang mempengaruhi propagation delay \cite{geographic_routing}.
+    \item \textbf{Status}: Link operational state (up/down) \cite{link_state_routing}.
 \end{enumerate}
 
 Skor komposit edge dihitung sebagai:
 \begin{equation}
-    S_{edge} = \sum_{j=1}^{9} w_j^{edge} \cdot g_j^{edge}
+    S_{edge} = \sum_{j=1}^{7} w_j^{edge} \cdot g_j^{edge}
 \end{equation}
 
-\noindent dimana kini terdapat 9 kriteria edge. Pemisahan antara optical signal quality, error rate, dan packet loss penting karena ketiganya mengukur aspek yang berbeda dari reliability link pada layer yang berbeda.
+\noindent dimana terdapat 7 kriteria edge yang digunakan dalam perhitungan bobot.
 
 \paragraph{Perbedaan Optical Quality, Error Rate, dan Packet Loss}
 
@@ -120,7 +111,16 @@ Setiap node memiliki vektor fitur input yang dapat dinyatakan sebagai:
     \vec{h}_i \in \mathbb{R}^F
 \end{equation}
 
-\noindent dimana $F$ adalah dimensi fitur. Dalam kasus jaringan PT Lare Osing Ndo, fitur node dapat mencakup:
+\noindent
+Dengan:
+
+\begin{tabular}{ll}
+$\vec{h}_i$ & = vektor fitur node ke-$i$ \\
+$F$ & = dimensi fitur input
+\end{tabular}
+
+\noindent
+Dalam kasus jaringan PT Lare Osing Ndo, fitur node dapat mencakup:
 
 \begin{itemize}
     \item \textbf{Utilisasi CPU (\%)}: CPU utilization merupakan indikator krusial untuk memastikan node tidak overloaded, yang dapat menyebabkan packet processing delay \cite{cpu_aware_routing, resource_aware_sdn}.
@@ -144,10 +144,20 @@ Selain fitur pada node, setiap edge yang menghubungkan dua node juga memiliki at
 \end{equation}
 
 \begin{equation}
-    \vec{e}_{ij} \in \mathbb{R}^{F_e}
+    \vec{f}_{ij} \in \mathbb{R}^{F_e}
 \end{equation}
 
-\noindent dimana $F_e$ adalah dimensi fitur edge. Fitur-fitur ini meliputi:
+\noindent
+Dengan:
+
+\begin{tabular}{ll}
+$e_{ij}$ & = edge yang menghubungkan node $v_i$ dan $v_j$ \\
+$\vec{f}_{ij}$ & = vektor fitur edge dari node $i$ ke node $j$ \\
+$F_e$ & = dimensi fitur edge
+\end{tabular}
+
+\noindent
+Fitur-fitur ini meliputi:
 
 \begin{itemize}
     \item \textbf{Optical Link Quality}: Kualitas sinyal optik yang diukur melalui parameter seperti Optical Signal-to-Noise Ratio (OSNR), received optical power (dBm), Q-factor, atau chromatic dispersion pada fiber optic links \cite{optical_signal_quality, fiber_link_quality, osnr_monitoring}. Metrik ini mengukur kualitas fisik sinyal optik pada physical layer sebelum terjadi decoding.
@@ -174,6 +184,14 @@ Struktur konektivitas graf dapat direpresentasikan menggunakan matriks adjacency
     \mathbf{A} \in \{0,1\}^{N \times N}
 \end{equation}
 
+\noindent
+Dengan:
+
+\begin{tabular}{ll}
+$\mathbf{A}$ & = matriks adjacency berukuran $N \times N$ \\
+$N$ & = jumlah total node dalam jaringan
+\end{tabular}
+
 \noindent dimana:
 
 \begin{equation}
@@ -183,13 +201,32 @@ Struktur konektivitas graf dapat direpresentasikan menggunakan matriks adjacency
     \end{cases}
 \end{equation}
 
-Untuk graf tidak berarah (seperti topologi jaringan Layer 2), matriks adjacency bersifat simetris. Matriks ini menjadi dasar dalam menentukan himpunan tetangga yang dapat dinyatakan sebagai:
+\noindent
+Dengan:
+
+\begin{tabular}{ll}
+$A_{ij}$ & = elemen matriks adjacency pada baris $i$ kolom $j$ \\
+$(v_i, v_j)$ & = edge yang menghubungkan node $v_i$ dan $v_j$ \\
+$\mathcal{E}$ & = himpunan edge dalam graf
+\end{tabular}
+
+\noindent
+Untuk graf tidak berarah (seperti topologi jaringan Layer 2), matriks adjacency bersifat simetris ($A_{ij} = A_{ji}$). Matriks ini menjadi dasar dalam menentukan himpunan tetangga yang dapat dinyatakan sebagai:
 
 \begin{equation}
-    \mathcal{N}_i = \{v_j : A_{ij} = 1\}
+    \mathcal{N}_i = \{v_j \in \mathcal{V} : A_{ij} = 1\}
 \end{equation}
 
-\noindent yang akan digunakan dalam komputasi atensi GAT.
+\noindent
+Dengan:
+
+\begin{tabular}{ll}
+$\mathcal{N}_i$ & = himpunan node tetangga dari node $i$ \\
+$v_j$ & = node tetangga yang terhubung langsung dengan node $i$
+\end{tabular}
+
+\noindent
+yang akan digunakan dalam komputasi atensi GAT. Perlu dicatat bahwa dalam mekanisme GAT, setiap node juga dapat memberikan atensi pada dirinya sendiri (\textit{self-attention}), sehingga himpunan node yang dipertimbangkan dalam komputasi adalah $\mathcal{N}_i \cup \{i\}$.
 
 \paragraph{Representasi Edge dalam GAT}
 Dalam implementasi GAT standar, fitur edge tidak secara eksplisit dimasukkan ke dalam perhitungan koefisien atensi. Namun, untuk aplikasi Traffic Engineering, fitur edge sangat penting karena kualitas link menjadi faktor krusial dalam penentuan jalur. Oleh karena itu, terdapat beberapa strategi untuk mengintegrasikan fitur edge:
@@ -197,21 +234,47 @@ Dalam implementasi GAT standar, fitur edge tidak secara eksplisit dimasukkan ke 
 \begin{enumerate}
     \item \textbf{Edge Feature Concatenation}: Fitur edge digabungkan dengan fitur node dalam perhitungan skor atensi:
     \begin{equation}
-        e_{ij} = \text{LeakyReLU}\left(\vec{a}^T [W\vec{h}_i \, \| \, W\vec{h}_j \, \| \, W_e\vec{e}_{ij}]\right)
+        s_{ij} = \text{LeakyReLU}\left(\vec{a}^T [\mathbf{W}\vec{h}_i \, \| \, \mathbf{W}\vec{h}_j \, \| \, \mathbf{W}_e\vec{f}_{ij}]\right)
     \end{equation}
-    \noindent dimana $W_e$ adalah matriks bobot untuk transformasi fitur edge.
+
+    \noindent
+    Dengan:
+
+    \begin{tabular}{ll}
+    $s_{ij}$ & = skor atensi mentah dengan fitur edge \\
+    $\mathbf{W}_e$ & = matriks bobot untuk transformasi fitur edge \\
+               & \quad ($\mathbf{W}_e \in \mathbb{R}^{F'' \times F_e}$) \\
+    $\vec{f}_{ij}$ & = vektor fitur edge dari node $i$ ke node $j$ \\
+    $F''$ & = dimensi hasil transformasi fitur edge
+    \end{tabular}
 
     \item \textbf{Edge Gating}: Fitur edge digunakan sebagai gating mechanism untuk memodulasi koefisien atensi:
     \begin{equation}
-        \alpha_{ij}^{gated} = \alpha_{ij} \cdot \sigma(W_g \vec{e}_{ij})
+        \alpha_{ij}^{\text{gated}} = \alpha_{ij} \cdot \sigma(\mathbf{W}_g \vec{f}_{ij})
     \end{equation}
-    \noindent dimana $\sigma$ adalah fungsi sigmoid dan $W_g$ adalah matriks bobot gating.
+
+    \noindent
+    Dengan:
+
+    \begin{tabular}{ll}
+    $\sigma$ & = fungsi sigmoid \\
+    $\mathbf{W}_g$ & = matriks bobot gating ($\mathbf{W}_g \in \mathbb{R}^{1 \times F_e}$) \\
+    $\alpha_{ij}^{\text{gated}}$ & = koefisien atensi setelah gating
+    \end{tabular}
 
     \item \textbf{Pre-aggregation Weighting}: Fitur edge digunakan untuk memberikan bobot awal sebelum mekanisme atensi:
     \begin{equation}
         \tilde{\alpha}_{ij} = w_{ij} \cdot \alpha_{ij}
     \end{equation}
-    \noindent dimana $w_{ij}$ adalah bobot yang diturunkan dari fitur edge (misalnya, bandwidth yang tersedia atau inverse dari error rate).
+
+    \noindent
+    Dengan:
+
+    \begin{tabular}{ll}
+    $w_{ij}$ & = bobot yang diturunkan dari fitur edge (misalnya, \\
+             & \quad bandwidth yang tersedia atau inverse dari error rate) \\
+    $\tilde{\alpha}_{ij}$ & = koefisien atensi hasil weighting
+    \end{tabular}
 \end{enumerate}
 
 Pemilihan strategi integrasi fitur edge bergantung pada kompleksitas model yang diinginkan dan ketersediaan data pelatihan. Dalam konteks penelitian ini, strategi yang dipilih akan disesuaikan dengan karakteristik data jaringan PT Lare Osing Ndo dan hasil eksperimen awal.
@@ -228,63 +291,106 @@ Sebuah layer GAT menerima himpunan fitur node sebagai input dan menghasilkan him
     \mathbf{h'} = \{\vec{h'}_1, \vec{h'}_2, \ldots, \vec{h'}_N\}, \quad \vec{h'}_i \in \mathbb{R}^{F'}
 \end{equation}
 
-\noindent dimana $\mathbf{h}$ adalah input layer dan $\mathbf{h'}$ adalah output layer. Proses transformasi ini terdiri dari beberapa tahapan komputasi yang akan dijelaskan secara rinci berikut ini.
+\noindent
+Dengan:
+
+\begin{tabular}{ll}
+$\mathbf{h}$ & = himpunan fitur input layer \\
+$\mathbf{h'}$ & = himpunan fitur output layer \\
+$F$ & = dimensi fitur input \\
+$F'$ & = dimensi fitur output
+\end{tabular}
+
+\noindent
+Proses transformasi ini terdiri dari beberapa tahapan komputasi yang akan dijelaskan secara rinci berikut ini.
 
 \subsubsection{Tahapan Komputasi GAT}
 
-Untuk memudahkan pemahaman, proses perhitungan koefisien atensi dan agregasi fitur dalam GAT dipecah menjadi lima tahapan utama:
+Untuk memudahkan pemahaman, proses perhitungan koefisien atensi dan agregasi fitur dalam GAT dipecah menjadi lima tahapan utama. Ilustrasi alur komputasi dapat digambarkan sebagai berikut:
+
+\begin{center}
+\textit{Input} $\vec{h}_i$ $\rightarrow$ \textit{Linear Transform} ($\mathbf{W}\vec{h}_i$) $\rightarrow$ \textit{Attention Score} ($e_{ij}$) $\rightarrow$ \textit{Softmax} ($\alpha_{ij}$) $\rightarrow$ \textit{Weighted Aggregation} $\rightarrow$ \textit{Output} $\vec{h'}_i$
+\end{center}
 
 \paragraph{1. Transformasi Linear Fitur Input}
 
 Tahap pertama adalah melakukan transformasi linear pada fitur input setiap node menggunakan matriks bobot yang dapat dipelajari. Tujuan tahap ini adalah untuk memproyeksikan fitur input ke dalam ruang fitur yang lebih ekspresif.
 
 \begin{equation}
-    z_i = W \cdot \vec{h}_i
+    \vec{z}_i = \mathbf{W} \vec{h}_i
 \end{equation}
 
-\noindent\textbf{Keterangan:}
-\begin{itemize}
-    \item $z_i \in \mathbb{R}^{F'}$ : Fitur hasil transformasi pada node $i$
-    \item $W \in \mathbb{R}^{F' \times F}$ : Matriks bobot transformasi linear yang dilatih oleh model
-    \item $\vec{h}_i \in \mathbb{R}^F$ : Vektor fitur input awal pada node $i$
-    \item $F$ : Dimensi fitur input
-    \item $F'$ : Dimensi fitur output (dapat berbeda dari $F$)
-\end{itemize}
+\noindent
+Dengan:
 
-Transformasi ini diterapkan pada seluruh node dalam graf, sehingga untuk setiap pasangan node $i$ dan $j$ yang terhubung, akan diperoleh $z_i$ dan $z_j$ yang siap diproses pada tahap berikutnya.
+\begin{tabular}{ll}
+$\vec{z}_i$ & = fitur hasil transformasi pada node $i$ ($\vec{z}_i \in \mathbb{R}^{F'}$) \\
+$\mathbf{W}$ & = matriks bobot transformasi linear ($\mathbf{W} \in \mathbb{R}^{F' \times F}$) \\
+$\vec{h}_i$ & = vektor fitur input awal pada node $i$ ($\vec{h}_i \in \mathbb{R}^F$) \\
+$F'$ & = dimensi fitur setelah transformasi
+\end{tabular}
+
+\noindent
+Transformasi ini diterapkan pada seluruh node dalam graf, sehingga untuk setiap pasangan node $i$ dan $j$ yang terhubung, akan diperoleh $\vec{z}_i$ dan $\vec{z}_j$ yang siap diproses pada tahap berikutnya.
 
 \paragraph{2. Komputasi Skor Atensi Mentah}
 
 Setelah fitur ditransformasi, tahap selanjutnya adalah menghitung seberapa penting pengaruh node tetangga $j$ terhadap node sumber $i$. Proses ini menggunakan mekanisme atensi yang diparameterisasi oleh vektor bobot $\vec{a}$.
 
 \begin{equation}
-    e_{ij} = \text{LeakyReLU}\left(\vec{a}^T [W\vec{h}_i \, \| \, W\vec{h}_j]\right)
+    e_{ij} = \text{LeakyReLU}\left(\vec{a}^T [\vec{z}_i \, \| \, \vec{z}_j]\right)
 \end{equation}
 
-\noindent\textbf{Keterangan:}
-\begin{itemize}
-    \item $e_{ij}$ : Skor atensi mentah yang menunjukkan pentingnya node $j$ bagi node $i$
-    \item $\vec{a}^T$ : Vektor bobot mekanisme atensi (transpose), dengan dimensi $\vec{a}^T \in \mathbb{R}^{2F'}$
-    \item $\|$ : Operasi concatenation (penggabungan) dua vektor fitur
-    \item $\text{LeakyReLU}$ : Fungsi aktivasi untuk mempertahankan gradient negatif dengan slope kecil (biasanya 0.2)
-\end{itemize}
+\noindent
+Dengan:
 
-Operasi concatenation menghasilkan:
+\begin{tabular}{ll}
+$e_{ij}$ & = skor atensi mentah yang menunjukkan pentingnya \\
+         & \quad node $j$ bagi node $i$ ($e_{ij} \in \mathbb{R}$) \\
+$\vec{a}^T$ & = vektor bobot mekanisme atensi (transpose) \\
+            & \quad ($\vec{a} \in \mathbb{R}^{2F'}$, sehingga $\vec{a}^T \in \mathbb{R}^{1 \times 2F'}$) \\
+$\|$ & = operasi concatenation (penggabungan) dua vektor fitur \\
+$\vec{z}_i$ & = fitur hasil transformasi node $i$ (dari Persamaan 11) \\
+$\vec{z}_j$ & = fitur hasil transformasi node $j$
+\end{tabular}
+
+\noindent
+Operasi concatenation menghasilkan vektor gabungan:
 
 \begin{equation}
-    [W\vec{h}_i \, \| \, W\vec{h}_j] \in \mathbb{R}^{2F'}
+    [\vec{z}_i \, \| \, \vec{z}_j] \in \mathbb{R}^{2F'}
 \end{equation}
 
+\noindent
+Dengan:
+
+\begin{tabular}{ll}
+$2F'$ & = dimensi hasil concatenation (gabungan dari dua vektor \\
+      & \quad berdimensi $F'$)
+\end{tabular}
+
+\noindent
 Fungsi LeakyReLU didefinisikan sebagai:
 
 \begin{equation}
     \text{LeakyReLU}(x) = \begin{cases}
         x & \text{jika } x \geq 0 \\
-        \alpha x & \text{jika } x < 0
+        \lambda x & \text{jika } x < 0
     \end{cases}
 \end{equation}
 
-\noindent dimana $\alpha$ adalah parameter slope negatif (umumnya 0.2). Pemilihan LeakyReLU dibanding ReLU standar penting untuk mencegah \textit{dying neurons} dan mempertahankan aliran gradient selama pelatihan.
+\noindent
+Dengan:
+
+\begin{tabular}{ll}
+$x$ & = nilai input fungsi aktivasi \\
+$\lambda$ & = parameter slope negatif (umumnya bernilai kecil, \\
+          & \quad misalnya 0.01 atau 0.2, dapat disesuaikan sebagai \\
+          & \quad hyperparameter)
+\end{tabular}
+
+\noindent
+Pemilihan LeakyReLU dibanding ReLU standar penting untuk mencegah \textit{dying neurons} dan mempertahankan aliran gradient selama pelatihan, khususnya untuk nilai negatif yang tetap berkontribusi meskipun dengan magnitude yang lebih kecil.
 
 Perlu dicatat bahwa komputasi $e_{ij}$ hanya dilakukan untuk node yang memenuhi:
 
@@ -292,104 +398,370 @@ Perlu dicatat bahwa komputasi $e_{ij}$ hanya dilakukan untuk node yang memenuhi:
     j \in \mathcal{N}_i \cup \{i\}
 \end{equation}
 
-\noindent dimana $\mathcal{N}_i$ adalah himpunan node tetangga yang terhubung langsung dengan node $i$. Ini sejalan dengan konsep \textit{masked attention}, dimana model hanya mempertimbangkan koneksi yang benar-benar ada dalam topologi jaringan.
+\noindent
+Dengan:
+
+\begin{tabular}{ll}
+$\mathcal{N}_i$ & = himpunan node tetangga yang terhubung langsung \\
+                & \quad dengan node $i$ \\
+$\{i\}$ & = node itu sendiri (untuk self-attention)
+\end{tabular}
+
+\noindent
+Ini sejalan dengan konsep \textit{masked attention}, dimana model hanya mempertimbangkan koneksi yang benar-benar ada dalam topologi jaringan. Dengan kata lain, model tidak menghitung skor atensi untuk pasangan node yang tidak memiliki koneksi langsung, sehingga komputasi menjadi efisien dan tetap menghormati struktur graf asli.
 
 \paragraph{3. Normalisasi dengan Softmax}
 
 Skor atensi mentah yang diperoleh pada tahap sebelumnya masih berupa nilai real yang tidak memiliki interpretasi probabilistik. Oleh karena itu, diperlukan normalisasi menggunakan fungsi softmax untuk mengubah skor mentah menjadi koefisien atensi yang merupakan distribusi probabilitas.
 
 \begin{equation}
-    \alpha_{ij} = \frac{\exp(e_{ij})}{\sum_{k \in \mathcal{N}_i \cup \{i\}} \exp(e_{ik})}
+    \alpha_{ij} = \text{softmax}_j(e_{ij}) = \frac{\exp(e_{ij})}{\sum_{k \in \mathcal{N}_i \cup \{i\}} \exp(e_{ik})}
 \end{equation}
 
-\noindent\textbf{Keterangan:}
-\begin{itemize}
-    \item $\alpha_{ij}$ : Koefisien atensi final yang telah dinormalisasi, dengan nilai dalam rentang $[0, 1]$
-    \item $\mathcal{N}_i$ : Himpunan seluruh node tetangga yang terhubung langsung ke node $i$
-\end{itemize}
+\noindent
+Dengan:
 
+\begin{tabular}{ll}
+$\alpha_{ij}$ & = koefisien atensi final yang telah dinormalisasi \\
+              & \quad (nilai dalam rentang $[0, 1]$) \\
+$k$ & = indeks node dalam himpunan tetangga dan diri sendiri \\
+$e_{ik}$ & = skor atensi mentah dari node $i$ ke node $k$
+\end{tabular}
+
+\noindent
 Normalisasi softmax memastikan bahwa:
 
 \begin{equation}
     \sum_{k \in \mathcal{N}_i \cup \{i\}} \alpha_{ik} = 1
 \end{equation}
 
-\noindent sehingga koefisien atensi dapat diinterpretasikan sebagai distribusi probabilitas, dimana nilai yang lebih tinggi mengindikasikan kepentingan yang lebih besar dari node tetangga tersebut. Dalam konteks routing jaringan, nilai $\alpha_{ij}$ yang tinggi menunjukkan bahwa jalur menuju node $j$ lebih direkomendasikan dibanding jalur alternatif lainnya.
+\noindent
+Dengan:
+
+\begin{tabular}{ll}
+$\alpha_{ik}$ & = koefisien atensi dari node $k$ terhadap node $i$
+\end{tabular}
+
+\noindent
+sehingga koefisien atensi dapat diinterpretasikan sebagai distribusi probabilitas, dimana nilai yang lebih tinggi mengindikasikan kepentingan yang lebih besar dari node tetangga tersebut.
+
+\textbf{Ilustrasi dalam konteks jaringan:} Misalkan dalam topologi PT Lare Osing Ndo, switch A memiliki 3 jalur menuju switch B dengan koefisien atensi hasil softmax: jalur 1 memiliki $\alpha_{A,1} = 0.70$, jalur 2 memiliki $\alpha_{A,2} = 0.20$, dan jalur 3 memiliki $\alpha_{A,3} = 0.10$. Ini mengindikasikan bahwa model memberikan prioritas 70\% pada jalur pertama karena kualitasnya superior (misalnya bandwidth lebih tinggi, latency lebih rendah, atau error rate minimal), sementara jalur kedua dan ketiga masing-masing hanya berkontribusi 20\% dan 10\% dalam agregasi informasi.
 
 \paragraph{4. Agregasi Fitur dengan Weighted Sum}
 
 Setelah koefisien atensi diperoleh, tahap berikutnya adalah mengagregasi informasi dari node tetangga menggunakan weighted sum berdasarkan nilai atensi yang telah dihitung. Proses ini menghasilkan representasi fitur baru untuk setiap node.
 
 \begin{equation}
-    \vec{h'}_i = \sigma\left(\sum_{j \in \mathcal{N}_i \cup \{i\}} \alpha_{ij} W \vec{h}_j\right)
+    \vec{h'}_i = \sigma\left(\sum_{j \in \mathcal{N}_i \cup \{i\}} \alpha_{ij} \vec{z}_j\right)
 \end{equation}
 
-\noindent\textbf{Keterangan:}
-\begin{itemize}
-    \item $\vec{h'}_i$ : Fitur output node $i$ setelah agregasi, dengan dimensi $\vec{h'}_i \in \mathbb{R}^{F'}$
-    \item $\sigma$ : Fungsi aktivasi nonlinear (umumnya ELU atau ReLU)
-    \item $\alpha_{ij}$ : Koefisien atensi yang mengatur kontribusi node $j$
-    \item $W\vec{h}_j$ : Fitur node $j$ yang telah ditransformasi
-\end{itemize}
+\noindent
+Dengan:
 
-Agregasi ini memungkinkan setiap node untuk mengumpulkan informasi dari lingkungan lokalnya dengan memberikan penekanan lebih pada node tetangga yang lebih relevan (nilai atensi tinggi) dan mengurangi pengaruh dari node yang kurang penting (nilai atensi rendah).
+\begin{tabular}{ll}
+$\vec{h'}_i$ & = fitur output node $i$ setelah agregasi \\
+             & \quad ($\vec{h'}_i \in \mathbb{R}^{F'}$) \\
+$\sigma$ & = fungsi aktivasi nonlinear (umumnya ELU atau ReLU) \\
+$\vec{z}_j$ & = fitur hasil transformasi node $j$ (dari Persamaan 11)
+\end{tabular}
+
+\noindent
+Agregasi ini memungkinkan setiap node untuk mengumpulkan informasi dari lingkungan lokalnya dengan memberikan penekanan lebih pada node tetangga yang lebih relevan (nilai atensi tinggi) dan mengurangi pengaruh dari node yang kurang penting (nilai atensi rendah). Dengan demikian, representasi akhir $\vec{h'}_i$ merupakan kombinasi berbobot dari fitur-fitur tetangga yang mencerminkan struktur lokal dan kualitas koneksi dalam jaringan.
 
 \paragraph{5. Multi-Head Attention}
 
 Untuk menstabilkan proses pembelajaran dan meningkatkan kapasitas ekspresif model, GAT menggunakan mekanisme \textit{multi-head attention}. Ide dasarnya adalah menjalankan $K$ mekanisme atensi independen secara paralel, kemudian menggabungkan hasilnya.
 
-Untuk layer tersembunyi (\textit{hidden layers}), hasil dari $K$ head digabungkan melalui concatenation:
+Setiap attention head $k$ memiliki parameter independen $\mathbf{W}^k$ dan $\vec{a}^k$, sehingga dapat menangkap aspek relasi yang berbeda antar node. Untuk layer tersembunyi (\textit{hidden layers}), hasil dari $K$ head digabungkan melalui concatenation:
 
 \begin{equation}
-    \vec{h'}_i = \|_{k=1}^{K} \sigma\left(\sum_{j \in \mathcal{N}_i \cup \{i\}} \alpha_{ij}^k W^k \vec{h}_j\right)
+    \vec{h'}_i = \Bigg\|_{k=1}^{K} \sigma\left(\sum_{j \in \mathcal{N}_i \cup \{i\}} \alpha_{ij}^k \vec{z}_j^k\right)
 \end{equation}
 
-dimana $\|$ menunjukkan operasi concatenation, $\alpha_{ij}^k$ adalah koefisien atensi yang dinormalisasi untuk head ke-$k$, dan $W^k$ adalah matriks bobot transformasi untuk head ke-$k$. Hasil concatenation ini menghasilkan vektor fitur dengan dimensi $K \cdot F'$.
-
-Untuk layer output (prediksi akhir), averaging digunakan sebagai pengganti concatenation untuk menghasilkan prediksi yang lebih stabil:
+\noindent
+yang dapat diekspresikan secara lebih eksplisit sebagai:
 
 \begin{equation}
-    \vec{h'}_i = \sigma\left(\frac{1}{K}\sum_{k=1}^{K} \sum_{j \in \mathcal{N}_i \cup \{i\}} \alpha_{ij}^k W^k \vec{h}_j\right)
+    \vec{h'}_i = \left[\vec{h'}_{i}^{(1)} \, \| \, \vec{h'}_{i}^{(2)} \, \| \, \cdots \, \| \, \vec{h'}_{i}^{(K)}\right]
 \end{equation}
 
-\noindent\textbf{Keterangan:}
-\begin{itemize}
-    \item $K$ : Jumlah attention heads
-    \item $\alpha_{ij}^k$ : Koefisien atensi untuk attention head ke-$k$
-    \item $W^k$ : Matriks bobot untuk attention head ke-$k$
-    \item $\|$ : Operasi concatenation
-\end{itemize}
+\noindent
+Dengan:
 
+\begin{tabular}{ll}
+$\|$ & = operasi concatenation \\
+$K$ & = jumlah attention heads \\
+$\alpha_{ij}^k$ & = koefisien atensi yang dinormalisasi untuk head ke-$k$ \\
+$\vec{z}_j^k$ & = $\mathbf{W}^k\vec{h}_j$, fitur hasil transformasi untuk head ke-$k$ \\
+$\mathbf{W}^k$ & = matriks bobot transformasi untuk head ke-$k$ \\
+              & \quad ($\mathbf{W}^k \in \mathbb{R}^{F' \times F}$) \\
+$\vec{h'}_{i}^{(k)}$ & = output dari attention head ke-$k$ untuk node $i$
+\end{tabular}
+
+\noindent
+Hasil concatenation ini menghasilkan vektor fitur dengan dimensi:
+
+\begin{equation}
+    \vec{h'}_i \in \mathbb{R}^{K \cdot F'}
+\end{equation}
+
+Untuk layer output (prediksi akhir), averaging digunakan sebagai pengganti concatenation untuk menghasilkan prediksi yang lebih stabil dan menjaga dimensi output tetap konsisten:
+
+\begin{equation}
+    \vec{h'}_i = \sigma\left(\frac{1}{K}\sum_{k=1}^{K} \sum_{j \in \mathcal{N}_i \cup \{i\}} \alpha_{ij}^k \vec{z}_j^k\right)
+\end{equation}
+
+\noindent
+Dengan output berdimensi:
+
+\begin{equation}
+    \vec{h'}_i \in \mathbb{R}^{F'}
+\end{equation}
+
+\noindent
 Penggunaan multi-head attention memberikan beberapa keuntungan penting:
 \begin{enumerate}
-    \item Memungkinkan model untuk mengeksplorasi berbagai aspek relasi antar node secara simultan
-    \item Meningkatkan stabilitas gradien selama pelatihan
-    \item Memperkaya representasi fitur dengan menangkap pola yang beragam
+    \item \textbf{Eksplorasi multi-aspek}: Memungkinkan model untuk mengeksplorasi berbagai aspek relasi antar node secara simultan. Misalnya, satu head dapat fokus pada bandwidth, head lain pada latency, dan head lainnya pada reliability.
+    \item \textbf{Stabilitas training}: Meningkatkan stabilitas gradien selama pelatihan dengan menyediakan multiple learning paths yang redundant namun komplementer.
+    \item \textbf{Representasi kaya}: Memperkaya representasi fitur dengan menangkap pola yang beragam dan complex relationship dalam topologi jaringan.
+    \item \textbf{Robustness}: Memberikan robustness terhadap noise atau fluktuasi pada single attention mechanism, karena keputusan akhir didasarkan pada konsensus dari multiple heads.
 \end{enumerate}
 
-\subsubsection{Keunggulan GAT untuk Traffic Engineering}
+Dalam implementasi praktis untuk routing jaringan, jumlah head $K$ biasanya dipilih dalam rentang 4-8, dimana nilai yang lebih tinggi meningkatkan kapasitas model namun juga meningkatkan kompleksitas komputasi dan risiko overfitting.
 
-Dalam konteks aplikasi Traffic Engineering di jaringan PT Lare Osing Ndo, GAT menawarkan beberapa keunggulan signifikan dibanding metode konvensional:
+\subsubsection{Contoh Perhitungan Numerik GAT}
 
+Untuk memberikan pemahaman yang lebih konkret tentang mekanisme GAT, berikut disajikan contoh perhitungan numerik lengkap dengan data yang disederhanakan. Contoh ini menggunakan topologi sederhana dari jaringan PT Lare Osing Ndo dengan 3 node yang saling terhubung.
+
+\paragraph{Setup Topologi}
+
+Misalkan terdapat sebuah graf jaringan sederhana dengan 3 switch:
+
+\begin{itemize}
+    \item Node A (Switch Core 1)
+    \item Node B (Switch Distribution 1)
+    \item Node C (Switch Distribution 2)
+\end{itemize}
+
+\noindent
+Dengan koneksi sebagai berikut:
+\begin{itemize}
+    \item Node A terhubung ke Node B
+    \item Node A terhubung ke Node C
+    \item Node B terhubung ke Node C
+\end{itemize}
+
+\noindent
+Matriks adjacency untuk topologi ini adalah:
+
+\begin{equation}
+    \mathbf{A} = \begin{bmatrix}
+        1 & 1 & 1 \\
+        1 & 1 & 1 \\
+        1 & 1 & 1
+    \end{bmatrix}
+\end{equation}
+
+\noindent
+(Diagonal bernilai 1 untuk self-attention, dan elemen $A_{ij} = 1$ jika node $i$ dan $j$ terhubung)
+
+\paragraph{Fitur Input Node}
+
+Asumsikan setiap node memiliki vektor fitur 2-dimensi ($F = 2$) yang merepresentasikan utilisasi CPU dan bandwidth utilization:
+
+\begin{align}
+    \vec{h}_A &= \begin{bmatrix} 0.3 \\ 0.5 \end{bmatrix} \quad \text{(CPU: 30\%, BW: 50\%)} \\
+    \vec{h}_B &= \begin{bmatrix} 0.7 \\ 0.4 \end{bmatrix} \quad \text{(CPU: 70\%, BW: 40\%)} \\
+    \vec{h}_C &= \begin{bmatrix} 0.5 \\ 0.2 \end{bmatrix} \quad \text{(CPU: 50\%, BW: 20\%)}
+\end{align}
+
+\paragraph{Parameter Model}
+
+Untuk kesederhanaan, gunakan single attention head ($K = 1$) dengan dimensi output $F' = 2$. Parameter yang dipelajari adalah:
+
+\begin{equation}
+    \mathbf{W} = \begin{bmatrix}
+        1.0 & 0.5 \\
+        0.5 & 1.0
+    \end{bmatrix}, \quad
+    \vec{a} = \begin{bmatrix}
+        0.5 \\
+        0.5 \\
+        0.3 \\
+        0.3
+    \end{bmatrix}
+\end{equation}
+
+\noindent
+Dengan:
+
+\begin{tabular}{ll}
+$\mathbf{W}$ & = matriks transformasi linear ($2 \times 2$) \\
+$\vec{a}$ & = vektor parameter atensi ($4 \times 1$, untuk concatenation 2 node)
+\end{tabular}
+
+\paragraph{Tahap 1: Transformasi Linear}
+
+Hitung fitur hasil transformasi untuk setiap node:
+
+\begin{align}
+    \vec{z}_A &= \mathbf{W}\vec{h}_A = \begin{bmatrix}
+        1.0 & 0.5 \\
+        0.5 & 1.0
+    \end{bmatrix} \begin{bmatrix} 0.3 \\ 0.5 \end{bmatrix} = \begin{bmatrix}
+        1.0(0.3) + 0.5(0.5) \\
+        0.5(0.3) + 1.0(0.5)
+    \end{bmatrix} = \begin{bmatrix} 0.55 \\ 0.65 \end{bmatrix}
+\end{align}
+
+\begin{align}
+    \vec{z}_B &= \mathbf{W}\vec{h}_B = \begin{bmatrix}
+        1.0 & 0.5 \\
+        0.5 & 1.0
+    \end{bmatrix} \begin{bmatrix} 0.7 \\ 0.4 \end{bmatrix} = \begin{bmatrix} 0.90 \\ 0.75 \end{bmatrix}
+\end{align}
+
+\begin{align}
+    \vec{z}_C &= \mathbf{W}\vec{h}_C = \begin{bmatrix}
+        1.0 & 0.5 \\
+        0.5 & 1.0
+    \end{bmatrix} \begin{bmatrix} 0.5 \\ 0.2 \end{bmatrix} = \begin{bmatrix} 0.60 \\ 0.45 \end{bmatrix}
+\end{align}
+
+\paragraph{Tahap 2: Komputasi Skor Atensi Mentah}
+
+Untuk Node A, hitung skor atensi terhadap dirinya sendiri dan tetangganya (B dan C). Gunakan $\lambda = 0.2$ untuk LeakyReLU.
+
+\textbf{Skor atensi A terhadap A (self-attention):}
+
+\begin{align}
+    [\vec{z}_A \| \vec{z}_A] &= \begin{bmatrix} 0.55 \\ 0.65 \\ 0.55 \\ 0.65 \end{bmatrix}
+\end{align}
+
+\begin{align}
+    e_{AA} &= \text{LeakyReLU}\left(\vec{a}^T [\vec{z}_A \| \vec{z}_A]\right) \\
+    &= \text{LeakyReLU}\left(\begin{bmatrix} 0.5 & 0.5 & 0.3 & 0.3 \end{bmatrix} \begin{bmatrix} 0.55 \\ 0.65 \\ 0.55 \\ 0.65 \end{bmatrix}\right) \\
+    &= \text{LeakyReLU}(0.5 \times 0.55 + 0.5 \times 0.65 + 0.3 \times 0.55 + 0.3 \times 0.65) \\
+    &= \text{LeakyReLU}(0.275 + 0.325 + 0.165 + 0.195) \\
+    &= \text{LeakyReLU}(0.96) = 0.96
+\end{align}
+
+\textbf{Skor atensi A terhadap B:}
+
+\begin{align}
+    [\vec{z}_A \| \vec{z}_B] &= \begin{bmatrix} 0.55 \\ 0.65 \\ 0.90 \\ 0.75 \end{bmatrix}
+\end{align}
+
+\begin{align}
+    e_{AB} &= \text{LeakyReLU}\left(\begin{bmatrix} 0.5 & 0.5 & 0.3 & 0.3 \end{bmatrix} \begin{bmatrix} 0.55 \\ 0.65 \\ 0.90 \\ 0.75 \end{bmatrix}\right) \\
+    &= \text{LeakyReLU}(0.275 + 0.325 + 0.270 + 0.225) \\
+    &= \text{LeakyReLU}(1.095) = 1.095
+\end{align}
+
+\textbf{Skor atensi A terhadap C:}
+
+\begin{align}
+    [\vec{z}_A \| \vec{z}_C] &= \begin{bmatrix} 0.55 \\ 0.65 \\ 0.60 \\ 0.45 \end{bmatrix}
+\end{align}
+
+\begin{align}
+    e_{AC} &= \text{LeakyReLU}\left(\begin{bmatrix} 0.5 & 0.5 & 0.3 & 0.3 \end{bmatrix} \begin{bmatrix} 0.55 \\ 0.65 \\ 0.60 \\ 0.45 \end{bmatrix}\right) \\
+    &= \text{LeakyReLU}(0.275 + 0.325 + 0.180 + 0.135) \\
+    &= \text{LeakyReLU}(0.915) = 0.915
+\end{align}
+
+\paragraph{Tahap 3: Normalisasi Softmax}
+
+Hitung koefisien atensi yang dinormalisasi untuk Node A:
+
+\begin{align}
+    \alpha_{AA} &= \frac{\exp(e_{AA})}{\exp(e_{AA}) + \exp(e_{AB}) + \exp(e_{AC})} \\
+    &= \frac{\exp(0.96)}{\exp(0.96) + \exp(1.095) + \exp(0.915)} \\
+    &= \frac{2.611}{2.611 + 2.989 + 2.497} = \frac{2.611}{8.097} = 0.322
+\end{align}
+
+\begin{align}
+    \alpha_{AB} &= \frac{\exp(1.095)}{8.097} = \frac{2.989}{8.097} = 0.369
+\end{align}
+
+\begin{align}
+    \alpha_{AC} &= \frac{\exp(0.915)}{8.097} = \frac{2.497}{8.097} = 0.308
+\end{align}
+
+\noindent
+Verifikasi: $\alpha_{AA} + \alpha_{AB} + \alpha_{AC} = 0.322 + 0.369 + 0.308 = 0.999 \approx 1.0$ \checkmark
+
+\textbf{Interpretasi}: Node A memberikan perhatian tertinggi pada Node B (36.9\%), diikuti oleh dirinya sendiri (32.2\%), dan Node C (30.8\%). Ini menunjukkan bahwa jalur menuju Node B memiliki karakteristik yang paling favorable (CPU dan bandwidth utilization yang seimbang).
+
+\paragraph{Tahap 4: Agregasi Fitur}
+
+Hitung fitur output untuk Node A menggunakan weighted sum dengan fungsi aktivasi ReLU:
+
+\begin{align}
+    \vec{h'}_A &= \text{ReLU}\left(\alpha_{AA}\vec{z}_A + \alpha_{AB}\vec{z}_B + \alpha_{AC}\vec{z}_C\right) \\
+    &= \text{ReLU}\left(0.322 \begin{bmatrix} 0.55 \\ 0.65 \end{bmatrix} + 0.369 \begin{bmatrix} 0.90 \\ 0.75 \end{bmatrix} + 0.308 \begin{bmatrix} 0.60 \\ 0.45 \end{bmatrix}\right) \\
+    &= \text{ReLU}\left(\begin{bmatrix} 0.177 \\ 0.209 \end{bmatrix} + \begin{bmatrix} 0.332 \\ 0.277 \end{bmatrix} + \begin{bmatrix} 0.185 \\ 0.139 \end{bmatrix}\right) \\
+    &= \text{ReLU}\left(\begin{bmatrix} 0.694 \\ 0.625 \end{bmatrix}\right) = \begin{bmatrix} 0.694 \\ 0.625 \end{bmatrix}
+\end{align}
+
+\noindent
+\textbf{Interpretasi hasil}: Fitur output Node A setelah satu layer GAT adalah $\vec{h'}_A = [0.694, 0.625]^T$. Nilai ini merupakan agregasi berbobot dari informasi dirinya sendiri dan tetangganya, dimana Node B memberikan kontribusi terbesar. Dalam konteks routing, representasi ini menangkap tidak hanya status Node A sendiri, tetapi juga kualitas jalur-jalur yang tersedia dari perspektif Node A.
+
+\paragraph{Perbandingan dengan GNN Tradisional}
+
+Untuk membandingkan dengan GNN tradisional yang menggunakan rata-rata sederhana (uniform weights):
+
+\begin{align}
+    \vec{h'}_A^{\text{GNN}} &= \text{ReLU}\left(\frac{1}{3}\vec{z}_A + \frac{1}{3}\vec{z}_B + \frac{1}{3}\vec{z}_C\right) \\
+    &= \text{ReLU}\left(\frac{1}{3}\begin{bmatrix} 0.55 \\ 0.65 \end{bmatrix} + \frac{1}{3}\begin{bmatrix} 0.90 \\ 0.75 \end{bmatrix} + \frac{1}{3}\begin{bmatrix} 0.60 \\ 0.45 \end{bmatrix}\right) \\
+    &= \text{ReLU}\left(\begin{bmatrix} 0.683 \\ 0.617 \end{bmatrix}\right) = \begin{bmatrix} 0.683 \\ 0.617 \end{bmatrix}
+\end{align}
+
+\noindent
+\textbf{Analisis perbedaan}:
+\begin{itemize}
+    \item GAT: $\vec{h'}_A = [0.694, 0.625]^T$
+    \item GNN tradisional: $\vec{h'}_A^{\text{GNN}} = [0.683, 0.617]^T$
+    \item Selisih: $[0.011, 0.008]^T$
+\end{itemize}
+
+Meskipun perbedaannya terlihat kecil dalam contoh sederhana ini, dalam graf kompleks dengan ratusan node dan koneksi yang heterogen (seperti jaringan PT Lare Osing Ndo), mekanisme atensi GAT memberikan keunggulan signifikan dengan:
 \begin{enumerate}
-    \item \textbf{Adaptivitas Dinamis}: Koefisien atensi dihitung secara dinamis berdasarkan kondisi jaringan terkini, memungkinkan model untuk beradaptasi dengan perubahan beban trafik atau kegagalan link secara real-time \cite{kato2024}.
-
-    \item \textbf{Efisiensi Komputasi}: Berbeda dengan algoritma Dijkstra yang memerlukan kalkulasi ulang penuh setiap ada perubahan topologi, GAT melakukan inferensi dalam sekali forward pass tanpa iterasi berulang, sehingga lebih efisien untuk deployment production.
-
-    \item \textbf{Pembelajaran Fitur Kompleks}: GAT dapat mempelajari representasi fitur tingkat tinggi yang menangkap interaksi kompleks antar parameter jaringan (CPU, bandwidth, error rate) yang sulit dimodelkan secara eksplisit.
-
-    \item \textbf{Independensi Struktur}: Mekanisme atensi tidak bergantung pada struktur graf yang telah ditentukan sebelumnya, sehingga dapat menangani topologi yang dinamis atau tidak teratur dengan baik.
-
-    \item \textbf{Interpretabilitas}: Nilai koefisien atensi $\alpha_{ij}$ dapat divisualisasikan untuk memahami jalur mana yang diprioritaskan oleh model, memberikan transparansi dalam pengambilan keputusan routing.
+    \item Memberikan bobot lebih tinggi pada jalur berkualitas tinggi
+    \item Secara adaptif mengabaikan jalur yang mengalami degradasi
+    \item Menangkap pola yang lebih kompleks dalam topologi jaringan
 \end{enumerate}
 
-Kombinasi keunggulan-keunggulan ini menjadikan GAT sebagai pendekatan yang sangat sesuai untuk mengatasi tantangan Traffic Engineering modern, khususnya dalam skenario jaringan Layer 2 dengan VLAN yang kompleks seperti yang dihadapi PT Lare Osing Ndo.
+\paragraph{Ekstesi ke Multi-Head Attention}
+
+Dalam praktik, GAT menggunakan multiple attention heads. Misalkan dengan $K = 2$ heads, maka akan ada dua set parameter independen $(\mathbf{W}^1, \vec{a}^1)$ dan $(\mathbf{W}^2, \vec{a}^2)$. Setiap head akan menghasilkan:
+
+\begin{itemize}
+    \item Head 1: $\vec{h'}_{A}^{(1)} = [0.694, 0.625]^T$ (contoh di atas)
+    \item Head 2: $\vec{h'}_{A}^{(2)} = [0.512, 0.738]^T$ (dengan parameter berbeda)
+\end{itemize}
+
+\noindent
+Output final untuk hidden layer adalah concatenation:
+
+\begin{equation}
+    \vec{h'}_A = [\vec{h'}_{A}^{(1)} \| \vec{h'}_{A}^{(2)}] = \begin{bmatrix} 0.694 \\ 0.625 \\ 0.512 \\ 0.738 \end{bmatrix} \in \mathbb{R}^4
+\end{equation}
+
+\noindent
+Sedangkan untuk output layer, digunakan averaging:
+
+\begin{equation}
+    \vec{h'}_A = \frac{1}{2}\left(\vec{h'}_{A}^{(1)} + \vec{h'}_{A}^{(2)}\right) = \frac{1}{2}\begin{bmatrix} 0.694 + 0.512 \\ 0.625 + 0.738 \end{bmatrix} = \begin{bmatrix} 0.603 \\ 0.682 \end{bmatrix} \in \mathbb{R}^2
+\end{equation}
+
+Contoh perhitungan ini mendemonstrasikan bagaimana GAT secara adaptif mempelajari kepentingan relatif dari setiap koneksi dalam jaringan, memungkinkan model untuk membuat keputusan routing yang lebih intelligent berdasarkan kondisi real-time dari topologi jaringan.
 
 \subsection{Analytic Hierarchy Process (AHP)}
 
 \textit{Analytic Hierarchy Process} (AHP) adalah metode pengambilan keputusan multikriteria yang dikembangkan oleh Thomas L. Saaty pada tahun 1970 \cite{saaty2008}. AHP dirancang untuk menangani masalah kompleks yang melibatkan berbagai kriteria dengan tingkat kepentingan yang berbeda-beda, dimana setiap alternatif memiliki preferensi yang bervariasi menurut masing-masing kriteria yang digunakan.
 
-Dalam konteks penelitian ini, AHP berperan krusial sebagai metode untuk menghasilkan label kualitas jalur yang akan digunakan sebagai target pelatihan model GAT. Penggunaan AHP memastikan bahwa label yang dihasilkan bukan hanya berdasarkan perhitungan matematis semata, tetapi juga mencerminkan preferensi dan pengetahuan dari pakar jaringan PT Lare Osing Ndo \cite{khan2020}. Dengan demikian, model pembelajaran mesin yang dilatih akan mempelajari pola yang selaras dengan kebijakan operasional perusahaan.
+Dalam konteks penelitian ini, AHP berperan krusial sebagai metode untuk \textbf{menentukan bobot prioritas fitur} yang valid berdasarkan preferensi pakar. Bobot yang dihasilkan AHP ($\mathbf{w}$) kemudian diintegrasikan ke dalam mekanisme \textit{rule-based scoring} untuk menghasilkan label kualitas jalur ($Q_{path}$) sebagai target pelatihan model GAT. Penggunaan AHP memastikan bahwa perhitungan skor matematis selaras dengan intuisi operasional dari pakar jaringan PT Lare Osing Ndo \cite{khan2020}.
 
 \subsubsection{Prinsip Dasar AHP}
 
@@ -471,18 +843,45 @@ Matriks perbandingan berpasangan dapat dinyatakan sebagai:
     \end{bmatrix}
 \end{equation}
 
-\noindent dimana $a_{ij}$ merepresentasikan tingkat kepentingan kriteria $i$ terhadap kriteria $j$. Matriks ini bersifat resiprokal, yang berarti:
+\noindent
+Dengan:
+
+\begin{tabular}{ll}
+$\mathbf{A}$ & = matriks perbandingan berpasangan berukuran $n \times n$ \\
+$a_{ij}$ & = tingkat kepentingan kriteria $i$ terhadap kriteria $j$ \\
+$n$ & = jumlah kriteria yang dibandingkan
+\end{tabular}
+
+\noindent
+Matriks ini bersifat resiprokal, yang berarti:
 
 \begin{equation}
     a_{ji} = \frac{1}{a_{ij}}
 \end{equation}
 
+\noindent
+Dengan:
+
+\begin{tabular}{ll}
+$a_{ji}$ & = tingkat kepentingan kriteria $j$ terhadap kriteria $i$
+\end{tabular}
+
+\noindent
 Sebagai contoh, jika optical link quality dinilai 3 kali lebih penting dari distance, maka:
 
 \begin{equation}
     a_{optical,distance} = 3 \quad \text{dan} \quad a_{distance,optical} = \frac{1}{3}
 \end{equation}
 
+\noindent
+Dengan:
+
+\begin{tabular}{ll}
+$a_{optical,distance}$ & = tingkat kepentingan optical link quality terhadap distance \\
+$a_{distance,optical}$ & = tingkat kepentingan distance terhadap optical link quality
+\end{tabular}
+
+\noindent
 Skala perbandingan yang digunakan mengikuti standar Saaty seperti ditunjukkan pada Tabel \ref{tab:saaty_scale}.
 
 \begin{table}[H]
@@ -511,13 +910,31 @@ Setelah matriks perbandingan disusun, langkah selanjutnya adalah melakukan norma
     T_j = \sum_{i=1}^{n} a_{ij}
 \end{equation}
 
+\noindent
+Dengan:
+
+\begin{tabular}{ll}
+$T_j$ & = total nilai pada kolom ke-$j$ \\
+$a_{ij}$ & = elemen matriks pada baris ke-$i$ dan kolom ke-$j$ \\
+$n$ & = jumlah kriteria yang dibandingkan \\
+$i$ & = indeks baris ($i = 1, 2, \ldots, n$)
+\end{tabular}
+
+\noindent
 Kemudian, setiap elemen matriks dibagi dengan total kolomnya untuk mendapatkan matriks ternormalisasi:
 
 \begin{equation}
     n_{ij} = \frac{a_{ij}}{T_j}
 \end{equation}
 
-\noindent dimana $n_{ij}$ adalah elemen ternormalisasi pada baris $i$ dan kolom $j$.
+\noindent
+Dengan:
+
+\begin{tabular}{ll}
+$n_{ij}$ & = elemen ternormalisasi pada baris $i$ dan kolom $j$ \\
+$a_{ij}$ & = elemen matriks asli pada baris $i$ dan kolom $j$ \\
+$T_j$ & = total nilai pada kolom ke-$j$
+\end{tabular}
 
 \paragraph{3. Perhitungan Vektor Prioritas dan Bobot}
 
@@ -527,38 +944,114 @@ Dari matriks ternormalisasi, vektor prioritas (\textit{Priority Vector}, PV) dih
     PV_i = \sum_{j=1}^{n} n_{ij}
 \end{equation}
 
+\noindent
+Dengan:
+
+\begin{tabular}{ll}
+$PV_i$ & = vektor prioritas untuk kriteria ke-$i$ \\
+$n_{ij}$ & = elemen ternormalisasi pada baris $i$ dan kolom $j$ \\
+$n$ & = jumlah total kriteria yang dibandingkan \\
+$j$ & = indeks kolom ($j = 1, 2, \ldots, n$)
+\end{tabular}
+
+\noindent
 Selanjutnya, bobot akhir setiap kriteria diperoleh dengan menormalisasi vektor prioritas:
 
 \begin{equation}
     w_i = \frac{PV_i}{n}
 \end{equation}
 
-\noindent dimana $n$ adalah jumlah total kriteria yang dibandingkan. Bobot $w_i$ merepresentasikan tingkat kepentingan relatif dari kriteria $i$ terhadap keseluruhan kriteria, dan memenuhi kondisi:
+\noindent
+Dengan:
+
+\begin{tabular}{ll}
+$w_i$ & = bobot akhir untuk kriteria ke-$i$ \\
+$PV_i$ & = vektor prioritas untuk kriteria ke-$i$ \\
+$n$ & = jumlah total kriteria yang dibandingkan
+\end{tabular}
+
+\noindent
+Bobot $w_i$ merepresentasikan tingkat kepentingan relatif dari kriteria $i$ terhadap keseluruhan kriteria, dan memenuhi kondisi:
 
 \begin{equation}
     \sum_{i=1}^{n} w_i = 1
 \end{equation}
 
+\noindent
+Dengan:
+
+\begin{tabular}{ll}
+$\sum_{i=1}^{n} w_i$ & = jumlah total bobot seluruh kriteria (harus sama dengan 1)
+\end{tabular}
+
 \paragraph{4. Uji Konsistensi}
 
-Untuk memastikan bahwa perbandingan yang dilakukan konsisten dan dapat diandalkan, AHP menggunakan pengujian konsistensi. Pertama, hitung nilai eigen maksimum:
+Untuk memastikan bahwa perbandingan yang dilakukan konsisten dan dapat diandalkan, AHP menggunakan pengujian konsistensi. Pertama, hitung vektor konsistensi (\textit{Consistency Vector}) dengan mengalikan matriks perbandingan $\mathbf{A}$ dengan vektor bobot $\mathbf{w}$:
 
 \begin{equation}
-    \lambda_{max} = \sum_{i=1}^{n} T_i \cdot w_i
+    CV_i = \sum_{j=1}^{n} a_{ij} \cdot w_j
 \end{equation}
 
-Kemudian, hitung \textit{Consistency Index} (CI):
+\noindent
+Dengan:
+
+\begin{tabular}{ll}
+$CV_i$ & = elemen ke-$i$ dari vektor konsistensi \\
+$a_{ij}$ & = elemen matriks perbandingan pada baris $i$ dan kolom $j$ \\
+$w_j$ & = bobot untuk kriteria ke-$j$ \\
+$n$ & = jumlah kriteria yang dibandingkan
+\end{tabular}
+
+\noindent
+Kemudian, hitung nilai eigen maksimum ($\lambda_{max}$) sebagai rata-rata dari rasio antara vektor konsistensi dengan bobot:
+
+\begin{equation}
+    \lambda_{max} = \frac{1}{n} \sum_{i=1}^{n} \frac{CV_i}{w_i}
+\end{equation}
+
+\noindent
+Dengan:
+
+\begin{tabular}{ll}
+$\lambda_{max}$ & = nilai eigen maksimum dari matriks perbandingan \\
+$CV_i$ & = elemen ke-$i$ dari vektor konsistensi \\
+$w_i$ & = bobot untuk kriteria ke-$i$ \\
+$n$ & = jumlah kriteria yang dibandingkan
+\end{tabular}
+
+\noindent
+Selanjutnya, hitung \textit{Consistency Index} (CI):
 
 \begin{equation}
     CI = \frac{\lambda_{max} - n}{n - 1}
 \end{equation}
 
-Selanjutnya, hitung \textit{Consistency Ratio} (CR) dengan membandingkan CI terhadap \textit{Random Consistency Index} (RI):
+\noindent
+Dengan:
+
+\begin{tabular}{ll}
+$CI$ & = Consistency Index (indeks konsistensi) \\
+$\lambda_{max}$ & = nilai eigen maksimum \\
+$n$ & = jumlah kriteria yang dibandingkan
+\end{tabular}
+
+\noindent
+Kemudian, hitung \textit{Consistency Ratio} (CR) dengan membandingkan CI terhadap \textit{Random Consistency Index} (RI):
 
 \begin{equation}
     CR = \frac{CI}{RI}
 \end{equation}
 
+\noindent
+Dengan:
+
+\begin{tabular}{ll}
+$CR$ & = Consistency Ratio (rasio konsistensi) \\
+$CI$ & = Consistency Index \\
+$RI$ & = Random Consistency Index (indeks konsistensi acak)
+\end{tabular}
+
+\noindent
 Nilai RI bergantung pada jumlah kriteria yang dibandingkan, seperti ditunjukkan pada Tabel \ref{tab:random_index}.
 
 \begin{table}[H]
@@ -569,7 +1062,7 @@ Nilai RI bergantung pada jumlah kriteria yang dibandingkan, seperti ditunjukkan 
 \hline
 \textbf{n} & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 \\
 \hline
-\textbf{RI} & 0 & 0 & 0.58 & 0.90 & 1.12 & 1.24 & 1.32 & 1.41 & 1.45 \\
+\textbf{RI} & 0 & 0 & 0,58 & 0,90 & 1,12 & 1,24 & 1,32 & 1,41 & 1,45 \\
 \hline
 \end{tabular}
 \end{table}
@@ -577,49 +1070,194 @@ Nilai RI bergantung pada jumlah kriteria yang dibandingkan, seperti ditunjukkan 
 Matriks perbandingan dinyatakan konsisten jika:
 
 \begin{equation}
-    CR \leq 0.1
+    CR \leq 0,1
 \end{equation}
 
-Jika $CR > 0.1$, maka penilaian perbandingan perlu direvisi karena mengandung inkonsistensi yang signifikan.
+\noindent
+Dengan:
+
+\begin{tabular}{ll}
+$0,1$ & = batas maksimum rasio konsistensi yang dapat diterima
+\end{tabular}
+
+\noindent
+Jika $CR > 0,1$, maka penilaian perbandingan perlu direvisi karena mengandung inkonsistensi yang signifikan.
+
+\paragraph{5. Contoh Perhitungan Numerik}
+
+Untuk memberikan ilustrasi konkret, berikut disajikan contoh perhitungan AHP untuk tiga kriteria edge: Optical Link Quality (O), Error Rate (E), dan Packet Loss (P).
+
+\textbf{Langkah 1: Matriks Perbandingan Berpasangan}
+
+Berdasarkan penilaian pakar:
+
+\begin{equation}
+    \mathbf{A} = \begin{bmatrix}
+        1 & 3 & 2 \\
+        1/3 & 1 & 1/2 \\
+        1/2 & 2 & 1
+    \end{bmatrix}
+\end{equation}
+
+\textbf{Langkah 2: Normalisasi Matriks}
+
+Hitung total kolom:
+\begin{equation}
+    T_1 = 1 + \frac{1}{3} + \frac{1}{2} = 1,833; \quad T_2 = 3 + 1 + 2 = 6; \quad T_3 = 2 + \frac{1}{2} + 1 = 3,5
+\end{equation}
+
+Matriks ternormalisasi:
+\begin{equation}
+    \mathbf{N} = \begin{bmatrix}
+        0,545 & 0,500 & 0,571 \\
+        0,182 & 0,167 & 0,143 \\
+        0,273 & 0,333 & 0,286
+    \end{bmatrix}
+\end{equation}
+
+\textbf{Langkah 3: Vektor Prioritas dan Bobot}
+
+\begin{align}
+    PV_1 &= 0,545 + 0,500 + 0,571 = 1,616 \quad \Rightarrow \quad w_1 = \frac{1,616}{3} = 0,539 \\
+    PV_2 &= 0,182 + 0,167 + 0,143 = 0,492 \quad \Rightarrow \quad w_2 = \frac{0,492}{3} = 0,164 \\
+    PV_3 &= 0,273 + 0,333 + 0,286 = 0,892 \quad \Rightarrow \quad w_3 = \frac{0,892}{3} = 0,297
+\end{align}
+
+Vektor bobot: $\mathbf{w} = [0,539; \; 0,164; \; 0,297]^T$
+
+\textbf{Langkah 4: Uji Konsistensi}
+
+Hitung vektor konsistensi:
+\begin{align}
+    CV_1 &= 1(0,539) + 3(0,164) + 2(0,297) = 1,625 \\
+    CV_2 &= \frac{1}{3}(0,539) + 1(0,164) + \frac{1}{2}(0,297) = 0,493 \\
+    CV_3 &= \frac{1}{2}(0,539) + 2(0,164) + 1(0,297) = 0,894
+\end{align}
+
+Hitung $\lambda_{max}$:
+\begin{equation}
+    \lambda_{max} = \frac{1}{3}\left(\frac{1,625}{0,539} + \frac{0,493}{0,164} + \frac{0,894}{0,297}\right) = \frac{1}{3}(3,015 + 3,006 + 3,010) = 3,010
+\end{equation}
+
+Hitung CI:
+\begin{equation}
+    CI = \frac{3,010 - 3}{3 - 1} = \frac{0,010}{2} = 0,005
+\end{equation}
+
+Hitung CR dengan $RI = 0,58$ untuk $n=3$:
+\begin{equation}
+    CR = \frac{0,005}{0,58} = 0,009 < 0,1 \quad \text{(Konsisten)}
+\end{equation}
+
+Karena $CR = 0,009 < 0,1$, maka matriks perbandingan konsisten dan bobot dapat digunakan.
 
 \subsubsection{Integrasi AHP dengan GAT}
 
-Dalam penelitian ini, AHP diintegrasikan dengan GAT untuk menghasilkan sistem Traffic Engineering yang cerdas dan selaras dengan kebijakan operasional. Skor yang dihasilkan oleh AHP digunakan sebagai label target dalam proses pelatihan model GAT.
+Dalam penelitian ini, AHP diintegrasikan dengan GAT melalui mekanisme \textit{Feature Weighting}. Bobot kriteria hasil AHP digunakan sebagai koefisien pengali dalam perhitungan skor kualitas jalur pada dataset pelatihan.
 
-Secara matematis, skor kualitas jalur dapat diformulasikan sebagai:
+\paragraph{Perhitungan Skor Kualitas Node dan Edge}
+
+Skor kualitas untuk setiap node dan edge dihitung menggunakan weighted sum dari parameter-parameter yang telah dinormalisasi:
 
 \begin{equation}
-    Q_{path} = \sum_{i=1}^{n_{node}} w_i^{node} \cdot f_i(\text{node}) + \sum_{j=1}^{n_{edge}} w_j^{edge} \cdot g_j(\text{edge})
+    Q_{node}(v) = \sum_{k=1}^{6} w_k^{node} \cdot s_k(v)
 \end{equation}
 
-\noindent\textbf{Keterangan:}
-\begin{itemize}
-    \item $Q_{path}$ : Skor kualitas total sebuah jalur (semakin tinggi semakin baik)
-    \item $w_i^{node}$ : Bobot prioritas untuk parameter node ke-$i$ (hasil perhitungan AHP)
-    \item $w_j^{edge}$ : Bobot prioritas untuk parameter edge ke-$j$ (hasil perhitungan AHP)
-    \item $f_i(\text{node})$ : Nilai atribut perangkat ke-$i$ (misalnya: sisa kapasitas CPU dalam \%)
-    \item $g_j(\text{edge})$ : Nilai atribut koneksi ke-$j$ (misalnya: optical signal quality atau bandwidth tersedia)
-    \item $n_{node}$ : Jumlah parameter node yang dipertimbangkan (dalam penelitian ini: 5 kriteria)
-    \item $n_{edge}$ : Jumlah parameter edge yang dipertimbangkan (dalam penelitian ini: 7 kriteria)
-\end{itemize}
+\noindent
+Dengan:
 
-Formula agregasi ini mengadopsi pendekatan weighted composite scoring yang umum digunakan dalam multi-criteria decision making untuk network path selection \cite{weighted_composite_routing, qos_composite_metric, madm_heuristic_routing}. Setiap komponen dinormalisasi dan dikalikan dengan bobot yang ditentukan melalui AHP, menghasilkan skor holistik yang mencerminkan kualitas keseluruhan node dan edge \cite{routing_multiple_optimality, rpso_link_quality}.
+\begin{tabular}{ll}
+$Q_{node}(v)$ & = skor kualitas node $v$ \\
+$w_k^{node}$ & = bobot AHP untuk parameter node ke-$k$ \\
+$s_k(v)$ & = skor ternormalisasi parameter ke-$k$ pada node $v$ \\
+$5$ & = jumlah parameter node (CPU, RAM, Traffic, Utilization, Status)
+\end{tabular}
 
-Alur kerja integrasi AHP-GAT dapat dijelaskan sebagai berikut:
+\begin{equation}
+    Q_{edge}(e) = \sum_{k=1}^{7} w_k^{edge} \cdot s_k(e)
+\end{equation}
+
+\noindent
+Dengan:
+
+\begin{tabular}{ll}
+$Q_{edge}(e)$ & = skor kualitas edge $e$ \\
+$w_k^{edge}$ & = bobot AHP untuk parameter edge ke-$k$ \\
+$s_k(e)$ & = skor ternormalisasi parameter ke-$k$ pada edge $e$ \\
+$7$ & = jumlah parameter edge
+\end{tabular}
+
+\paragraph{Perhitungan Skor Kualitas Jalur}
+
+Secara matematis, skor kualitas jalur ($Q_{path}$) dihitung menggunakan pendekatan \textit{Weighted Average} yang dimodifikasi dengan penalti jarak (\textit{hop penalty}):
+
+\begin{equation}
+    Q_{path} = \left( \frac{\sum_{v \in P} Q_{node}(v) + \sum_{e \in P} Q_{edge}(e)}{|P|_{components}} \right) \times (1 - \text{Penalty}_{hop})
+\end{equation}
+
+\noindent
+Dengan:
+
+\begin{tabular}{ll}
+$Q_{path}$ & = skor kualitas jalur secara keseluruhan \\
+$P$ & = jalur (path) yang terdiri dari kumpulan node dan edge \\
+$v$ & = node dalam jalur $P$ \\
+$e$ & = edge dalam jalur $P$ \\
+$Q_{node}(v)$ & = skor kualitas node $v$ (sudah dikalikan bobot AHP) \\
+$Q_{edge}(e)$ & = skor kualitas edge $e$ (sudah dikalikan bobot AHP) \\
+$|P|_{components}$ & = jumlah total komponen (node + edge) dalam jalur $P$ \\
+$\text{Penalty}_{hop}$ & = penalti berdasarkan jumlah hop (lompatan) dalam jalur
+\end{tabular}
+
+\noindent
+Penalti hop didefinisikan sebagai:
+
+\begin{equation}
+    \text{Penalty}_{hop} = \alpha \cdot \frac{h}{h_{max}}
+\end{equation}
+
+\noindent
+Dengan:
+
+\begin{tabular}{ll}
+$\alpha$ & = koefisien penalti (nilai empiris, umumnya $0{,}1 \leq \alpha \leq 0{,}3$) \\
+$h$ & = jumlah hop dalam jalur $P$ \\
+$h_{max}$ & = jumlah hop maksimum yang mungkin dalam topologi jaringan
+\end{tabular}
+
+\noindent
+Pendekatan ini memastikan jalur yang lebih pendek dengan kualitas link yang setara akan mendapatkan skor lebih tinggi, merepresentasikan efisiensi routing yang diinginkan \cite{routing_multiple_optimality}.
+
+\paragraph{Alur Kerja Integrasi AHP-GAT}
+
+Alur kerja integrasi AHP-GAT adalah sebagai berikut:
 
 \begin{enumerate}
-    \item \textbf{Tahap Pra-komputasi AHP}: Administrator jaringan atau pakar melakukan penilaian perbandingan berpasangan untuk menentukan tingkat kepentingan relatif dari setiap parameter jaringan (CPU, RAM, optical quality, error rate, bandwidth, dll.). Hasil perhitungan AHP menghasilkan vektor bobot $\mathbf{w}$.
+    \item \textbf{Ekstraksi Bobot AHP}: Menghasilkan vektor bobot $\mathbf{w}_{node}$ dan $\mathbf{w}_{edge}$ dari penilaian pakar melalui proses perbandingan berpasangan.
 
-    \item \textbf{Pemberian Label}: Untuk setiap jalur yang mungkin dalam topologi jaringan, skor kualitas $Q_{path}$ dihitung menggunakan formula di atas berdasarkan kondisi jaringan aktual dan bobot AHP. Skor ini menjadi ground truth label untuk pelatihan.
+    \item \textbf{Rule-Based Labeling}: Sistem menghitung skor $Q_{path}$ untuk setiap jalur dalam dataset menggunakan bobot AHP dan aturan penalti hop sesuai Persamaan (19)-(21). Ini menciptakan \textit{Ground Truth} sintetis yang merepresentasikan preferensi pakar.
 
-    \item \textbf{Pelatihan GAT}: Model GAT dilatih untuk memprediksi skor kualitas jalur berdasarkan fitur-fitur node dan edge. Fungsi loss yang digunakan adalah:
-    \begin{equation}
-        \mathcal{L} = \frac{1}{N_{paths}} \sum_{p=1}^{N_{paths}} (Q_{path}^{pred} - Q_{path}^{AHP})^2
-    \end{equation}
-    dimana $Q_{path}^{pred}$ adalah prediksi model GAT dan $Q_{path}^{AHP}$ adalah label dari perhitungan AHP.
+    \item \textbf{Supervised Learning}: Model GAT dilatih untuk memprediksi skor $Q_{path}$ tersebut. Fungsi loss yang digunakan adalah Mean Squared Error (MSE):
+        \begin{equation}
+            \mathcal{L} = \frac{1}{N} \sum_{i=1}^{N} \left(Q_{pred}^{(i)} - Q_{target}^{(i)}\right)^2
+        \end{equation}
 
-    \item \textbf{Inferensi Real-time}: Setelah model terlatih, GAT dapat memprediksi kualitas jalur secara real-time tanpa perlu menghitung ulang bobot AHP, karena pengetahuan pakar telah terinternalisasi dalam parameter model.
+        \noindent
+        Dengan:
+
+        \begin{tabular}{ll}
+        $\mathcal{L}$ & = fungsi loss (kesalahan prediksi) \\
+        $N$ & = jumlah sampel jalur dalam dataset pelatihan \\
+        $Q_{pred}^{(i)}$ & = skor kualitas jalur ke-$i$ yang diprediksi oleh model GAT \\
+        $Q_{target}^{(i)}$ & = skor target (ground truth) jalur ke-$i$ \\
+        $i$ & = indeks jalur ($i = 1, 2, \ldots, N$)
+        \end{tabular}
+
+    \item \textbf{Optimisasi Model}: Model GAT mempelajari pola non-linear dan interaksi kompleks antar node dalam graf jaringan untuk memprediksi kualitas jalur yang selaras dengan preferensi pakar yang telah dikuantifikasi melalui AHP.
 \end{enumerate}
+
+\noindent
+Dengan pendekatan ini, model GAT tidak hanya belajar dari data historis, tetapi juga mewarisi pengetahuan domain dari pakar jaringan yang telah dikodifikasi melalui metode AHP. Hal ini memungkinkan model untuk membuat keputusan routing yang lebih interpretable dan aligned dengan kebijakan operasional perusahaan.
 
 \section{Penelitian Terkait}
 
@@ -673,62 +1311,109 @@ Visualisasi kerangka pemikiran penelitian ditunjukkan pada Gambar \ref{fig:keran
     \centering
     \resizebox{\textwidth}{!}{%
     \begin{tikzpicture}[
-        node distance=0.5cm,
-        box/.style={draw, rounded corners, minimum width=3cm, minimum height=1cm, align=center, font=\small},
-        groupbox/.style={draw, rounded corners, inner sep=0.3cm, align=center},
-        arrow/.style={->, thick, >=stealth}
+        node distance=0.6cm and 0.8cm, % Jarak Vertikal dan Horizontal
+        box/.style={
+            rectangle,
+            draw=black!70,
+            rounded corners,
+            minimum width=3.5cm,
+            minimum height=1cm,
+            align=center,
+            font=\small,
+            fill=white,
+            drop shadow % Opsional: memberi efek bayangan agar lebih pop-up
+        },
+        header/.style={
+            font=\bfseries\large,
+            align=center
+        },
+        groupbox/.style={
+            draw=black!50,
+            rounded corners,
+            dashed,
+            inner sep=0.4cm,
+            align=center
+        },
+        arrow/.style={
+            ->,
+            thick,
+            >=stealth,
+            color=black!80
+        }
     ]
 
     % --- COLUMN 1: INDICATORS ---
-    \node[font=\bfseries] (ind_title) {INDICATORS};
+    \node[header] (ind_title) {INDICATORS};
 
-    \node[box, below=0.5cm of ind_title, fill=white] (cpu) {CPU \& RAM\\Usage};
-    \node[box, below=0.3cm of cpu, fill=white] (traf) {Traffic \&\\Utilization};
-    \node[box, below=0.3cm of traf, fill=white] (link) {Optical Quality\\Error Rate};
-    \node[box, below=0.3cm of link, fill=white] (bw) {Bandwidth\\Availability};
-    \node[box, below=0.3cm of bw, fill=white] (dist) {Distance \&\\Status};
+    \node[box, below=0.5cm of ind_title] (cpu) {CPU \& RAM\\Usage};
+    \node[box, below=of cpu] (traf) {Traffic \&\\Utilization};
+    \node[box, below=of traf] (link) {Optical Quality\\Error Rate};
+    \node[box, below=of link] (bw) {Bandwidth\\Availability};
+    \node[box, below=of bw] (dist) {Distance \&\\Status};
 
     % Frame for Indicators
-    \node[groupbox, fit=(cpu)(dist), label=below:\textit{Observed Variables}] (ind_group) {};
+    \node[groupbox, fit=(cpu)(dist), label={[anchor=north]below:\textit{Observed Variables}}] (ind_group) {};
 
     % --- COLUMN 2: PROPOSED METHOD ---
-    \node[font=\bfseries, right=1.5cm of ind_title] (met_title) {PROPOSED METHOD};
+    \node[header, right=2cm of ind_title] (met_title) {PROPOSED METHOD};
 
-    \node[box, below=0.5cm of met_title, fill=gray!10, minimum width=4cm] (data) {Dataset Generation\\(Topology \& Metrics)};
-    \node[box, below=0.8cm of data, fill=gray!10, minimum width=4cm] (ahp) {\textbf{Weighting Strategy}\\Analytic Hierarchy Process\\(AHP)};
-    \node[box, below=0.8cm of ahp, fill=gray!20, minimum width=4cm, minimum height=1.5cm] (gat) {\textbf{Learning Algorithm}\\Graph Attention Network\\(Multi-Head Attention)};
-    \node[box, below=0.8cm of gat, fill=gray!10, minimum width=4cm] (pred) {Path Quality\\Predictor};
+    % 1. Data Generation
+    \node[box, below=0.5cm of met_title, fill=gray!10] (data) {Dataset Generation\\(Topology \& Metrics)};
 
+    % 2. AHP
+    \node[box, below=of data, fill=gray!10] (ahp) {\textbf{Weighting Strategy}\\Analytic Hierarchy Process\\(AHP)};
+
+    % 3. Labeling (Rule Based) - Bagian Baru
+    \node[box, below=of ahp, dashed, fill=yellow!10] (labeling) {\textbf{Label Generation}\\Rule-Based Scoring\\(Weighted Sum + Penalty)};
+
+    % 4. GAT (Learning) - POSISI DIPERBAIKI (Di bawah Labeling)
+    \node[box, below=of labeling, fill=blue!10, minimum height=1.5cm] (gat) {\textbf{Learning Algorithm}\\Graph Attention Network\\(Multi-Head Attention)};
+
+    % 5. Predictor
+    \node[box, below=of gat, fill=gray!10] (pred) {Path Quality\\Predictor};
+
+    % Frame for Method
     \node[groupbox, fit=(data)(pred)] (met_group) {};
 
     % --- COLUMN 3: OBJECTIVES ---
-    \node[font=\bfseries, right=1cm of met_title] (obj_title) {OBJECTIVES};
+    \node[header, right=1.5cm of met_title] (obj_title) {OBJECTIVES};
 
-    \node[circle, draw, align=center, minimum size=2.5cm, below=2cm of obj_title] (obj1) {High Accuracy\\Model};
-    \node[circle, draw, align=center, minimum size=2.5cm, below=0.5cm of obj1] (obj2) {Optimal Path\\Recommendation};
+    % Menyelaraskan posisi vertikal objectives dengan bagian tengah Method
+    \node[circle, draw, align=center, minimum size=2.8cm, fill=white, drop shadow, right=1.5cm of labeling, yshift=1cm] (obj1) {High Accuracy\\Model};
+
+    \node[circle, draw, align=center, minimum size=2.8cm, fill=white, drop shadow, below=0.5cm of obj1] (obj2) {Optimal Path\\Recommendation};
 
     % --- COLUMN 4: MEASUREMENT ---
-    \node[font=\bfseries, right=1cm of obj_title] (meas_title) {MEASUREMENT};
+    \node[header, right=1.5cm of obj_title] (meas_title) {MEASUREMENT};
 
-    \node[box, below=2cm of meas_title] (rmse) {Root Mean\\Square Error (RMSE)};
-    \node[box, below=0.5cm of rmse] (acc) {Model\\Accuracy};
-    \node[box, below=0.5cm of acc] (time) {Inference Time};
+    \node[box, below=1.5cm of meas_title] (rmse) {Root Mean\\Square Error (RMSE)};
+    \node[box, below=of rmse] (acc) {Model\\Accuracy};
+    \node[box, below=of acc] (time) {Inference Time};
 
-    \node[groupbox, fit=(rmse)(time), label=below:\textit{Observed Results}] (meas_group) {};
+    % Frame for Measurement
+    \node[groupbox, fit=(rmse)(time), label={[anchor=north]below:\textit{Observed Results}}] (meas_group) {};
 
-    % --- ARROWS ---
+    % --- ARROWS (ALUR) ---
+    % Indikator ke Metode
     \draw[arrow, dashed] (ind_group.east) -- (met_group.west);
+
+    % Alur Internal Metode
     \draw[arrow] (data) -- (ahp);
-    \draw[arrow] (ahp) -- (gat);
+    \draw[arrow] (ahp) -- (labeling);    % AHP ke Labeling
+    \draw[arrow] (labeling) -- (gat);    % Labeling ke GAT
     \draw[arrow] (gat) -- (pred);
+
+    % Metode ke Objectives
     \draw[arrow] (met_group.east) -- (obj1.west);
     \draw[arrow] (met_group.east) -- (obj2.west);
+
+    % Objectives ke Measurement
     \draw[arrow] (obj1.east) -- (rmse.west);
     \draw[arrow] (obj1.east) -- (acc.west);
     \draw[arrow] (obj2.east) -- (time.west);
 
     \end{tikzpicture}%
     }
-    \caption{Kerangka Pemikiran GAT berbasis AHP}
+    \caption{Kerangka Pemikiran Sistem Rekomendasi Jalur (GAT-AHP)}
     \label{fig:kerangka_pemikiran}
 \end{figure}
