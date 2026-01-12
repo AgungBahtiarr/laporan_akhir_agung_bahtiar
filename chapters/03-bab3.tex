@@ -126,6 +126,7 @@ Sistem Laros Watch beroperasi melalui alur kerja yang terintegrasi antara kompon
     \caption{Diagram Alur Kerja Sistem Laros Watch}
     \label{fig:system_workflow}
 \end{figure}
+
 Proses dimulai dengan tahap data collection dimana backend service melakukan polling SNMP ke seluruh perangkat jaringan secara periodik dengan interval 1 menit. Data yang dikumpulkan mencakup metrik node seperti CPU usage, RAM usage, total traffic in/out, interface utilization, dan operational status, serta metrik edge seperti link quality, bandwidth utilization bidirectional, interface speed, distance, dan link status. Selain itu, dikumpulkan juga konfigurasi VLAN meliputi VLAN membership, tagged/untagged ports, dan topologi logical.
 
 Seluruh data hasil polling disimpan ke database PostgreSQL dengan struktur time-series yang dioptimasi untuk query performa historis. Database ini berfungsi sebagai historical repository untuk menyimpan riwayat performa jaringan, real-time cache untuk menyediakan akses cepat ke data terkini, dan training data source untuk re-training model secara berkala.
@@ -164,10 +165,8 @@ Berdasarkan hasil analisis masalah dan studi literatur, dirancang arsitektur sis
 \subsubsection{Perancangan Fungsional Sistem (Use Case Diagram)}
 Perancangan fungsionalitas sistem dimodelkan menggunakan \textit{Use Case Diagram} untuk mendefinisikan interaksi antara pengguna dan sistem Laros Watch. Rancangan ini mencakup definisi aktor yang terlibat serta alur proses utama, mulai dari mekanisme \textit{polling} data, manajemen perangkat, hingga visualisasi hasil prediksi anomali. Diagram ini menjadi acuan utama dalam penentuan kebutuhan API \textit{endpoints} untuk komunikasi antar \textit{service}. Visualisasi perancangan fungsional sistem dapat dilihat pada Gambar \ref{fig:usecase_diagram}.
 
-\begin{figure}[htbp]
+\begin{figure}[H]
     \centering
-    % Ganti 'nama_file_usecase.png' dengan nama file gambar Anda yang sebenarnya
-    % Pastikan file gambar berada dalam folder yang benar
     \includegraphics[width=0.8\textwidth]{images/usecase_watch.png}
     \caption{Use Case Diagram Laros Watch}
     \label{fig:usecase_diagram}
@@ -176,18 +175,392 @@ Perancangan fungsionalitas sistem dimodelkan menggunakan \textit{Use Case Diagra
 \subsubsection{Perancangan Basis Data (Entity Relationship Diagram)}
 Untuk mendukung kebutuhan penyimpanan data yang efisien, dilakukan perancangan skema basis data yang direpresentasikan melalui \textit{Entity Relationship Diagram} (ERD). Perancangan ini berfokus pada struktur tabel untuk menyimpan metadata perangkat, relasi topologi, serta spesifikasi penyimpanan \textit{time-series data} hasil monitoring. Skema ini dirancang untuk memastikan integritas data dan kecepatan akses yang diperlukan oleh modul \textit{backend} dan \textit{ML Engine}. Struktur rancangan basis data ditunjukkan pada Gambar \ref{fig:erd_diagram}.
 
-\begin{figure}[htbp]
+\begin{figure}[H]
     \centering
-    % Ganti 'nama_file_erd.png' dengan nama file gambar Anda yang sebenarnya
-    % \includegraphics[width=0.8\textwidth]{images/erd_diagram.png}
+    \includegraphics[width=0.8\textwidth]{images/watch_erd.png}
     \caption{Entity Relationship Diagram (ERD) Sistem}
     \label{fig:erd_diagram}
 \end{figure}
 
+\subsubsection{Skenario Use Case}
+Berdasarkan identifikasi aktor dan fungsionalitas sistem, berikut adalah penjabaran skenario untuk setiap \textit{use case} yang terdapat dalam sistem Laros Watch.
+
+% --- TABEL 1: ADD NODES ---
+\begin{table}[H]
+    \centering
+    \caption{Skenario Use Case Add Nodes}
+    \label{tab:uc_add_nodes}
+    \renewcommand{\arraystretch}{1.3}
+    \begin{tabular}{|p{3.5cm}|p{10cm}|}
+        \hline
+        \textbf{Use Case Name} & Add Nodes \\ \hline
+        \textbf{Actor} & NOC \\ \hline
+        \textbf{Description} & Proses menambahkan perangkat (node) baru ke dalam sistem topologi jaringan dengan mengisi atribut detail perangkat. \\ \hline
+        \textbf{Normal Course} &
+        \begin{enumerate}[leftmargin=*, nosep, after=\vspace{-\baselineskip}]
+            \item NOC login dan membuka halaman ``Manage Nodes''.
+            \item NOC memilih opsi ``Add Node''.
+            \item Sistem menampilkan formulir penambahan node.
+            \item NOC mengisi detail node (Nama, IP Address, Lokasi, Tipe Perangkat).
+            \item NOC menekan tombol ``Simpan''.
+            \item Sistem memvalidasi data dan menyimpan node baru ke database.
+            \item Sistem menampilkan pesan sukses dan memperbarui daftar node.
+        \end{enumerate} \\ \hline
+        \textbf{Alternative Course} &
+        \begin{enumerate}[leftmargin=*, nosep, after=\vspace{-\baselineskip}]
+            \item Jika IP Address atau Nama Node sudah ada, sistem menampilkan pesan error ``Duplikasi Data''.
+            \item Jika data wajib kosong, sistem meminta NOC melengkapi form.
+        \end{enumerate} \\ \hline
+        \textbf{Pre-Condition} & NOC sudah login. Data perangkat (IP/Mac Address) sudah tersedia secara fisik. \\ \hline
+        \textbf{Post-Condition} & Berhasil: Node baru terbentuk dan muncul di peta/list. \newline Gagal: Node tidak tersimpan, form tetap terbuka. \\ \hline
+    \end{tabular}
+\end{table}
+
+% --- TABEL 2: EDIT NODES ---
+\begin{table}[H]
+    \centering
+    \caption{Skenario Use Case Edit Nodes}
+    \label{tab:uc_edit_nodes}
+    \renewcommand{\arraystretch}{1.3}
+    \begin{tabular}{|p{3.5cm}|p{10cm}|}
+        \hline
+        \textbf{Use Case Name} & Edit Nodes \\ \hline
+        \textbf{Actor} & NOC \\ \hline
+        \textbf{Description} & Proses memperbarui informasi pada node yang sudah ada (misal: perubahan nama, lokasi, atau IP). \\ \hline
+        \textbf{Normal Course} &
+        \begin{enumerate}[leftmargin=*, nosep, after=\vspace{-\baselineskip}]
+            \item NOC memilih node dari daftar atau peta di ``Manage Nodes''.
+            \item NOC menekan tombol ``Edit''.
+            \item Sistem menampilkan formulir dengan data lama.
+            \item NOC mengubah informasi yang diperlukan dan menekan ``Update''.
+            \item Sistem menyimpan perubahan ke database.
+        \end{enumerate} \\ \hline
+        \textbf{Alternative Course} &
+        \begin{enumerate}[leftmargin=*, nosep, after=\vspace{-\baselineskip}]
+            \item Jika NOC membatalkan proses, perubahan tidak disimpan dan kembali ke tampilan awal.
+        \end{enumerate} \\ \hline
+        \textbf{Pre-Condition} & Node yang akan diedit harus terdaftar aktif di sistem. \\ \hline
+        \textbf{Post-Condition} & Berhasil: Data node diperbarui. \newline Gagal: Data node tetap seperti semula. \\ \hline
+    \end{tabular}
+\end{table}
+
+% --- TABEL 3: DELETE NODES ---
+\begin{table}[H]
+    \centering
+    \caption{Skenario Use Case Delete Nodes}
+    \label{tab:uc_delete_nodes}
+    \renewcommand{\arraystretch}{1.3}
+    \begin{tabular}{|p{3.5cm}|p{10cm}|}
+        \hline
+        \textbf{Use Case Name} & Delete Nodes \\ \hline
+        \textbf{Actor} & NOC \\ \hline
+        \textbf{Description} & Proses menghapus node dari sistem topologi jaringan. \\ \hline
+        \textbf{Normal Course} &
+        \begin{enumerate}[leftmargin=*, nosep, after=\vspace{-\baselineskip}]
+            \item NOC memilih node yang akan dihapus.
+            \item NOC menekan tombol ``Delete''.
+            \item Sistem menampilkan konfirmasi penghapusan.
+            \item NOC menyetujui konfirmasi.
+            \item Sistem menghapus data node dan relasinya dari database.
+        \end{enumerate} \\ \hline
+        \textbf{Alternative Course} &
+        \begin{enumerate}[leftmargin=*, nosep, after=\vspace{-\baselineskip}]
+            \item Jika node masih memiliki koneksi aktif yang krusial, sistem menolak dan menampilkan pesan ``Hapus koneksi terlebih dahulu''.
+        \end{enumerate} \\ \hline
+        \textbf{Pre-Condition} & Node terdaftar di sistem. \\ \hline
+        \textbf{Post-Condition} & Berhasil: Node hilang dari daftar dan peta. \newline Gagal: Node masih ada di sistem. \\ \hline
+    \end{tabular}
+\end{table}
+
+% --- TABEL 4: VIEW NODES ---
+\begin{table}[H]
+    \centering
+    \caption{Skenario Use Case View Nodes}
+    \label{tab:uc_view_nodes}
+    \renewcommand{\arraystretch}{1.3}
+    \begin{tabular}{|p{3.5cm}|p{10cm}|}
+        \hline
+        \textbf{Use Case Name} & View Nodes \\ \hline
+        \textbf{Actor} & NOC, Support \\ \hline
+        \textbf{Description} & Melihat detail informasi dan status node tanpa melakukan perubahan data. \\ \hline
+        \textbf{Normal Course} &
+        \begin{enumerate}[leftmargin=*, nosep, after=\vspace{-\baselineskip}]
+            \item Aktor membuka menu ``Manage Nodes'' atau mengklik node di peta.
+            \item Sistem menampilkan detail node (Status Up/Down, IP, Spesifikasi).
+        \end{enumerate} \\ \hline
+        \textbf{Alternative Course} &
+        \begin{enumerate}[leftmargin=*, nosep, after=\vspace{-\baselineskip}]
+            \item Jika node sedang \textit{down}, sistem memberikan indikator visual (warna merah).
+        \end{enumerate} \\ \hline
+        \textbf{Pre-Condition} & Aktor memiliki hak akses ke sistem. \\ \hline
+        \textbf{Post-Condition} & Informasi node ditampilkan di layar. \\ \hline
+    \end{tabular}
+\end{table}
+
+% --- TABEL 5: MANAGE DOMAINS ---
+\begin{table}[H]
+    \centering
+    \caption{Skenario Use Case Manage Domains}
+    \label{tab:uc_manage_domains}
+    \renewcommand{\arraystretch}{1.3}
+    \begin{tabular}{|p{3.5cm}|p{10cm}|}
+        \hline
+        \textbf{Use Case Name} & Manage Domains \\ \hline
+        \textbf{Actor} & NOC \\ \hline
+        \textbf{Description} & Mengelola pengelompokan area jaringan atau domain routing (misal: OSPF Area, BGP AS). \\ \hline
+        \textbf{Normal Course} &
+        \begin{enumerate}[leftmargin=*, nosep, after=\vspace{-\baselineskip}]
+            \item NOC membuka menu ``Domains''.
+            \item NOC menambahkan atau mengedit parameter domain jaringan.
+            \item Sistem menyimpan konfigurasi domain.
+            \item Node yang terkait dikelompokkan sesuai domain baru.
+        \end{enumerate} \\ \hline
+        \textbf{Alternative Course} &
+        \begin{enumerate}[leftmargin=*, nosep, after=\vspace{-\baselineskip}]
+            \item Jika nama domain duplikat, sistem menampilkan error.
+        \end{enumerate} \\ \hline
+        \textbf{Pre-Condition} & NOC login dengan hak akses super admin. \\ \hline
+        \textbf{Post-Condition} & Struktur domain jaringan diperbarui. \\ \hline
+    \end{tabular}
+\end{table}
+
+% --- TABEL 6: MANAGE VLANS ---
+\begin{table}[H]
+    \centering
+    \caption{Skenario Use Case Manage VLANs}
+    \label{tab:uc_manage_vlans}
+    \renewcommand{\arraystretch}{1.3}
+    \begin{tabular}{|p{3.5cm}|p{10cm}|}
+        \hline
+        \textbf{Use Case Name} & Manage VLANs \\ \hline
+        \textbf{Actor} & NOC \\ \hline
+        \textbf{Description} & Membuat, mengubah, atau menghapus konfigurasi VLAN ID dan nama VLAN pada sistem. \\ \hline
+        \textbf{Normal Course} &
+        \begin{enumerate}[leftmargin=*, nosep, after=\vspace{-\baselineskip}]
+            \item NOC membuka menu ``VLAN Management''.
+            \item NOC memasukkan VLAN ID dan Nama VLAN baru.
+            \item Sistem memvalidasi ketersediaan ID.
+            \item Sistem menyimpan data VLAN ke database global.
+        \end{enumerate} \\ \hline
+        \textbf{Alternative Course} &
+        \begin{enumerate}[leftmargin=*, nosep, after=\vspace{-\baselineskip}]
+            \item Jika VLAN ID sudah terpakai, sistem menolak input.
+        \end{enumerate} \\ \hline
+        \textbf{Pre-Condition} & Database VLAN tersedia. \\ \hline
+        \textbf{Post-Condition} & Daftar VLAN diperbarui dan siap di-assign ke node/koneksi. \\ \hline
+    \end{tabular}
+\end{table}
+
+% --- TABEL 7: NETWORK MAP ---
+\begin{table}[H]
+    \centering
+    \caption{Skenario Use Case Network Map}
+    \label{tab:uc_network_map}
+    \renewcommand{\arraystretch}{1.3}
+    \begin{tabular}{|p{3.5cm}|p{10cm}|}
+        \hline
+        \textbf{Use Case Name} & Network Map \\ \hline
+        \textbf{Actor} & NOC, Support \\ \hline
+        \textbf{Description} & Menampilkan visualisasi topologi jaringan secara grafis beserta status koneksi antar node. \\ \hline
+        \textbf{Normal Course} &
+        \begin{enumerate}[leftmargin=*, nosep, after=\vspace{-\baselineskip}]
+            \item Aktor membuka halaman ``Network Map''.
+            \item Sistem memuat data node dan koneksi (\textit{edge}) dari database.
+            \item Sistem merender graf visualisasi di layar.
+            \item Aktor dapat melakukan \textit{zoom/pan} pada peta.
+        \end{enumerate} \\ \hline
+        \textbf{Alternative Course} &
+        \begin{enumerate}[leftmargin=*, nosep, after=\vspace{-\baselineskip}]
+            \item Jika data terlalu besar, sistem memuat dalam mode \textit{cluster} untuk performa.
+        \end{enumerate} \\ \hline
+        \textbf{Pre-Condition} & Data topologi (node \& edge) tidak kosong. \\ \hline
+        \textbf{Post-Condition} & Peta jaringan tampil visual. \\ \hline
+    \end{tabular}
+\end{table}
+
+% --- TABEL 8: MANAGE CONNECTIONS ---
+\begin{table}[H]
+    \centering
+    \caption{Skenario Use Case Manage Connections}
+    \label{tab:uc_manage_connections}
+    \renewcommand{\arraystretch}{1.3}
+    \begin{tabular}{|p{3.5cm}|p{10cm}|}
+        \hline
+        \textbf{Use Case Name} & Manage Connections \\ \hline
+        \textbf{Actor} & NOC \\ \hline
+        \textbf{Description} & Membuat atau menghapus link fisik/logikal antar dua node. \\ \hline
+        \textbf{Normal Course} &
+        \begin{enumerate}[leftmargin=*, nosep, after=\vspace{-\baselineskip}]
+            \item Pada Network Map, NOC memilih dua node (Source \& Target).
+            \item NOC memilih ``Create Connection''.
+            \item NOC mengisi atribut link (Bandwidth, Cost, Port).
+            \item Sistem menggambar garis penghubung di peta.
+        \end{enumerate} \\ \hline
+        \textbf{Alternative Course} &
+        \begin{enumerate}[leftmargin=*, nosep, after=\vspace{-\baselineskip}]
+            \item Jika koneksi sudah ada, sistem menawarkan mode ``Edit Link''.
+        \end{enumerate} \\ \hline
+        \textbf{Pre-Condition} & Kedua node sudah terdaftar. \\ \hline
+        \textbf{Post-Condition} & Link terbentuk antar node. \\ \hline
+    \end{tabular}
+\end{table}
+
+% --- TABEL 9: MANAGE WAYPOINTS ---
+\begin{table}[H]
+    \centering
+    \caption{Skenario Use Case Manage Waypoints}
+    \label{tab:uc_manage_waypoints}
+    \renewcommand{\arraystretch}{1.3}
+    \begin{tabular}{|p{3.5cm}|p{10cm}|}
+        \hline
+        \textbf{Use Case Name} & Manage Waypoints \\ \hline
+        \textbf{Actor} & NOC \\ \hline
+        \textbf{Description} & Mengatur titik belok (\textit{bending points}) pada garis koneksi di peta agar visualisasi tidak tumpang tindih. \\ \hline
+        \textbf{Normal Course} &
+        \begin{enumerate}[leftmargin=*, nosep, after=\vspace{-\baselineskip}]
+            \item NOC memilih garis koneksi di peta.
+            \item NOC menarik garis untuk membuat titik baru (\textit{waypoint}).
+            \item Sistem menyimpan koordinat \textit{waypoint} tersebut.
+            \item Garis koneksi melengkung sesuai \textit{waypoint}.
+        \end{enumerate} \\ \hline
+        \textbf{Alternative Course} &
+        \begin{enumerate}[leftmargin=*, nosep, after=\vspace{-\baselineskip}]
+            \item NOC mengklik ganda \textit{waypoint} untuk menghapusnya (garis kembali lurus).
+        \end{enumerate} \\ \hline
+        \textbf{Pre-Condition} & Koneksi sudah ada di peta. \\ \hline
+        \textbf{Post-Condition} & Tampilan visual jalur menjadi lebih rapi. \\ \hline
+    \end{tabular}
+\end{table}
+
+% --- TABEL 10: FIND FIBER CUT ---
+\begin{table}[H]
+    \centering
+    \caption{Skenario Use Case Find Fiber Cut}
+    \label{tab:uc_find_fiber_cut}
+    \renewcommand{\arraystretch}{1.3}
+    \begin{tabular}{|p{3.5cm}|p{10cm}|}
+        \hline
+        \textbf{Use Case Name} & Find Fiber Cut \\ \hline
+        \textbf{Actor} & NOC \\ \hline
+        \textbf{Description} & Fitur untuk mendeteksi lokasi putus kabel serat optik berdasarkan input data OTDR atau status port. \\ \hline
+        \textbf{Normal Course} &
+        \begin{enumerate}[leftmargin=*, nosep, after=\vspace{-\baselineskip}]
+            \item NOC mendeteksi link down.
+            \item NOC menjalankan fitur ``Find Fiber Cut'' pada link tersebut.
+            \item Sistem menganalisis jarak putus (jika terintegrasi OTDR) atau estimasi segmen.
+            \item Sistem menandai lokasi dugaan putus di peta (tanda silang).
+        \end{enumerate} \\ \hline
+        \textbf{Alternative Course} &
+        \begin{enumerate}[leftmargin=*, nosep, after=\vspace{-\baselineskip}]
+            \item Jika data tidak cukup, sistem menyarankan pengecekan manual.
+        \end{enumerate} \\ \hline
+        \textbf{Pre-Condition} & Link berstatus down/cut. \\ \hline
+        \textbf{Post-Condition} & Lokasi gangguan teridentifikasi di peta. \\ \hline
+    \end{tabular}
+\end{table}
+
+% --- TABEL 11: FIND RECOMMENDED PATHS ---
+\begin{table}[H]
+    \centering
+    \caption{Skenario Use Case Find Recommended Paths}
+    \label{tab:uc_find_paths}
+    \renewcommand{\arraystretch}{1.3}
+    \begin{tabular}{|p{3.5cm}|p{10cm}|}
+        \hline
+        \textbf{Use Case Name} & Find Recommended Paths \\ \hline
+        \textbf{Actor} & NOC (via Sistem) \\ \hline
+        \textbf{Description} & Sistem menghitung jalur alternatif terbaik (\textit{Traffic Engineering}) saat terjadi gangguan atau untuk optimasi. \\ \hline
+        \textbf{Normal Course} &
+        \begin{enumerate}[leftmargin=*, nosep, after=\vspace{-\baselineskip}]
+            \item Dipicu oleh ``Fiber Cut'' atau permintaan manual NOC.
+            \item Sistem menjalankan algoritma \textit{pathfinding} (misal: GAT/Dijkstra).
+            \item Sistem menampilkan daftar rekomendasi jalur (\textit{Primary} \& \textit{Backup}).
+        \end{enumerate} \\ \hline
+        \textbf{Alternative Course} &
+        \begin{enumerate}[leftmargin=*, nosep, after=\vspace{-\baselineskip}]
+            \item Jika tidak ada jalur tersedia, sistem menampilkan ``No Route Found''.
+        \end{enumerate} \\ \hline
+        \textbf{Pre-Condition} & Topologi jaringan terpetakan lengkap. \\ \hline
+        \textbf{Post-Condition} & Rekomendasi jalur ditampilkan. \\ \hline
+    \end{tabular}
+\end{table}
+
+% --- TABEL 12: VLAN ROUTES ---
+\begin{table}[H]
+    \centering
+    \caption{Skenario Use Case VLAN Routes}
+    \label{tab:uc_vlan_routes}
+    \renewcommand{\arraystretch}{1.3}
+    \begin{tabular}{|p{3.5cm}|p{10cm}|}
+        \hline
+        \textbf{Use Case Name} & VLAN Routes \\ \hline
+        \textbf{Actor} & NOC \\ \hline
+        \textbf{Description} & Memvisualisasikan jalur spesifik yang dilalui oleh VLAN tertentu di atas topologi fisik. \\ \hline
+        \textbf{Normal Course} &
+        \begin{enumerate}[leftmargin=*, nosep, after=\vspace{-\baselineskip}]
+            \item NOC memilih satu ID VLAN dari daftar.
+            \item Sistem menyorot (\textit{highlight}) link dan node yang dilewati VLAN tersebut di peta.
+            \item Link lain diredupkan (\textit{dimmed}).
+        \end{enumerate} \\ \hline
+        \textbf{Alternative Course} & - \\ \hline
+        \textbf{Pre-Condition} & VLAN sudah dikonfigurasi pada koneksi. \\ \hline
+        \textbf{Post-Condition} & Visualisasi jalur logikal VLAN terlihat. \\ \hline
+    \end{tabular}
+\end{table}
+
+% --- TABEL 13: BOT MONITORING ---
+\begin{table}[H]
+    \centering
+    \caption{Skenario Use Case Bot Monitoring}
+    \label{tab:uc_bot_monitoring}
+    \renewcommand{\arraystretch}{1.3}
+    \begin{tabular}{|p{3.5cm}|p{10cm}|}
+        \hline
+        \textbf{Use Case Name} & Bot Monitoring \\ \hline
+        \textbf{Actor} & NOC \\ \hline
+        \textbf{Description} & Mengelola bot otomatis yang melakukan \textit{polling} status perangkat dan mengirim notifikasi. \\ \hline
+        \textbf{Normal Course} &
+        \begin{enumerate}[leftmargin=*, nosep, after=\vspace{-\baselineskip}]
+            \item NOC mengonfigurasi parameter bot (interval ping, threshold alert).
+            \item Bot berjalan di \textit{background} memonitor node.
+            \item Jika ada node down, Bot mengirim notifikasi ke dashboard/Telegram NOC.
+        \end{enumerate} \\ \hline
+        \textbf{Alternative Course} &
+        \begin{enumerate}[leftmargin=*, nosep, after=\vspace{-\baselineskip}]
+            \item NOC mematikan bot untuk \textit{maintenance window}.
+        \end{enumerate} \\ \hline
+        \textbf{Pre-Condition} & Sistem monitoring backend aktif. \\ \hline
+        \textbf{Post-Condition} & Notifikasi terkirim jika ada \textit{event}. \\ \hline
+    \end{tabular}
+\end{table}
+
+% --- TABEL 14: EXPORT GRAPH DATA ---
+\begin{table}[H]
+    \centering
+    \caption{Skenario Use Case Export Graph Data}
+    \label{tab:uc_export_graph}
+    \renewcommand{\arraystretch}{1.3}
+    \begin{tabular}{|p{3.5cm}|p{10cm}|}
+        \hline
+        \textbf{Use Case Name} & Export Graph Data \\ \hline
+        \textbf{Actor} & NOC \\ \hline
+        \textbf{Description} & Mengunduh data topologi dan statistik jaringan dalam format file (CSV, JSON, PDF). \\ \hline
+        \textbf{Normal Course} &
+        \begin{enumerate}[leftmargin=*, nosep, after=\vspace{-\baselineskip}]
+            \item NOC menekan tombol ``Export Data''.
+            \item NOC memilih format file yang diinginkan.
+            \item Sistem mengompilasi data saat ini.
+            \item Sistem mengirimkan file untuk diunduh oleh browser.
+        \end{enumerate} \\ \hline
+        \textbf{Alternative Course} & - \\ \hline
+        \textbf{Pre-Condition} & Data tersedia untuk diekspor. \\ \hline
+        \textbf{Post-Condition} & File tersimpan di perangkat lokal NOC. \\ \hline
+    \end{tabular}
+\end{table}
+
 \subsection{Implementasi Backend dan Data Collection}
 
 Tahap ini diawali dengan pengembangan \textit{core backend system} menggunakan Bun dan Hono framework. Fokus utama pada fase awal adalah implementasi SNMP \textit{polling service} dengan dukungan multi-vendor untuk perangkat Juniper, Huawei, dan MikroTik, serta pengembangan \textit{device discovery mechanism} yang memungkinkan identifikasi perangkat baru secara otomatis dalam jaringan.
-
 
 \subsection{Pengumpulan dan Preprocessing Data}
 
@@ -217,7 +590,7 @@ Data kualitatif diperoleh melalui kuesioner AHP yang diisi oleh network engineer
 
 Pengumpulan data SNMP dimulai dengan konfigurasi SNMP agent pada setiap perangkat jaringan menggunakan SNMP v2c atau v3 dengan community string yang aman. Akses dibatasi hanya untuk IP address sistem monitoring untuk menjaga keamanan. Sistem melakukan auto-discovery perangkat menggunakan kombinasi teknik ping sweep pada subnet yang telah ditentukan, SNMP walk untuk mengidentifikasi perangkat yang merespon, MAC address table parsing untuk menemukan perangkat terkoneksi, dan LLDP (Link Layer Discovery Protocol) untuk mendapatkan informasi neighbor.
 
-Backend service menjalankan scheduled task setiap 1 menit untuk melakukan SNMP GET request ke setiap perangkat. Implementasi menggunakan async/await pattern untuk memaksimalkan throughput. Sistem menangani berbagai kondisi error seperti timeout, unreachable device, dan invalid OID dengan retry mechanism dan logging untuk troubleshooting. Data yang terkumpulkan divalidasi untuk memastikan konsistensi, misalnya interface speed tidak boleh 0 dan utilization tidak boleh lebih dari 100%.
+Backend service menjalankan scheduled task setiap 1 menit untuk melakukan SNMP GET request ke setiap perangkat. Implementasi menggunakan async/await pattern untuk memaksimalkan throughput. Sistem menangani berbagai kondisi error seperti timeout, unreachable device, dan invalid OID dengan retry mechanism dan logging untuk troubleshooting. Data yang terkumpulkan divalidasi untuk memastikan konsistensi, misalnya interface speed tidak boleh 0 dan utilization tidak boleh lebih dari 100\%.
 
 Pengumpulan data AHP dilakukan melalui penyusunan kuesioner berdasarkan kriteria yang relevan dengan kualitas jalur jaringan, koordinasi dengan network engineer senior untuk pengisian kuesioner, pengolahan hasil kuesioner menggunakan metode AHP standar, dan validasi konsistensi dengan menghitung Consistency Ratio (CR). Jika CR lebih dari 0.1, dilakukan revisi dan pengisian ulang kuesioner. Hasil pembobotan kemudian di-export ke file JSON untuk digunakan dalam training model.
 
@@ -227,17 +600,17 @@ Karena tidak tersedia \textit{ground truth} historis untuk "jalur optimal" pada 
 
 Proses pelabelan dimulai dengan memuat konfigurasi bobot hasil kuesioner pakar yang telah valid (Consistency Ratio $\le 0.1$). Selanjutnya, sistem menghasilkan dataset pelatihan sintetis dengan menerapkan algoritma perhitungan skor deterministik.
 
-Setiap \textit{edge} dalam graf diberi skor terbobot (\textit{weighted score}) berdasarkan formula berikut:
+Setiap \textit{edge} dalam graf diberi skor terbobot (\textit{weighted score}) menggunakan 7 fitur yang telah ditetapkan:
 \begin{equation}
-w_{\text{edge}} = (1 - q_{\text{link}}) \cdot w_{LQ} + u_{bw} \cdot w_{BW} + d_{\text{norm}} \cdot w_D
+w_{\text{edge}}(e) = \sum_{k=1}^{7} w_k^{\text{edge}} \cdot s_k(e)
 \end{equation}
-dimana $q_{\text{link}}$ adalah skor kualitas link yang dinormalisasi, $u_{bw}$ adalah utilisasi bandwidth, $d_{\text{norm}}$ adalah jarak ternormalisasi, dan $w_{LQ}, w_{BW}, w_D$ adalah bobot yang diperoleh dari AHP.
+dimana $s_k(e)$ adalah skor ternormalisasi untuk setiap parameter edge (Optical Quality, Error Rate, Packet Loss, Bandwidth, Speed, Distance, Status) dan $w_k^{\text{edge}}$ adalah bobot terkait dari AHP.
 
-Skor kualitas intrinsik untuk setiap \textit{node} dihitung sebagai penjumlahan terbobot:
+Skor kualitas intrinsik untuk setiap \textit{node} dihitung sebagai penjumlahan terbobot dari 6 fitur node:
 \begin{equation}
-Q_{\text{node}} = \sum_{i=1}^{5} (1 - f_i) \cdot w_i^{\text{node}}
+Q_{\text{node}} = \sum_{i=1}^{6} (1 - f_i) \cdot w_i^{\text{node}}
 \end{equation}
-dimana $f_i$ adalah fitur node ternormalisasi (CPU, RAM, traffic, dll) dan $w_i^{\text{node}}$ adalah bobot AHP node.
+dimana $f_i$ adalah fitur node ternormalisasi (CPU, RAM, Traffic In, Traffic Out, Utilization, Status) dan $w_i^{\text{node}}$ adalah bobot AHP node.
 
 Untuk menentukan label akhir sebuah jalur $P = \{v_1, v_2, \ldots, v_k\}$, digunakan \textit{rule} yang menggabungkan rata-rata kualitas komponen jalur dengan penalti jumlah \textit{hop} (\textit{hop penalty}). Hal ini bertujuan untuk memprioritaskan jalur yang lebih pendek jika kualitas link setara. Formula pelabelan \textit{ground truth} adalah:
 
@@ -293,9 +666,9 @@ Model yang digunakan dalam penelitian ini adalah Graph Attention Network (GAT), 
 
 Model GAT dalam penelitian ini terdiri dari tiga layer GAT dengan konfigurasi yang dirancang secara bertahap. Layer pertama merupakan input layer dengan input dimension 6 (node features), output dimension 64, dan 4 attention heads sehingga total output dimension adalah 256. Layer ini menggunakan edge dimension 7 untuk edge features dalam attention mechanism, activation function ELU (Exponential Linear Unit), dan dropout 0.3. Formula attention untuk layer pertama adalah:
 \begin{equation}
-\mathbf{h}_i^{(1)} = \mathop{\bigg\Vert}_{k=1}^{4} \sigma \left( \sum_{j \in \mathcal{N}(i)} \alpha_{ij}^k \mathbf{W}^k \mathbf{h}_j^{(0)} \right)
+\mathbf{h}_i^{(1)} = \Bigg\|_{k=1}^{4} \sigma \left( \sum_{j \in \mathcal{N}(i)} \alpha_{ij}^k \mathbf{W}^k \mathbf{h}_j^{(0)} \right)
 \end{equation}
-dimana $\alpha_{ij}^k$ adalah attention weight untuk head ke-$k$, $\mathbf{W}^k$ adalah weight matrix, dan $\Vert$ adalah concatenation operator.
+dimana $\alpha_{ij}^k$ adalah attention weight untuk head ke-$k$, $\mathbf{W}^k$ adalah weight matrix, dan $\|$ adalah concatenation operator.
 
 Layer kedua merupakan hidden layer dengan input dimension 256 dari layer pertama, output dimension 64, dan 4 attention heads sehingga total output dimension adalah 256. Layer ini juga menggunakan edge dimension 7, activation function ELU, dan dropout 0.3. Layer ini berfungsi untuk memperdalam representasi dengan menangkap pola interaksi yang lebih kompleks antar node dalam radius 2-hop neighborhood.
 
@@ -385,7 +758,6 @@ Untuk metrik performa sistem, diukur inference latency dengan target p95 kurang 
 Metode validasi yang digunakan adalah K-Fold cross validation dimana dataset dibagi menjadi 5 folds untuk memastikan generalisasi model. Performa model juga dibandingkan dengan baseline methods seperti shortest path (hop count), Dijkstra with bandwidth only, AHP-Dijkstra (expert system), dan random path selection.
 
 Ablation study dilakukan untuk memahami kontribusi setiap komponen model dengan membandingkan full model yang menggunakan attention, edge features, dan hop penalty dengan variant tanpa attention, variant tanpa edge features, dan variant tanpa hop penalty sebagaimana ditunjukkan pada Tabel \ref{tab:ablation}.
-
 \begin{table}[H]
     \centering
     \caption{Ablation Study Variants}
@@ -394,9 +766,9 @@ Ablation study dilakukan untuk memahami kontribusi setiap komponen model dengan 
         \hline
         \textbf{Model Variant} & \textbf{Attention} & \textbf{Edge Features} & \textbf{Hop Penalty} \\ \hline
         Full Model & \checkmark & \checkmark & \checkmark \\ \hline
-        Without Attention & \xmark & \checkmark & \checkmark \\ \hline
-        Without Edge Features & \checkmark & \xmark & \checkmark \\ \hline
-        Without Hop Penalty & \checkmark & \checkmark & \xmark \\ \hline
+        Without Attention & $\times$ & \checkmark & \checkmark \\ \hline
+        Without Edge Features & \checkmark & $\times$ & \checkmark \\ \hline
+        Without Hop Penalty & \checkmark & \checkmark & $\times$ \\ \hline
     \end{tabular}
 \end{table}
 
@@ -417,8 +789,257 @@ Kriteria keberhasilan penelitian ditetapkan berdasarkan target metrik yang telah
     \end{tabular}
 \end{table}
 
-\section{Keterbatasan Penelitian}
+\subsection{Contoh Perhitungan Numerik Pelabelan Data}
 
-Penelitian ini memiliki beberapa keterbatasan yang perlu diakui. Model dilatih pada jaringan dengan jumlah node terbatas sesuai infrastruktur PT Lare Osing Ndo sehingga generalisasi untuk jaringan yang lebih besar perlu divalidasi lebih lanjut. Pelabelan data berbasis penilaian dari satu network engineer senior yang meskipun berpengalaman, tetap memiliki subjektivitas inherent. Simulasi failure menggunakan random failure yang tidak memodelkan korelasi spasial atau temporal yang mungkin terjadi dalam kegagalan jaringan nyata.
+Untuk memperjelas mekanisme \textit{Rule-Based Labeling} yang digunakan dalam menghasilkan \textit{Ground Truth} ($Q_{path}$), berikut disajikan simulasi perhitungan pada sebuah jalur sederhana. Demi penyederhanaan, perhitungan ini hanya menggunakan sampel 2 fitur node dan 2 fitur edge.
 
-Penelitian ini fokus pada layer 2 routing dan tidak memodelkan interaksi dengan layer 3 routing yang dalam praktiknya dapat mempengaruhi keputusan routing secara keseluruhan. Features yang digunakan bersifat static snapshot dan tidak ada time-series forecasting untuk prediksi kondisi masa depan. Perbedaan implementasi vendor-specific dalam hal SNMP OID dan behavior dapat mempengaruhi konsistensi data collection. Testing dilakukan pada controlled environment sehingga perlu validasi lebih lanjut pada deployment real-world dengan traffic production yang sesungguhnya.
+\paragraph{Skenario Jalur}
+Misalkan terdapat sebuah jalur $P$ dari Node A ke Node C yang melalui Node B ($A \rightarrow B \rightarrow C$).
+\begin{itemize}
+    \item Jumlah Node ($k$) = 3 (A, B, C)
+    \item Jumlah Hop ($h$) = 2
+    \item Konstanta penalti hop ($\alpha$) = 0.05
+\end{itemize}
+
+\paragraph{1. Data Mentah dan Normalisasi}
+Asumsikan data mentah hasil monitoring SNMP dan proses normalisasi (\textit{Min-Max Scaling}) adalah sebagai berikut:
+
+\textbf{a. Sampel Fitur Node (CPU \& RAM):}
+\begin{table}[H]
+    \centering
+    \small
+    \caption{Sampel Data Normalisasi Node}
+    \label{tab:sample_node_norm}
+    \begin{tabular}{|c|c|c|c|c|}
+        \hline
+        \textbf{Node} & \textbf{Metric} & \textbf{Nilai Mentah} & \textbf{Range Min-Max} & \textbf{Nilai Norm ($f_i$)} \\ \hline
+        \multirow{2}{*}{Node B} & CPU Usage & 60\% & 0 - 100\% & 0.60 \\ \cline{2-5}
+         & RAM Usage & 40\% & 0 - 100\% & 0.40 \\ \hline
+    \end{tabular}
+\end{table}
+\noindent \textit{Catatan: Node A dan Node C diasumsikan memiliki nilai skor akhir yang sama dengan Node B untuk penyederhanaan contoh.}
+
+\textbf{b. Sampel Fitur Edge (Bandwidth \& Distance):}
+\begin{table}[H]
+    \centering
+    \small
+    \caption{Sampel Data Normalisasi Edge}
+    \label{tab:sample_edge_norm}
+    \begin{tabular}{|c|c|c|c|c|}
+        \hline
+        \textbf{Edge} & \textbf{Metric} & \textbf{Nilai Mentah} & \textbf{Range Min-Max} & \textbf{Skor ($s_k$)} \\ \hline
+        \multirow{2}{*}{$A \rightarrow B$} & BW Util & 80\% & 0 - 100\% & $1 - 0.8 = 0.20$ \\ \cline{2-5}
+         & Distance & 5 km & 0 - 20 km & $1 - \frac{5}{20} = 0.75$ \\ \hline
+        \multirow{2}{*}{$B \rightarrow C$} & BW Util & 20\% & 0 - 100\% & $1 - 0.2 = 0.80$ \\ \cline{2-5}
+         & Distance & 2 km & 0 - 20 km & $1 - \frac{2}{20} = 0.90$ \\ \hline
+    \end{tabular}
+\end{table}
+\noindent \textit{Catatan: Nilai dinormalisasi menjadi "Higher is Better". Untuk metrik "Lower is Better" (seperti Utilisasi dan Jarak), skor dihitung sebagai $(1 - \text{nilai norm})$.}
+
+\paragraph{2. Penerapan Bobot AHP}
+Misalkan berdasarkan kuesioner pakar, diperoleh bobot prioritas relatif (disederhanakan) sebagai berikut:
+\begin{itemize}
+    \item \textbf{Bobot Node:} $w_{CPU} = 0.6$, $w_{RAM} = 0.4$
+    \item \textbf{Bobot Edge:} $w_{BW} = 0.7$, $w_{Dist} = 0.3$
+\end{itemize}
+
+\paragraph{3. Perhitungan Skor Komponen}
+
+\begin{itemize}
+    \item[\textbf{a.}] \textbf{Skor Kualitas Node ($Q_{node}$)} \\
+    Menggunakan Persamaan (3.4), skor kualitas intrinsik Node B dihitung (ingat: semakin rendah load, semakin baik skornya, maka digunakan $1-f_i$):
+    \begin{align*}
+        Q_{node}(B) &= (1 - f_{CPU}) \cdot w_{CPU} + (1 - f_{RAM}) \cdot w_{RAM} \\
+        &= (1 - 0.60) \cdot 0.6 + (1 - 0.40) \cdot 0.4 \\
+        &= (0.40 \cdot 0.6) + (0.60 \cdot 0.4) \\
+        &= 0.24 + 0.24 \\
+        &= \mathbf{0.48}
+    \end{align*}
+
+    \item[\textbf{b.}] \textbf{Skor Kualitas Edge ($Q_{edge}$)} \\
+    Menggunakan Persamaan (3.3):
+
+    \vspace{0.2cm} % Memberi sedikit jarak
+    \textit{Untuk Edge $A \rightarrow B$ (Kualitas Buruk pada Bandwidth):}
+    \begin{align*}
+        Q_{edge}(A \rightarrow B) &= s_{BW} \cdot w_{BW} + s_{Dist} \cdot w_{Dist} \\
+        &= 0.20 \cdot 0.7 + 0.75 \cdot 0.3 \\
+        &= 0.14 + 0.225 \\
+        &= \mathbf{0.365}
+    \end{align*}
+
+    \textit{Untuk Edge $B \rightarrow C$ (Kualitas Baik):}
+    \begin{align*}
+        Q_{edge}(B \rightarrow C) &= s_{BW} \cdot w_{BW} + s_{Dist} \cdot w_{Dist} \\
+        &= 0.80 \cdot 0.7 + 0.90 \cdot 0.3 \\
+        &= 0.56 + 0.27 \\
+        &= \mathbf{0.830}
+    \end{align*}
+\end{itemize}
+
+\paragraph{4. Perhitungan Label Akhir Jalur ($Q_{path}$)}
+Menggunakan Persamaan (3.5), rata-rata skor seluruh komponen dihitung dan kemudian diterapkan penalti hop.
+
+Komponen jalur terdiri dari 3 Node (A, B, C) dan 2 Edge ($A \rightarrow B$, $B \rightarrow C$).
+Asumsi $Q_{node}(A) = 0.48$ dan $Q_{node}(C) = 0.48$ (sama dengan B).
+
+\begin{align*}
+    \text{Sum Component} &= Q_{node}(A) + Q_{node}(B) + Q_{node}(C) + Q_{edge}(AB) + Q_{edge}(BC) \\
+    &= 0.48 + 0.48 + 0.48 + 0.365 + 0.830 \\
+    &= 2.635
+\end{align*}
+
+Jumlah komponen ($2k - 1$) = $2(3) - 1 = 5$.
+
+\begin{align*}
+    Q_{path} &= \left( \frac{2.635}{5} \right) \times (1 - 0.05 \cdot (3-1)) \\
+    &= 0.527 \times (1 - 0.1) \\
+    &= 0.527 \times 0.9 \\
+    &= \mathbf{0.4743}
+\end{align*}
+
+\textbf{Interpretasi:}
+Nilai $Q_{path} = 0.4743$ (Skala 0-1) menunjukkan bahwa jalur ini memiliki kualitas \textbf{Fair/Cukup}. Meskipun Edge $B \rightarrow C$ sangat bagus, skor jatuh signifikan karena Edge $A \rightarrow B$ mengalami kongesti berat (BW Util 80\%) dan beban CPU Node B yang agak tinggi. Nilai inilah yang akan menjadi \textit{Target Label} ($y$) bagi model GAT saat proses training.
+
+\subsection{Contoh Perhitungan Numerik GAT}
+
+Untuk memberikan pemahaman yang lebih konkret tentang mekanisme GAT, berikut disajikan contoh perhitungan numerik lengkap. Contoh ini menggunakan topologi sederhana yang merepresentasikan segmen jaringan dengan 3 node yang saling terhubung (fully connected).
+
+\paragraph{Representasi Visual Topologi dan Fitur}
+Graf jaringan $\mathcal{G}$ terdiri dari 3 node: Node A (Core), serta Node B dan Node C (Distribution). Setiap node memiliki vektor fitur awal $\vec{h}_i$ berdimensi $F=2$ yang merepresentasikan [CPU Usage, Bandwidth Util].
+
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}[
+        node_style/.style={circle, draw=black, thick, fill=blue!10, minimum size=1.2cm, font=\bfseries},
+        edge_style/.style={thick, -},
+        feature_style/.style={rectangle, draw=gray, dashed, fill=white, font=\small, align=center, inner sep=4pt}
+    ]
+
+        % 1. Definisi Node (Posisi Segitiga)
+        \node[node_style] (A) at (0, 2) {A};
+        \node[node_style] (B) at (-2.5, -1) {B};
+        \node[node_style] (C) at (2.5, -1) {C};
+
+        % 2. Menggambar Koneksi (Edge)
+        \draw[edge_style] (A) -- (B);
+        \draw[edge_style] (A) -- (C);
+        \draw[edge_style] (B) -- (C);
+
+        % 3. Menambahkan Label Fitur di dekat Node
+        % Fitur Node A
+        \node[feature_style, right=0.3cm of A] (featA) {
+            $\vec{h}_A = \begin{bmatrix} 0.3 \\ 0.5 \end{bmatrix}$ \\
+            \scriptsize{(CPU: 30\%, BW: 50\%)}
+        };
+
+        % Fitur Node B
+        \node[feature_style, below=0.3cm of B] (featB) {
+            $\vec{h}_B = \begin{bmatrix} 0.7 \\ 0.4 \end{bmatrix}$ \\
+            \scriptsize{(CPU: 70\%, BW: 40\%)}
+        };
+
+        % Fitur Node C
+        \node[feature_style, below=0.3cm of C] (featC) {
+            $\vec{h}_C = \begin{bmatrix} 0.5 \\ 0.2 \end{bmatrix}$ \\
+            \scriptsize{(CPU: 50\%, BW: 20\%)}
+        };
+
+        % Garis bantu tipis dari node ke kotak fitur (opsional, agar rapi)
+        \draw[gray, dotted] (A) -- (featA);
+        \draw[gray, dotted] (B) -- (featB);
+        \draw[gray, dotted] (C) -- (featC);
+
+    \end{tikzpicture}
+    \caption{Visualisasi Topologi Contoh dan Vektor Fitur Input Node}
+    \label{fig:gat_example_topology}
+\end{figure}
+
+Berdasarkan visualisasi pada Gambar \ref{fig:gat_example_topology}, matriks adjacency ($\mathbf{A}$) untuk topologi tersebut adalah:
+\begin{equation}
+    \mathbf{A} = \begin{bmatrix}
+    1 & 1 & 1 \\
+    1 & 1 & 1 \\
+    1 & 1 & 1
+    \end{bmatrix}
+\end{equation}
+(Nilai 1 menunjukkan adanya koneksi langsung, termasuk \textit{self-loop} pada diagonal utama).
+
+\paragraph{Parameter Model}
+Untuk kesederhanaan, gunakan \textit{single attention head} ($K=1$) dengan dimensi output $F' = 2$. Parameter yang dipelajari adalah:
+
+\begin{equation}
+    \mathbf{W} = \begin{bmatrix}
+    1.0 & 0.5 \\
+    0.5 & 1.0
+    \end{bmatrix}, \quad
+    \vec{a} = \begin{bmatrix}
+    0.5 \\
+    0.5 \\
+    0.3 \\
+    0.3
+    \end{bmatrix}
+\end{equation}
+
+dimana $\mathbf{W}$ adalah matriks transformasi linear ($2 \times 2$) dan $\vec{a}$ adalah vektor parameter atensi ($4 \times 1$, untuk concatenation 2 node).
+
+\paragraph{Tahap 1: Transformasi Linear}
+Hitung fitur hasil transformasi ($\vec{z}_i = \mathbf{W}\vec{h}_i$) untuk setiap node:
+
+\begin{align*}
+    \vec{z}_A &= \begin{bmatrix} 1.0 & 0.5 \\ 0.5 & 1.0 \end{bmatrix} \begin{bmatrix} 0.3 \\ 0.5 \end{bmatrix} = \begin{bmatrix} 0.55 \\ 0.65 \end{bmatrix} \\
+    \vec{z}_B &= \begin{bmatrix} 1.0 & 0.5 \\ 0.5 & 1.0 \end{bmatrix} \begin{bmatrix} 0.7 \\ 0.4 \end{bmatrix} = \begin{bmatrix} 0.90 \\ 0.75 \end{bmatrix} \\
+    \vec{z}_C &= \begin{bmatrix} 1.0 & 0.5 \\ 0.5 & 1.0 \end{bmatrix} \begin{bmatrix} 0.5 \\ 0.2 \end{bmatrix} = \begin{bmatrix} 0.60 \\ 0.45 \end{bmatrix}
+\end{align*}
+
+\paragraph{Tahap 2: Komputasi Skor Atensi Mentah}
+Kita fokus menghitung update untuk \textbf{Node A}. Hitung skor atensi terhadap dirinya sendiri dan tetangganya (B dan C). Gunakan $\text{LeakyReLU}$ dengan slope negatif 0.2. Rumus: $e_{ij} = \text{LeakyReLU}(\vec{a}^T [\vec{z}_i \| \vec{z}_j])$.
+
+\textbf{1. Skor atensi A terhadap A (self-attention):}
+Concatenation $[\vec{z}_A \| \vec{z}_A] = [0.55, 0.65, 0.55, 0.65]^T$.
+\begin{align*}
+    e_{AA} &= \text{LeakyReLU}(\vec{a} \cdot [0.55, 0.65, 0.55, 0.65]^T) \\
+    &= \text{LeakyReLU}(0.5(0.55) + 0.5(0.65) + 0.3(0.55) + 0.3(0.65)) \\
+    &= \text{LeakyReLU}(0.275 + 0.325 + 0.165 + 0.195) \\
+    &= \text{LeakyReLU}(0.96) = \mathbf{0.96}
+\end{align*}
+
+\textbf{2. Skor atensi A terhadap B:}
+Concatenation $[\vec{z}_A \| \vec{z}_B] = [0.55, 0.65, 0.90, 0.75]^T$.
+\begin{align*}
+    e_{AB} &= \text{LeakyReLU}(0.5(0.55) + 0.5(0.65) + 0.3(0.90) + 0.3(0.75)) \\
+    &= \text{LeakyReLU}(0.6 + 0.27 + 0.225) \\
+    &= \text{LeakyReLU}(1.095) = \mathbf{1.095}
+\end{align*}
+
+\textbf{3. Skor atensi A terhadap C:}
+Concatenation $[\vec{z}_A \| \vec{z}_C] = [0.55, 0.65, 0.60, 0.45]^T$.
+\begin{align*}
+    e_{AC} &= \text{LeakyReLU}(0.5(0.55) + 0.5(0.65) + 0.3(0.60) + 0.3(0.45)) \\
+    &= \text{LeakyReLU}(0.6 + 0.18 + 0.135) \\
+    &= \text{LeakyReLU}(0.915) = \mathbf{0.915}
+\end{align*}
+
+\paragraph{Tahap 3: Normalisasi Softmax}
+Hitung koefisien atensi $\alpha_{ij}$ menggunakan Softmax:
+$$ \sum \exp(e) = \exp(0.96) + \exp(1.095) + \exp(0.915) \approx 2.61 + 2.99 + 2.50 = 8.10 $$
+
+\begin{itemize}
+    \item $\alpha_{AA} = \frac{2.61}{8.10} = \mathbf{0.32}$ (Atensi ke diri sendiri)
+    \item $\alpha_{AB} = \frac{2.99}{8.10} = \mathbf{0.37}$ (Atensi ke Node B - Prioritas Tertinggi)
+    \item $\alpha_{AC} = \frac{2.50}{8.10} = \mathbf{0.31}$ (Atensi ke Node C)
+\end{itemize}
+
+\textit{Interpretasi:} Model memberikan bobot terbesar (37\%) ke Node B karena fitur-fiturnya menghasilkan skor atensi tertinggi.
+
+\paragraph{Tahap 4: Agregasi Fitur}
+Hitung fitur baru Node A ($\vec{h}'_A$) sebagai kombinasi linear terbobot, lalu terapkan aktivasi (misal ReLU).
+
+\begin{align*}
+    \vec{h}'_A &= \sigma ( \alpha_{AA}\vec{z}_A + \alpha_{AB}\vec{z}_B + \alpha_{AC}\vec{z}_C ) \\
+    &= \sigma \left( 0.32 \begin{bmatrix} 0.55 \\ 0.65 \end{bmatrix} + 0.37 \begin{bmatrix} 0.90 \\ 0.75 \end{bmatrix} + 0.31 \begin{bmatrix} 0.60 \\ 0.45 \end{bmatrix} \right) \\
+    &= \sigma \left( \begin{bmatrix} 0.176 \\ 0.208 \end{bmatrix} + \begin{bmatrix} 0.333 \\ 0.277 \end{bmatrix} + \begin{bmatrix} 0.186 \\ 0.139 \end{bmatrix} \right) \\
+    &= \sigma \begin{bmatrix} 0.695 \\ 0.624 \end{bmatrix} = \begin{bmatrix} \mathbf{0.695} \\ \mathbf{0.624} \end{bmatrix}
+\end{align*}
+
+\textbf{Kesimpulan:} Fitur Node A telah diperbarui dari $[0.3, 0.5]$ menjadi $[0.695, 0.624]$. Nilai baru ini mengandung informasi agregat dari tetangganya, dengan penekanan lebih pada Node B yang dianggap lebih penting oleh mekanisme atensi.

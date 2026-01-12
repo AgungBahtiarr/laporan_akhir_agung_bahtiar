@@ -87,6 +87,401 @@ Kombinasi ketiga metrik ini memberikan gambaran holistik tentang health dari seb
 
 Pendekatan weighted composite scoring yang mengintegrasikan kriteria node dan edge ini telah terbukti efektif dalam various QoS routing scenarios \cite{qos_composite_metric, weighted_composite_routing, madm_heuristic_routing, routing_multiple_optimality}.
 
+
+\subsection{Analytic Hierarchy Process (AHP)}
+
+\textit{Analytic Hierarchy Process} (AHP) adalah metode pengambilan keputusan multikriteria yang dikembangkan oleh Thomas L. Saaty pada tahun 1970 \cite{saaty2008}. AHP dirancang untuk menangani masalah kompleks yang melibatkan berbagai kriteria dengan tingkat kepentingan yang berbeda-beda, dimana setiap alternatif memiliki preferensi yang bervariasi menurut masing-masing kriteria yang digunakan.
+
+Dalam konteks penelitian ini, AHP berperan krusial sebagai metode untuk \textbf{menentukan bobot prioritas fitur} yang valid berdasarkan preferensi pakar. Bobot yang dihasilkan AHP ($\mathbf{w}$) kemudian diintegrasikan ke dalam mekanisme \textit{rule-based scoring} untuk menghasilkan label kualitas jalur ($Q_{path}$) sebagai target pelatihan model GAT. Penggunaan AHP memastikan bahwa perhitungan skor matematis selaras dengan intuisi operasional dari pakar jaringan PT Lare Osing Ndo \cite{khan2020}.
+
+\subsubsection{Prinsip Dasar AHP}
+
+AHP dibangun di atas tiga prinsip fundamental yang menjamin validitas hasil keputusan:
+
+\begin{enumerate}
+    \item \textbf{Decomposition (Dekomposisi)}: Memecah masalah kompleks menjadi struktur hierarki yang terdiri dari tujuan, kriteria, dan alternatif yang lebih sederhana dan terukur.
+
+    \item \textbf{Comparative Judgement (Penilaian Komparatif)}: Melakukan perbandingan berpasangan (\textit{pairwise comparison}) antar elemen pada level hierarki yang sama untuk menentukan tingkat kepentingan relatif.
+
+    \item \textbf{Logical Consistency (Konsistensi Logis)}: Memastikan bahwa penilaian yang diberikan bersifat konsisten dan dapat diandalkan melalui pengujian rasio konsistensi.
+\end{enumerate}
+
+\subsubsection{Struktur Hierarki AHP}
+
+Struktur hierarki AHP disusun untuk memodelkan preferensi manajemen jaringan ke dalam bentuk bobot kuantitatif. Hasil akhir dari hierarki ini bukanlah pemilihan jalur secara langsung, melainkan seperangkat vektor bobot (\textit{weight vectors}) yang akan digunakan untuk menyusun \textit{ground truth} pada pelatihan model GAT.
+
+Struktur hierarki terdiri dari tiga level sebagai berikut:
+
+\begin{enumerate}
+    \item \textbf{Level 1 (Tujuan Utama)}: Menentukan bobot prioritas (\textit{Priority Weights}) dari setiap parameter penentu kualitas jalur.
+
+    \item \textbf{Level 2 (Kategori Kriteria)}: Pengelompokan parameter berdasarkan letaknya dalam struktur graf jaringan:
+    \begin{itemize}
+        \item \textbf{Kriteria Node}: Parameter yang mengukur kinerja perangkat (\textit{switch}).
+        \item \textbf{Kriteria Edge}: Parameter yang mengukur kualitas tautan (\textit{link}).
+    \end{itemize}
+
+    \item \textbf{Level 3 (Sub-Kriteria/Indikator)}: Parameter spesifik yang akan diberi bobot:
+    \begin{itemize}
+        \item \textbf{Sub-Kriteria Node (5 Parameter):}
+        \begin{enumerate}
+            \item \textbf{CPU Score}: Bobot kepentingan untuk ketersediaan CPU.
+            \item \textbf{RAM Score}: Bobot kepentingan untuk ketersediaan memori.
+            \item \textbf{Traffic Score}: Bobot kepentingan untuk volume trafik.
+            \item \textbf{Utilization Score}: Bobot kepentingan untuk kesibukan interface.
+            \item \textbf{Status Score}: Bobot kepentingan untuk status hidup/mati perangkat.
+        \end{enumerate}
+
+        \item \textbf{Sub-Kriteria Edge (7 Parameter):}
+        \begin{enumerate}
+            \item \textbf{Optical Link Quality Score}: Bobot kepentingan kualitas fisik optik.
+            \item \textbf{Error Rate Score}: Bobot kepentingan minimnya error transmisi.
+            \item \textbf{Packet Loss Score}: Bobot kepentingan reliabilitas pengiriman paket.
+            \item \textbf{Bandwidth Utilization}: Bobot kepentingan ketersediaan bandwidth.
+            \item \textbf{Interface Speed}: Bobot kepentingan kapasitas maksimum link.
+            \item \textbf{Distance}: Bobot kepentingan jarak fisik/logis.
+            \item \textbf{Link Status}: Bobot kepentingan status hidup/mati link.
+        \end{enumerate}
+    \end{itemize}
+\end{enumerate}
+
+Output dari proses hierarki ini adalah vektor bobot $\mathbf{w}_{node}$ dan $\mathbf{w}_{edge}$ yang kemudian diaplikasikan dalam persamaan komposit untuk menghasilkan label kualitas jalur ($Q_{path}$) sebagai target pembelajaran model GAT.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{images/hirarki.png}
+    \caption{Struktur Hierarki AHP untuk Penentuan Bobot Parameter}
+    \label{fig:ahp_hierarchy}
+\end{figure}
+
+\subsubsection{Tahapan Metode AHP}
+
+Implementasi AHP dalam penelitian ini mengikuti lima tahapan sistematis yang dijelaskan sebagai berikut:
+
+\paragraph{1. Penyusunan Matriks Perbandingan Berpasangan}
+
+Tahap pertama adalah membuat matriks perbandingan berpasangan untuk kriteria-kriteria yang telah ditentukan. Setiap pasangan kriteria dibandingkan untuk menentukan tingkat kepentingan relatifnya berdasarkan skala Saaty 1-9.
+
+Matriks perbandingan berpasangan dapat dinyatakan sebagai:
+
+\begin{equation}
+    \mathbf{A} = \begin{bmatrix}
+        1 & a_{12} & a_{13} & \cdots & a_{1n} \\
+        1/a_{12} & 1 & a_{23} & \cdots & a_{2n} \\
+        1/a_{13} & 1/a_{23} & 1 & \cdots & a_{3n} \\
+        \vdots & \vdots & \vdots & \ddots & \vdots \\
+        1/a_{1n} & 1/a_{2n} & 1/a_{3n} & \cdots & 1
+    \end{bmatrix}
+\end{equation}
+
+\noindent
+Dengan:
+
+\begin{tabular}{ll}
+$\mathbf{A}$ & = matriks perbandingan berpasangan berukuran $n \times n$ \\
+$a_{ij}$ & = tingkat kepentingan kriteria $i$ terhadap kriteria $j$ \\
+$n$ & = jumlah kriteria yang dibandingkan
+\end{tabular}
+
+\noindent
+Matriks ini bersifat resiprokal, yang berarti:
+
+\begin{equation}
+    a_{ji} = \frac{1}{a_{ij}}
+\end{equation}
+
+\noindent
+Dengan:
+
+\begin{tabular}{ll}
+$a_{ji}$ & = tingkat kepentingan kriteria $j$ terhadap kriteria $i$
+\end{tabular}
+
+\noindent
+Sebagai contoh, jika optical link quality dinilai 3 kali lebih penting dari distance, maka:
+
+\begin{equation}
+    a_{optical,distance} = 3 \quad \text{dan} \quad a_{distance,optical} = \frac{1}{3}
+\end{equation}
+
+\noindent
+Dengan:
+
+\begin{tabular}{ll}
+$a_{optical,distance}$ & = tingkat kepentingan optical link quality terhadap distance \\
+$a_{distance,optical}$ & = tingkat kepentingan distance terhadap optical link quality
+\end{tabular}
+
+\noindent
+Skala perbandingan yang digunakan mengikuti standar Saaty seperti ditunjukkan pada Tabel \ref{tab:saaty_scale}.
+
+\begin{table}[H]
+\centering
+\caption{Skala Perbandingan Berpasangan Saaty}
+\label{tab:saaty_scale}
+\begin{tabular}{|c|l|}
+\hline
+\textbf{Nilai} & \textbf{Interpretasi} \\
+\hline
+1 & Kedua elemen sama pentingnya \\
+3 & Elemen pertama sedikit lebih penting dari elemen kedua \\
+5 & Elemen pertama lebih penting dari elemen kedua \\
+7 & Elemen pertama sangat lebih penting dari elemen kedua \\
+9 & Elemen pertama mutlak lebih penting dari elemen kedua \\
+2, 4, 6, 8 & Nilai antara untuk penilaian yang bersifat kompromistis \\
+\hline
+\end{tabular}
+\end{table}
+
+\paragraph{2. Normalisasi Matriks Perbandingan}
+
+Setelah matriks perbandingan disusun, langkah selanjutnya adalah melakukan normalisasi. Pertama, hitung total nilai setiap kolom:
+
+\begin{equation}
+    T_j = \sum_{i=1}^{n} a_{ij}
+\end{equation}
+
+\noindent
+Dengan:
+
+\begin{tabular}{ll}
+$T_j$ & = total nilai pada kolom ke-$j$ \\
+$a_{ij}$ & = elemen matriks pada baris ke-$i$ dan kolom ke-$j$ \\
+$n$ & = jumlah kriteria yang dibandingkan \\
+$i$ & = indeks baris ($i = 1, 2, \ldots, n$)
+\end{tabular}
+
+\noindent
+Kemudian, setiap elemen matriks dibagi dengan total kolomnya untuk mendapatkan matriks ternormalisasi:
+
+\begin{equation}
+    n_{ij} = \frac{a_{ij}}{T_j}
+\end{equation}
+
+\noindent
+Dengan:
+
+\begin{tabular}{ll}
+$n_{ij}$ & = elemen ternormalisasi pada baris $i$ dan kolom $j$ \\
+$a_{ij}$ & = elemen matriks asli pada baris $i$ dan kolom $j$ \\
+$T_j$ & = total nilai pada kolom ke-$j$
+\end{tabular}
+
+\paragraph{3. Perhitungan Vektor Prioritas dan Bobot}
+
+Dari matriks ternormalisasi, vektor prioritas (\textit{Priority Vector}, PV) dihitung dengan menjumlahkan nilai-nilai dalam setiap baris:
+
+\begin{equation}
+    PV_i = \sum_{j=1}^{n} n_{ij}
+\end{equation}
+
+\noindent
+Dengan:
+
+\begin{tabular}{ll}
+$PV_i$ & = vektor prioritas untuk kriteria ke-$i$ \\
+$n_{ij}$ & = elemen ternormalisasi pada baris $i$ dan kolom $j$ \\
+$n$ & = jumlah total kriteria yang dibandingkan \\
+$j$ & = indeks kolom ($j = 1, 2, \ldots, n$)
+\end{tabular}
+
+\noindent
+Selanjutnya, bobot akhir setiap kriteria diperoleh dengan menormalisasi vektor prioritas:
+
+\begin{equation}
+    w_i = \frac{PV_i}{n}
+\end{equation}
+
+\noindent
+Dengan:
+
+\begin{tabular}{ll}
+$w_i$ & = bobot akhir untuk kriteria ke-$i$ \\
+$PV_i$ & = vektor prioritas untuk kriteria ke-$i$ \\
+$n$ & = jumlah total kriteria yang dibandingkan
+\end{tabular}
+
+\noindent
+Bobot $w_i$ merepresentasikan tingkat kepentingan relatif dari kriteria $i$ terhadap keseluruhan kriteria, dan memenuhi kondisi:
+
+\begin{equation}
+    \sum_{i=1}^{n} w_i = 1
+\end{equation}
+
+\noindent
+Dengan:
+
+\begin{tabular}{ll}
+$\sum_{i=1}^{n} w_i$ & = jumlah total bobot seluruh kriteria (harus sama dengan 1)
+\end{tabular}
+
+\paragraph{4. Uji Konsistensi}
+
+Untuk memastikan bahwa perbandingan yang dilakukan konsisten dan dapat diandalkan, AHP menggunakan pengujian konsistensi. Pertama, hitung vektor konsistensi (\textit{Consistency Vector}) dengan mengalikan matriks perbandingan $\mathbf{A}$ dengan vektor bobot $\mathbf{w}$:
+
+\begin{equation}
+    CV_i = \sum_{j=1}^{n} a_{ij} \cdot w_j
+\end{equation}
+
+\noindent
+Dengan:
+
+\begin{tabular}{ll}
+$CV_i$ & = elemen ke-$i$ dari vektor konsistensi \\
+$a_{ij}$ & = elemen matriks perbandingan pada baris $i$ dan kolom $j$ \\
+$w_j$ & = bobot untuk kriteria ke-$j$ \\
+$n$ & = jumlah kriteria yang dibandingkan
+\end{tabular}
+
+\noindent
+Kemudian, hitung nilai eigen maksimum ($\lambda_{max}$) sebagai rata-rata dari rasio antara vektor konsistensi dengan bobot:
+
+\begin{equation}
+    \lambda_{max} = \frac{1}{n} \sum_{i=1}^{n} \frac{CV_i}{w_i}
+\end{equation}
+
+\noindent
+Dengan:
+
+\begin{tabular}{ll}
+$\lambda_{max}$ & = nilai eigen maksimum dari matriks perbandingan \\
+$CV_i$ & = elemen ke-$i$ dari vektor konsistensi \\
+$w_i$ & = bobot untuk kriteria ke-$i$ \\
+$n$ & = jumlah kriteria yang dibandingkan
+\end{tabular}
+
+\noindent
+Selanjutnya, hitung \textit{Consistency Index} (CI):
+
+\begin{equation}
+    CI = \frac{\lambda_{max} - n}{n - 1}
+\end{equation}
+
+\noindent
+Dengan:
+
+\begin{tabular}{ll}
+$CI$ & = Consistency Index (indeks konsistensi) \\
+$\lambda_{max}$ & = nilai eigen maksimum \\
+$n$ & = jumlah kriteria yang dibandingkan
+\end{tabular}
+
+\noindent
+Kemudian, hitung \textit{Consistency Ratio} (CR) dengan membandingkan CI terhadap \textit{Random Consistency Index} (RI):
+
+\begin{equation}
+    CR = \frac{CI}{RI}
+\end{equation}
+
+\noindent
+Dengan:
+
+\begin{tabular}{ll}
+$CR$ & = Consistency Ratio (rasio konsistensi) \\
+$CI$ & = Consistency Index \\
+$RI$ & = Random Consistency Index (indeks konsistensi acak)
+\end{tabular}
+
+\noindent
+Nilai RI bergantung pada jumlah kriteria yang dibandingkan, seperti ditunjukkan pada Tabel \ref{tab:random_index}.
+
+\begin{table}[H]
+\centering
+\caption{Nilai Random Consistency Index (RI)}
+\label{tab:random_index}
+\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|}
+\hline
+\textbf{n} & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 \\
+\hline
+\textbf{RI} & 0 & 0 & 0,58 & 0,90 & 1,12 & 1,24 & 1,32 & 1,41 & 1,45 \\
+\hline
+\end{tabular}
+\end{table}
+
+Matriks perbandingan dinyatakan konsisten jika:
+
+\begin{equation}
+    CR \leq 0,1
+\end{equation}
+
+\noindent
+Dengan:
+
+\begin{tabular}{ll}
+$0,1$ & = batas maksimum rasio konsistensi yang dapat diterima
+\end{tabular}
+
+\noindent
+Jika $CR > 0,1$, maka penilaian perbandingan perlu direvisi karena mengandung inkonsistensi yang signifikan.
+
+\paragraph{5. Contoh Perhitungan Numerik}
+
+Untuk memberikan ilustrasi konkret, berikut disajikan contoh perhitungan AHP untuk tiga kriteria edge: Optical Link Quality (O), Error Rate (E), dan Packet Loss (P).
+
+\textbf{Langkah 1: Matriks Perbandingan Berpasangan}
+
+Berdasarkan penilaian pakar:
+
+\begin{equation}
+    \mathbf{A} = \begin{bmatrix}
+        1 & 3 & 2 \\
+        1/3 & 1 & 1/2 \\
+        1/2 & 2 & 1
+    \end{bmatrix}
+\end{equation}
+
+\textbf{Langkah 2: Normalisasi Matriks}
+
+Hitung total kolom:
+\begin{equation}
+    T_1 = 1 + \frac{1}{3} + \frac{1}{2} = 1,833; \quad T_2 = 3 + 1 + 2 = 6; \quad T_3 = 2 + \frac{1}{2} + 1 = 3,5
+\end{equation}
+
+Matriks ternormalisasi:
+\begin{equation}
+    \mathbf{N} = \begin{bmatrix}
+        0,545 & 0,500 & 0,571 \\
+        0,182 & 0,167 & 0,143 \\
+        0,273 & 0,333 & 0,286
+    \end{bmatrix}
+\end{equation}
+
+\textbf{Langkah 3: Vektor Prioritas dan Bobot}
+
+\begin{align}
+    PV_1 &= 0,545 + 0,500 + 0,571 = 1,616 \quad \Rightarrow \quad w_1 = \frac{1,616}{3} = 0,539 \\
+    PV_2 &= 0,182 + 0,167 + 0,143 = 0,492 \quad \Rightarrow \quad w_2 = \frac{0,492}{3} = 0,164 \\
+    PV_3 &= 0,273 + 0,333 + 0,286 = 0,892 \quad \Rightarrow \quad w_3 = \frac{0,892}{3} = 0,297
+\end{align}
+
+Vektor bobot: $\mathbf{w} = [0,539; \; 0,164; \; 0,297]^T$
+
+\textbf{Langkah 4: Uji Konsistensi}
+
+Hitung vektor konsistensi:
+\begin{align}
+    CV_1 &= 1(0,539) + 3(0,164) + 2(0,297) = 1,625 \\
+    CV_2 &= \frac{1}{3}(0,539) + 1(0,164) + \frac{1}{2}(0,297) = 0,493 \\
+    CV_3 &= \frac{1}{2}(0,539) + 2(0,164) + 1(0,297) = 0,894
+\end{align}
+
+Hitung $\lambda_{max}$:
+\begin{equation}
+    \lambda_{max} = \frac{1}{3}\left(\frac{1,625}{0,539} + \frac{0,493}{0,164} + \frac{0,894}{0,297}\right) = \frac{1}{3}(3,015 + 3,006 + 3,010) = 3,010
+\end{equation}
+
+Hitung CI:
+\begin{equation}
+    CI = \frac{3,010 - 3}{3 - 1} = \frac{0,010}{2} = 0,005
+\end{equation}
+
+Hitung CR dengan $RI = 0,58$ untuk $n=3$:
+\begin{equation}
+    CR = \frac{0,005}{0,58} = 0,009 < 0,1 \quad \text{(Konsisten)}
+\end{equation}
+
+Karena $CR = 0,009 < 0,1$, maka matriks perbandingan konsisten dan bobot dapat digunakan.
+
 \subsection{Graph Attention Network (GAT)}
 
 \textit{Graph Attention Network} (GAT) merupakan pengembangan lanjut dari \textit{Graph Neural Networks} (GNN) yang memperkenalkan mekanisme \textit{masked self-attention} untuk mengatasi keterbatasan metode berbasis graf konvensional. Berbeda dengan GNN tradisional yang memperlakukan semua tetangga node dengan bobot yang sama atau bergantung pada struktur graf yang telah ditentukan sebelumnya, GAT memiliki kemampuan untuk secara adaptif menentukan tingkat kepentingan (\textit{attention coefficients}) dari setiap node tetangga \cite{velickovic2017}.
@@ -707,30 +1102,6 @@ Hitung fitur output untuk Node A menggunakan weighted sum dengan fungsi aktivasi
 \noindent
 \textbf{Interpretasi hasil}: Fitur output Node A setelah satu layer GAT adalah $\vec{h'}_A = [0.694, 0.625]^T$. Nilai ini merupakan agregasi berbobot dari informasi dirinya sendiri dan tetangganya, dimana Node B memberikan kontribusi terbesar. Dalam konteks routing, representasi ini menangkap tidak hanya status Node A sendiri, tetapi juga kualitas jalur-jalur yang tersedia dari perspektif Node A.
 
-\paragraph{Perbandingan dengan GNN Tradisional}
-
-Untuk membandingkan dengan GNN tradisional yang menggunakan rata-rata sederhana (uniform weights):
-
-\begin{align}
-    \vec{h'}_A^{\text{GNN}} &= \text{ReLU}\left(\frac{1}{3}\vec{z}_A + \frac{1}{3}\vec{z}_B + \frac{1}{3}\vec{z}_C\right) \\
-    &= \text{ReLU}\left(\frac{1}{3}\begin{bmatrix} 0.55 \\ 0.65 \end{bmatrix} + \frac{1}{3}\begin{bmatrix} 0.90 \\ 0.75 \end{bmatrix} + \frac{1}{3}\begin{bmatrix} 0.60 \\ 0.45 \end{bmatrix}\right) \\
-    &= \text{ReLU}\left(\begin{bmatrix} 0.683 \\ 0.617 \end{bmatrix}\right) = \begin{bmatrix} 0.683 \\ 0.617 \end{bmatrix}
-\end{align}
-
-\noindent
-\textbf{Analisis perbedaan}:
-\begin{itemize}
-    \item GAT: $\vec{h'}_A = [0.694, 0.625]^T$
-    \item GNN tradisional: $\vec{h'}_A^{\text{GNN}} = [0.683, 0.617]^T$
-    \item Selisih: $[0.011, 0.008]^T$
-\end{itemize}
-
-Meskipun perbedaannya terlihat kecil dalam contoh sederhana ini, dalam graf kompleks dengan ratusan node dan koneksi yang heterogen (seperti jaringan PT Lare Osing Ndo), mekanisme atensi GAT memberikan keunggulan signifikan dengan:
-\begin{enumerate}
-    \item Memberikan bobot lebih tinggi pada jalur berkualitas tinggi
-    \item Secara adaptif mengabaikan jalur yang mengalami degradasi
-    \item Menangkap pola yang lebih kompleks dalam topologi jaringan
-\end{enumerate}
 
 \paragraph{Ekstesi ke Multi-Head Attention}
 
@@ -757,401 +1128,9 @@ Sedangkan untuk output layer, digunakan averaging:
 
 Contoh perhitungan ini mendemonstrasikan bagaimana GAT secara adaptif mempelajari kepentingan relatif dari setiap koneksi dalam jaringan, memungkinkan model untuk membuat keputusan routing yang lebih intelligent berdasarkan kondisi real-time dari topologi jaringan.
 
-\subsection{Analytic Hierarchy Process (AHP)}
 
-\textit{Analytic Hierarchy Process} (AHP) adalah metode pengambilan keputusan multikriteria yang dikembangkan oleh Thomas L. Saaty pada tahun 1970 \cite{saaty2008}. AHP dirancang untuk menangani masalah kompleks yang melibatkan berbagai kriteria dengan tingkat kepentingan yang berbeda-beda, dimana setiap alternatif memiliki preferensi yang bervariasi menurut masing-masing kriteria yang digunakan.
 
-Dalam konteks penelitian ini, AHP berperan krusial sebagai metode untuk \textbf{menentukan bobot prioritas fitur} yang valid berdasarkan preferensi pakar. Bobot yang dihasilkan AHP ($\mathbf{w}$) kemudian diintegrasikan ke dalam mekanisme \textit{rule-based scoring} untuk menghasilkan label kualitas jalur ($Q_{path}$) sebagai target pelatihan model GAT. Penggunaan AHP memastikan bahwa perhitungan skor matematis selaras dengan intuisi operasional dari pakar jaringan PT Lare Osing Ndo \cite{khan2020}.
-
-\subsubsection{Prinsip Dasar AHP}
-
-AHP dibangun di atas tiga prinsip fundamental yang menjamin validitas hasil keputusan:
-
-\begin{enumerate}
-    \item \textbf{Decomposition (Dekomposisi)}: Memecah masalah kompleks menjadi struktur hierarki yang terdiri dari tujuan, kriteria, dan alternatif yang lebih sederhana dan terukur.
-
-    \item \textbf{Comparative Judgement (Penilaian Komparatif)}: Melakukan perbandingan berpasangan (\textit{pairwise comparison}) antar elemen pada level hierarki yang sama untuk menentukan tingkat kepentingan relatif.
-
-    \item \textbf{Logical Consistency (Konsistensi Logis)}: Memastikan bahwa penilaian yang diberikan bersifat konsisten dan dapat diandalkan melalui pengujian rasio konsistensi.
-\end{enumerate}
-
-\subsubsection{Struktur Hierarki AHP}
-
-Struktur hierarki AHP disusun untuk memodelkan preferensi manajemen jaringan ke dalam bentuk bobot kuantitatif. Hasil akhir dari hierarki ini bukanlah pemilihan jalur secara langsung, melainkan seperangkat vektor bobot (\textit{weight vectors}) yang akan digunakan untuk menyusun \textit{ground truth} pada pelatihan model GAT.
-
-Struktur hierarki terdiri dari tiga level sebagai berikut:
-
-\begin{enumerate}
-    \item \textbf{Level 1 (Tujuan Utama)}: Menentukan bobot prioritas (\textit{Priority Weights}) dari setiap parameter penentu kualitas jalur.
-
-    \item \textbf{Level 2 (Kategori Kriteria)}: Pengelompokan parameter berdasarkan letaknya dalam struktur graf jaringan:
-    \begin{itemize}
-        \item \textbf{Kriteria Node}: Parameter yang mengukur kinerja perangkat (\textit{switch}).
-        \item \textbf{Kriteria Edge}: Parameter yang mengukur kualitas tautan (\textit{link}).
-    \end{itemize}
-
-    \item \textbf{Level 3 (Sub-Kriteria/Indikator)}: Parameter spesifik yang akan diberi bobot:
-    \begin{itemize}
-        \item \textbf{Sub-Kriteria Node (5 Parameter):}
-        \begin{enumerate}
-            \item \textbf{CPU Score}: Bobot kepentingan untuk ketersediaan CPU.
-            \item \textbf{RAM Score}: Bobot kepentingan untuk ketersediaan memori.
-            \item \textbf{Traffic Score}: Bobot kepentingan untuk volume trafik.
-            \item \textbf{Utilization Score}: Bobot kepentingan untuk kesibukan interface.
-            \item \textbf{Status Score}: Bobot kepentingan untuk status hidup/mati perangkat.
-        \end{enumerate}
-
-        \item \textbf{Sub-Kriteria Edge (7 Parameter):}
-        \begin{enumerate}
-            \item \textbf{Optical Link Quality Score}: Bobot kepentingan kualitas fisik optik.
-            \item \textbf{Error Rate Score}: Bobot kepentingan minimnya error transmisi.
-            \item \textbf{Packet Loss Score}: Bobot kepentingan reliabilitas pengiriman paket.
-            \item \textbf{Bandwidth Utilization}: Bobot kepentingan ketersediaan bandwidth.
-            \item \textbf{Interface Speed}: Bobot kepentingan kapasitas maksimum link.
-            \item \textbf{Distance}: Bobot kepentingan jarak fisik/logis.
-            \item \textbf{Link Status}: Bobot kepentingan status hidup/mati link.
-        \end{enumerate}
-    \end{itemize}
-\end{enumerate}
-
-Output dari proses hierarki ini adalah vektor bobot $\mathbf{w}_{node}$ dan $\mathbf{w}_{edge}$ yang kemudian diaplikasikan dalam persamaan komposit untuk menghasilkan label kualitas jalur ($Q_{path}$) sebagai target pembelajaran model GAT.
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.9\textwidth]{images/hirarki.png}
-    \caption{Struktur Hierarki AHP untuk Penentuan Bobot Parameter}
-    \label{fig:ahp_hierarchy}
-\end{figure}
-
-\subsubsection{Tahapan Metode AHP}
-
-Implementasi AHP dalam penelitian ini mengikuti lima tahapan sistematis yang dijelaskan sebagai berikut:
-
-\paragraph{1. Penyusunan Matriks Perbandingan Berpasangan}
-
-Tahap pertama adalah membuat matriks perbandingan berpasangan untuk kriteria-kriteria yang telah ditentukan. Setiap pasangan kriteria dibandingkan untuk menentukan tingkat kepentingan relatifnya berdasarkan skala Saaty 1-9.
-
-Matriks perbandingan berpasangan dapat dinyatakan sebagai:
-
-\begin{equation}
-    \mathbf{A} = \begin{bmatrix}
-        1 & a_{12} & a_{13} & \cdots & a_{1n} \\
-        1/a_{12} & 1 & a_{23} & \cdots & a_{2n} \\
-        1/a_{13} & 1/a_{23} & 1 & \cdots & a_{3n} \\
-        \vdots & \vdots & \vdots & \ddots & \vdots \\
-        1/a_{1n} & 1/a_{2n} & 1/a_{3n} & \cdots & 1
-    \end{bmatrix}
-\end{equation}
-
-\noindent
-Dengan:
-
-\begin{tabular}{ll}
-$\mathbf{A}$ & = matriks perbandingan berpasangan berukuran $n \times n$ \\
-$a_{ij}$ & = tingkat kepentingan kriteria $i$ terhadap kriteria $j$ \\
-$n$ & = jumlah kriteria yang dibandingkan
-\end{tabular}
-
-\noindent
-Matriks ini bersifat resiprokal, yang berarti:
-
-\begin{equation}
-    a_{ji} = \frac{1}{a_{ij}}
-\end{equation}
-
-\noindent
-Dengan:
-
-\begin{tabular}{ll}
-$a_{ji}$ & = tingkat kepentingan kriteria $j$ terhadap kriteria $i$
-\end{tabular}
-
-\noindent
-Sebagai contoh, jika optical link quality dinilai 3 kali lebih penting dari distance, maka:
-
-\begin{equation}
-    a_{optical,distance} = 3 \quad \text{dan} \quad a_{distance,optical} = \frac{1}{3}
-\end{equation}
-
-\noindent
-Dengan:
-
-\begin{tabular}{ll}
-$a_{optical,distance}$ & = tingkat kepentingan optical link quality terhadap distance \\
-$a_{distance,optical}$ & = tingkat kepentingan distance terhadap optical link quality
-\end{tabular}
-
-\noindent
-Skala perbandingan yang digunakan mengikuti standar Saaty seperti ditunjukkan pada Tabel \ref{tab:saaty_scale}.
-
-\begin{table}[H]
-\centering
-\caption{Skala Perbandingan Berpasangan Saaty}
-\label{tab:saaty_scale}
-\begin{tabular}{|c|l|}
-\hline
-\textbf{Nilai} & \textbf{Interpretasi} \\
-\hline
-1 & Kedua elemen sama pentingnya \\
-3 & Elemen pertama sedikit lebih penting dari elemen kedua \\
-5 & Elemen pertama lebih penting dari elemen kedua \\
-7 & Elemen pertama sangat lebih penting dari elemen kedua \\
-9 & Elemen pertama mutlak lebih penting dari elemen kedua \\
-2, 4, 6, 8 & Nilai antara untuk penilaian yang bersifat kompromistis \\
-\hline
-\end{tabular}
-\end{table}
-
-\paragraph{2. Normalisasi Matriks Perbandingan}
-
-Setelah matriks perbandingan disusun, langkah selanjutnya adalah melakukan normalisasi. Pertama, hitung total nilai setiap kolom:
-
-\begin{equation}
-    T_j = \sum_{i=1}^{n} a_{ij}
-\end{equation}
-
-\noindent
-Dengan:
-
-\begin{tabular}{ll}
-$T_j$ & = total nilai pada kolom ke-$j$ \\
-$a_{ij}$ & = elemen matriks pada baris ke-$i$ dan kolom ke-$j$ \\
-$n$ & = jumlah kriteria yang dibandingkan \\
-$i$ & = indeks baris ($i = 1, 2, \ldots, n$)
-\end{tabular}
-
-\noindent
-Kemudian, setiap elemen matriks dibagi dengan total kolomnya untuk mendapatkan matriks ternormalisasi:
-
-\begin{equation}
-    n_{ij} = \frac{a_{ij}}{T_j}
-\end{equation}
-
-\noindent
-Dengan:
-
-\begin{tabular}{ll}
-$n_{ij}$ & = elemen ternormalisasi pada baris $i$ dan kolom $j$ \\
-$a_{ij}$ & = elemen matriks asli pada baris $i$ dan kolom $j$ \\
-$T_j$ & = total nilai pada kolom ke-$j$
-\end{tabular}
-
-\paragraph{3. Perhitungan Vektor Prioritas dan Bobot}
-
-Dari matriks ternormalisasi, vektor prioritas (\textit{Priority Vector}, PV) dihitung dengan menjumlahkan nilai-nilai dalam setiap baris:
-
-\begin{equation}
-    PV_i = \sum_{j=1}^{n} n_{ij}
-\end{equation}
-
-\noindent
-Dengan:
-
-\begin{tabular}{ll}
-$PV_i$ & = vektor prioritas untuk kriteria ke-$i$ \\
-$n_{ij}$ & = elemen ternormalisasi pada baris $i$ dan kolom $j$ \\
-$n$ & = jumlah total kriteria yang dibandingkan \\
-$j$ & = indeks kolom ($j = 1, 2, \ldots, n$)
-\end{tabular}
-
-\noindent
-Selanjutnya, bobot akhir setiap kriteria diperoleh dengan menormalisasi vektor prioritas:
-
-\begin{equation}
-    w_i = \frac{PV_i}{n}
-\end{equation}
-
-\noindent
-Dengan:
-
-\begin{tabular}{ll}
-$w_i$ & = bobot akhir untuk kriteria ke-$i$ \\
-$PV_i$ & = vektor prioritas untuk kriteria ke-$i$ \\
-$n$ & = jumlah total kriteria yang dibandingkan
-\end{tabular}
-
-\noindent
-Bobot $w_i$ merepresentasikan tingkat kepentingan relatif dari kriteria $i$ terhadap keseluruhan kriteria, dan memenuhi kondisi:
-
-\begin{equation}
-    \sum_{i=1}^{n} w_i = 1
-\end{equation}
-
-\noindent
-Dengan:
-
-\begin{tabular}{ll}
-$\sum_{i=1}^{n} w_i$ & = jumlah total bobot seluruh kriteria (harus sama dengan 1)
-\end{tabular}
-
-\paragraph{4. Uji Konsistensi}
-
-Untuk memastikan bahwa perbandingan yang dilakukan konsisten dan dapat diandalkan, AHP menggunakan pengujian konsistensi. Pertama, hitung vektor konsistensi (\textit{Consistency Vector}) dengan mengalikan matriks perbandingan $\mathbf{A}$ dengan vektor bobot $\mathbf{w}$:
-
-\begin{equation}
-    CV_i = \sum_{j=1}^{n} a_{ij} \cdot w_j
-\end{equation}
-
-\noindent
-Dengan:
-
-\begin{tabular}{ll}
-$CV_i$ & = elemen ke-$i$ dari vektor konsistensi \\
-$a_{ij}$ & = elemen matriks perbandingan pada baris $i$ dan kolom $j$ \\
-$w_j$ & = bobot untuk kriteria ke-$j$ \\
-$n$ & = jumlah kriteria yang dibandingkan
-\end{tabular}
-
-\noindent
-Kemudian, hitung nilai eigen maksimum ($\lambda_{max}$) sebagai rata-rata dari rasio antara vektor konsistensi dengan bobot:
-
-\begin{equation}
-    \lambda_{max} = \frac{1}{n} \sum_{i=1}^{n} \frac{CV_i}{w_i}
-\end{equation}
-
-\noindent
-Dengan:
-
-\begin{tabular}{ll}
-$\lambda_{max}$ & = nilai eigen maksimum dari matriks perbandingan \\
-$CV_i$ & = elemen ke-$i$ dari vektor konsistensi \\
-$w_i$ & = bobot untuk kriteria ke-$i$ \\
-$n$ & = jumlah kriteria yang dibandingkan
-\end{tabular}
-
-\noindent
-Selanjutnya, hitung \textit{Consistency Index} (CI):
-
-\begin{equation}
-    CI = \frac{\lambda_{max} - n}{n - 1}
-\end{equation}
-
-\noindent
-Dengan:
-
-\begin{tabular}{ll}
-$CI$ & = Consistency Index (indeks konsistensi) \\
-$\lambda_{max}$ & = nilai eigen maksimum \\
-$n$ & = jumlah kriteria yang dibandingkan
-\end{tabular}
-
-\noindent
-Kemudian, hitung \textit{Consistency Ratio} (CR) dengan membandingkan CI terhadap \textit{Random Consistency Index} (RI):
-
-\begin{equation}
-    CR = \frac{CI}{RI}
-\end{equation}
-
-\noindent
-Dengan:
-
-\begin{tabular}{ll}
-$CR$ & = Consistency Ratio (rasio konsistensi) \\
-$CI$ & = Consistency Index \\
-$RI$ & = Random Consistency Index (indeks konsistensi acak)
-\end{tabular}
-
-\noindent
-Nilai RI bergantung pada jumlah kriteria yang dibandingkan, seperti ditunjukkan pada Tabel \ref{tab:random_index}.
-
-\begin{table}[H]
-\centering
-\caption{Nilai Random Consistency Index (RI)}
-\label{tab:random_index}
-\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|}
-\hline
-\textbf{n} & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 \\
-\hline
-\textbf{RI} & 0 & 0 & 0,58 & 0,90 & 1,12 & 1,24 & 1,32 & 1,41 & 1,45 \\
-\hline
-\end{tabular}
-\end{table}
-
-Matriks perbandingan dinyatakan konsisten jika:
-
-\begin{equation}
-    CR \leq 0,1
-\end{equation}
-
-\noindent
-Dengan:
-
-\begin{tabular}{ll}
-$0,1$ & = batas maksimum rasio konsistensi yang dapat diterima
-\end{tabular}
-
-\noindent
-Jika $CR > 0,1$, maka penilaian perbandingan perlu direvisi karena mengandung inkonsistensi yang signifikan.
-
-\paragraph{5. Contoh Perhitungan Numerik}
-
-Untuk memberikan ilustrasi konkret, berikut disajikan contoh perhitungan AHP untuk tiga kriteria edge: Optical Link Quality (O), Error Rate (E), dan Packet Loss (P).
-
-\textbf{Langkah 1: Matriks Perbandingan Berpasangan}
-
-Berdasarkan penilaian pakar:
-
-\begin{equation}
-    \mathbf{A} = \begin{bmatrix}
-        1 & 3 & 2 \\
-        1/3 & 1 & 1/2 \\
-        1/2 & 2 & 1
-    \end{bmatrix}
-\end{equation}
-
-\textbf{Langkah 2: Normalisasi Matriks}
-
-Hitung total kolom:
-\begin{equation}
-    T_1 = 1 + \frac{1}{3} + \frac{1}{2} = 1,833; \quad T_2 = 3 + 1 + 2 = 6; \quad T_3 = 2 + \frac{1}{2} + 1 = 3,5
-\end{equation}
-
-Matriks ternormalisasi:
-\begin{equation}
-    \mathbf{N} = \begin{bmatrix}
-        0,545 & 0,500 & 0,571 \\
-        0,182 & 0,167 & 0,143 \\
-        0,273 & 0,333 & 0,286
-    \end{bmatrix}
-\end{equation}
-
-\textbf{Langkah 3: Vektor Prioritas dan Bobot}
-
-\begin{align}
-    PV_1 &= 0,545 + 0,500 + 0,571 = 1,616 \quad \Rightarrow \quad w_1 = \frac{1,616}{3} = 0,539 \\
-    PV_2 &= 0,182 + 0,167 + 0,143 = 0,492 \quad \Rightarrow \quad w_2 = \frac{0,492}{3} = 0,164 \\
-    PV_3 &= 0,273 + 0,333 + 0,286 = 0,892 \quad \Rightarrow \quad w_3 = \frac{0,892}{3} = 0,297
-\end{align}
-
-Vektor bobot: $\mathbf{w} = [0,539; \; 0,164; \; 0,297]^T$
-
-\textbf{Langkah 4: Uji Konsistensi}
-
-Hitung vektor konsistensi:
-\begin{align}
-    CV_1 &= 1(0,539) + 3(0,164) + 2(0,297) = 1,625 \\
-    CV_2 &= \frac{1}{3}(0,539) + 1(0,164) + \frac{1}{2}(0,297) = 0,493 \\
-    CV_3 &= \frac{1}{2}(0,539) + 2(0,164) + 1(0,297) = 0,894
-\end{align}
-
-Hitung $\lambda_{max}$:
-\begin{equation}
-    \lambda_{max} = \frac{1}{3}\left(\frac{1,625}{0,539} + \frac{0,493}{0,164} + \frac{0,894}{0,297}\right) = \frac{1}{3}(3,015 + 3,006 + 3,010) = 3,010
-\end{equation}
-
-Hitung CI:
-\begin{equation}
-    CI = \frac{3,010 - 3}{3 - 1} = \frac{0,010}{2} = 0,005
-\end{equation}
-
-Hitung CR dengan $RI = 0,58$ untuk $n=3$:
-\begin{equation}
-    CR = \frac{0,005}{0,58} = 0,009 < 0,1 \quad \text{(Konsisten)}
-\end{equation}
-
-Karena $CR = 0,009 < 0,1$, maka matriks perbandingan konsisten dan bobot dapat digunakan.
-
-\subsubsection{Integrasi AHP dengan GAT}
+\subsection{Integrasi AHP dengan GAT}
 
 Dalam penelitian ini, AHP diintegrasikan dengan GAT melalui mekanisme \textit{Feature Weighting}. Bobot kriteria hasil AHP digunakan sebagai koefisien pengali dalam perhitungan skor kualitas jalur pada dataset pelatihan.
 
